@@ -1,0 +1,456 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String?
+  avatar        String?
+  role          String         @default("USER")
+  inn           String?
+  phone         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  downloads     Download[]
+  ratings       Rating[]
+  posts         Post[]
+  portfolio     PortfolioItem[]
+  postLikes     PostLike[]
+  comments      Comment[]
+  company       Company?       @relation(fields: [companyId], references: [id])
+  companyId     String?
+  specialist    Specialist?    @relation(fields: [specialistId], references: [id])
+  specialistId  String?   @unique
+  manufacturer  Manufacturer?  @relation(fields: [manufacturerId], references: [id])
+  manufacturerId String?
+  supplier      Supplier?      @relation(fields: [supplierId], references: [id])
+  supplierId    String?
+  following     Follow[]       @relation("Following")
+  followers     Follow[]       @relation("Followers")
+  notifications Notification[]
+  sentNotifications Notification[] @relation("NotificationFrom")
+  favorites     Favorite[]
+  conversations ConversationParticipant[]
+  sentMessages  Message[]
+  ownedGroups   Group[]
+  groupMemberships GroupMember[]
+  groupPosts    GroupPost[]
+  bookmarks     Bookmark[]
+  reposts       Repost[]
+  organizedEvents Event[]
+  eventParticipations EventParticipant[]
+  productReviews ProductReview[]
+}
+
+model Specialist {
+  id            String          @id @default(cuid())
+  type          String
+  description   String?
+  experience    Int?
+  portfolio     String?
+  rating        Float           @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user          User?
+  ratings       Rating[]
+}
+
+model Company {
+  id            String          @id @default(cuid())
+  name          String
+  description   String?
+  logo          String?
+  website       String?
+  phone         String?
+  email         String?
+  address       String?
+  isVerified    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  users         User[]
+  products      Product[]
+  posts         Post[]
+}
+
+model Supplier {
+  id            String          @id @default(cuid())
+  companyName   String
+  description   String?
+  logo          String?
+  website       String?
+  phone         String?
+  email         String?
+  categories    String          @default("[]")
+  isVerified    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  products      Product[]
+  users         User[]
+  posts         Post[]
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  name          String
+  description   String?
+  price         Float?
+  images        String          @default("[]")
+  category      String
+  brand         String?
+  specs         String          @default("[]")
+  isPublished   Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  company       Company?        @relation(fields: [companyId], references: [id])
+  companyId     String?
+  supplier      Supplier?       @relation(fields: [supplierId], references: [id])
+  supplierId    String?
+  reviews       ProductReview[]
+}
+
+model ProductReview {
+  id            String          @id @default(cuid())
+  score         Int
+  comment       String?
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     String
+
+  @@unique([userId, productId])
+}
+
+model Image {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  url           String
+  thumbnail     String?
+  style         String?
+  category      String?
+  tags          String          @default("[]")
+  downloads     Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  downloadsList Download[]
+}
+
+model Download {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  image         Image           @relation(fields: [imageId], references: [id])
+  imageId       String
+}
+
+model Document {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  fileUrl       String
+  category      String
+  fileType      String
+  downloads     Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Reference {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  content       String
+  category      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Manufacturer {
+  id            String          @id @default(cuid())
+  name          String
+  description   String?
+  logo          String?
+  website       String?
+  phone         String?
+  email         String?
+  address       String?
+  capabilities  String          @default("[]")
+  geometry      String?
+  isVerified    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  users         User[]
+}
+
+model Rating {
+  id            String          @id @default(cuid())
+  score         Int
+  comment       String?
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  specialist    Specialist      @relation(fields: [specialistId], references: [id])
+  specialistId  String
+
+  @@unique([userId, specialistId])
+}
+
+model Post {
+  id            String          @id @default(cuid())
+  title         String
+  content       String
+  category      String          @default("news")
+  images        String          @default("[]")
+  tags          String          @default("[]")
+  likes         Int             @default(0)
+  views         Int             @default(0)
+  isPublished   Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  author        User            @relation(fields: [authorId], references: [id])
+  authorId      String
+  company       Company?        @relation(fields: [companyId], references: [id])
+  companyId     String?
+  supplier      Supplier?       @relation(fields: [supplierId], references: [id])
+  supplierId    String?
+  comments      Comment[]
+  likesList     PostLike[]
+  reposts       Repost[]
+}
+
+model PortfolioItem {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  imageUrl      String?
+  images        String          @default("[]")
+  category      String?
+  tags          String          @default("[]")
+  isPublished   Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+}
+
+model Comment {
+  id            String          @id @default(cuid())
+  content       String
+  createdAt     DateTime        @default(now())
+
+  author        User            @relation(fields: [authorId], references: [id])
+  authorId      String
+  post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId        String
+}
+
+model PostLike {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  post          Post            @relation(fields: [postId], references: [id])
+  postId        String
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+
+  follower      User            @relation("Following", fields: [followerId], references: [id])
+  followerId    String
+  following     User            @relation("Followers", fields: [followingId], references: [id])
+  followingId   String
+
+  @@unique([followerId, followingId])
+}
+
+model Notification {
+  id            String         @id @default(cuid())
+  type          String
+  message       String
+  read          Boolean        @default(false)
+  link          String?
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  fromUser      User?          @relation("NotificationFrom", fields: [fromUserId], references: [id])
+  fromUserId    String?
+  postId        String?
+}
+
+model Favorite {
+  id            String         @id @default(cuid())
+  itemType      String
+  itemId        String
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+
+  @@unique([userId, itemType, itemId])
+}
+
+model Conversation {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  participants  ConversationParticipant[]
+  messages      Message[]
+}
+
+model ConversationParticipant {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  conversation  Conversation   @relation(fields: [conversationId], references: [id])
+  conversationId String
+  lastReadAt    DateTime?
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id            String         @id @default(cuid())
+  content       String
+  createdAt     DateTime       @default(now())
+
+  author        User           @relation(fields: [authorId], references: [id])
+  authorId      String
+  conversation  Conversation   @relation(fields: [conversationId], references: [id])
+  conversationId String
+}
+
+model Group {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  coverImage    String?
+  type          String         @default("public")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  owner         User           @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  members       GroupMember[]
+  posts         GroupPost[]
+}
+
+model GroupMember {
+  id            String         @id @default(cuid())
+  role          String         @default("member")
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       String
+
+  @@unique([userId, groupId])
+}
+
+model GroupPost {
+  id            String         @id @default(cuid())
+  content       String
+  images        String         @default("[]")
+  createdAt     DateTime       @default(now())
+
+  author        User           @relation(fields: [authorId], references: [id])
+  authorId      String
+  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       String
+}
+
+model Bookmark {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  items         BookmarkItem[]
+}
+
+model BookmarkItem {
+  id            String         @id @default(cuid())
+  itemType      String
+  itemId        String
+  createdAt     DateTime       @default(now())
+
+  bookmark      Bookmark       @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  bookmarkId    String
+
+  @@unique([bookmarkId, itemType, itemId])
+}
+
+model Repost {
+  id            String         @id @default(cuid())
+  comment       String?
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId        String
+
+  @@unique([userId, postId])
+}
+
+model Event {
+  id            String         @id @default(cuid())
+  title         String
+  description   String?
+  coverImage    String?
+  location      String?
+  startDate     DateTime
+  endDate       DateTime?
+  type          String         @default("offline")
+  maxParticipants Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  organizer     User           @relation(fields: [organizerId], references: [id])
+  organizerId   String
+  participants  EventParticipant[]
+}
+
+model EventParticipant {
+  id            String         @id @default(cuid())
+  status        String         @default("going")
+  createdAt     DateTime       @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String
+  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId       String
+
+  @@unique([userId, eventId])
+}

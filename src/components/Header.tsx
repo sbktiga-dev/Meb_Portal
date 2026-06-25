@@ -82,7 +82,7 @@ export default function Header() {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'glass shadow-glass' : 'bg-white/95 backdrop-blur-sm'}`}>
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 md:h-16">
+        <div className="flex items-center justify-between h-14 md:h-16 gap-3">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
               <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -95,14 +95,14 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
+          <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center overflow-x-auto scrollbar-hide">
             {navLinks.map(link => {
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                  className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'bg-brand-50 text-brand-600'
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
@@ -136,10 +136,10 @@ export default function Header() {
                       </div>
                     ) : (
                       <div className="w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                        {(user.name || user.email).charAt(0).toUpperCase()}
+                        {(user.name || '?').charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-sm font-medium text-gray-600 max-w-[100px] truncate hidden xl:block">{user.name || user.email.split('@')[0]}</span>
+                    <span className="text-sm font-medium text-gray-600 max-w-[100px] truncate hidden xl:block">{user.name || 'Пользователь'}</span>
                     <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-150 ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
@@ -155,7 +155,7 @@ export default function Header() {
                             </div>
                           ) : (
                             <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {(user.name || user.email).charAt(0).toUpperCase()}
+                              {(user.name || '?').charAt(0).toUpperCase()}
                             </div>
                           )}
                           <div>
@@ -216,7 +216,7 @@ export default function Header() {
             </div>
             <nav className="space-y-1">
               {navLinks.map(link => {
-                const isActive = pathname === link.href;
+                const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
                 return (
                   <Link
                     key={link.href}

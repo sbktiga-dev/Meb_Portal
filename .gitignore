@@ -38,6 +38,10 @@ prisma/dev.db-journal
 _db_*.py
 _new_memory.md
 check-db.js
+*.txt
+
+# uploads
+public/uploads/*
 
 # vercel
 .vercel

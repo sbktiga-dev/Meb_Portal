@@ -15,14 +15,18 @@ export default function NewPortfolioPage() {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
+  const MAX_IMAGES = 10;
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
+    const remaining = MAX_IMAGES - images.length;
+    if (remaining <= 0) { setError('Максимум 10 изображений'); return; }
+    const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     try {
       const newImages: string[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (const file of toUpload) {
         const formData = new FormData();
         formData.append('file', file);
         const token = localStorage.getItem('token');

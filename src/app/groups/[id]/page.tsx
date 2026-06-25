@@ -85,6 +85,7 @@ export default function GroupDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      if (!res.ok) return;
       setIsMember(data.joined);
       setGroup(prev => prev ? { ...prev, _count: { ...prev._count, members: prev._count.members + (data.joined ? 1 : -1) } } : prev);
     } finally {

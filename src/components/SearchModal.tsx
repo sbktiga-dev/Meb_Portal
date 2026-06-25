@@ -133,7 +133,7 @@ export default function SearchModal() {
                               {user.name?.charAt(0) || '?'}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{user.name || user.email}</p>
+                              <p className="text-sm font-medium text-gray-900 truncate">{user.name || 'Пользователь'}</p>
                               <p className="text-xs text-gray-400">{user.role}</p>
                             </div>
                           </button>

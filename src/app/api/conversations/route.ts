@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           include: {
             participants: {
               include: {
-                user: { select: { id: true, name: true, avatar: true, email: true } },
+                user: { select: { id: true, name: true, avatar: true } },
               },
             },
             messages: {
@@ -36,17 +36,31 @@ export async function GET(request: Request) {
       orderBy: { conversation: { updatedAt: 'desc' } },
     });
 
-    const conversations = participations.map((p) => ({
-      ...p.conversation,
-      otherUser: p.conversation.participants
-        .find((pp) => pp.userId !== user.id)?.user,
-      lastMessage: p.conversation.messages[0] || null,
-      unread: p.lastReadAt
-        ? p.conversation.messages.filter(
-            (m) => m.authorId !== user.id && new Date(m.createdAt) > new Date(p.lastReadAt!)
-          ).length
-        : p.conversation.messages.filter((m) => m.authorId !== user.id).length,
-    }));
+    const conversationIds = participations.map(p => p.conversationId);
+    const unreadResults = await prisma.message.groupBy({
+      by: ['conversationId'],
+      where: {
+        conversationId: { in: conversationIds },
+        authorId: { not: user.id },
+      },
+      _count: true,
+    });
+    const unreadMap = new Map(unreadResults.map(r => [r.conversationId, r._count]));
+
+    const conversations = participations.map((p) => {
+      const totalUnread = unreadMap.get(p.conversationId) || 0;
+      const unreadCount = p.lastReadAt
+        ? Math.max(0, totalUnread - 0)
+        : totalUnread;
+
+      return {
+        ...p.conversation,
+        otherUser: p.conversation.participants
+          .find((pp) => pp.userId !== user.id)?.user,
+        lastMessage: p.conversation.messages[0] || null,
+        unread: unreadCount,
+      };
+    });
 
     return NextResponse.json({ conversations });
   } catch {
@@ -87,7 +101,7 @@ export async function POST(request: Request) {
       },
       include: {
         participants: {
-          include: { user: { select: { id: true, name: true, avatar: true, email: true } } },
+          include: { user: { select: { id: true, name: true, avatar: true } } },
         },
       },
     });
@@ -107,7 +121,7 @@ export async function POST(request: Request) {
       },
       include: {
         participants: {
-          include: { user: { select: { id: true, name: true, avatar: true, email: true } } },
+          include: { user: { select: { id: true, name: true, avatar: true } } },
         },
       },
     });

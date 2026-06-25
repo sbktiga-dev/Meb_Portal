@@ -66,16 +66,19 @@ export async function POST(request: Request) {
       where: { userId: payload.userId, imageId },
     });
 
-    if (!existing) {
-      await prisma.download.create({
-        data: { userId: payload.userId, imageId },
-      });
+    if (existing) {
+      return NextResponse.json({ success: true, url: image.url });
+    }
 
-      await prisma.image.update({
+    await prisma.$transaction([
+      prisma.download.create({
+        data: { userId: payload.userId, imageId },
+      }),
+      prisma.image.update({
         where: { id: imageId },
         data: { downloads: { increment: 1 } },
-      });
-    }
+      }),
+    ]);
 
     return NextResponse.json({ success: true, url: image.url });
   } catch (error) {

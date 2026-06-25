@@ -14,6 +14,9 @@ interface HotkeyConfig {
 
 export function useHotkeys(hotkeys: HotkeyConfig[]) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+
     for (const hotkey of hotkeys) {
       const ctrlMatch = hotkey.ctrl ? (e.ctrlKey || e.metaKey) : !(e.ctrlKey || e.metaKey);
       const shiftMatch = hotkey.shift ? e.shiftKey : !e.shiftKey;

@@ -5,7 +5,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const item = await prisma.portfolioItem.findUnique({
       where: { id: params.id },
-      include: { user: { select: { id: true, name: true, email: true } } },
+      include: { user: { select: { id: true, name: true } } },
     });
 
     if (!item) {
@@ -52,7 +52,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         ...(category !== undefined && { category: category || null }),
         ...(tags !== undefined && { tags: JSON.stringify(tags) }),
       },
-      include: { user: { select: { id: true, name: true, email: true } } },
+      include: { user: { select: { id: true, name: true } } },
     });
 
     return NextResponse.json({ item: updated });

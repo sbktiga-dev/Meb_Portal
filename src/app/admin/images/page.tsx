@@ -18,6 +18,7 @@ export default function AdminImagesPage() {
   const [uploading, setUploading] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [form, setForm] = useState({ title: '', style: '', category: '', tags: '' });
+  const [error, setError] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function AdminImagesPage() {
         setShowUpload(false);
       }
     } catch {
-      alert('Ошибка загрузки');
+      setError('Ошибка загрузки');
     } finally {
       setUploading(false);
     }

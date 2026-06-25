@@ -95,9 +95,13 @@ export default function ImageDetailPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <div className="card-base overflow-hidden">
-              <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 aspect-[16/10] flex items-center justify-center">
-                <svg className="w-24 h-24 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-              </div>
+              {image.url ? (
+                <img src={image.url} alt={image.title} className="w-full h-auto object-contain bg-gray-50" />
+              ) : (
+                <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 aspect-[16/10] flex items-center justify-center">
+                  <svg className="w-24 h-24 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                </div>
+              )}
             </div>
           </div>
 

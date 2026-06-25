@@ -48,6 +48,7 @@ export default function FeedPage() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [repostedPosts, setRepostedPosts] = useState<Set<string>>(new Set());
   const [authorId, setAuthorId] = useState<string | null>(null);
+  const [feedError, setFeedError] = useState<string | null>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,8 +79,12 @@ export default function FeedPage() {
         setPosts(newPosts);
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
+      setFeedError(null);
     } catch {
-      if (!append) setPosts([]);
+      if (!append) {
+        setPosts([]);
+        setFeedError('Не удалось загрузить ленту. Попробуйте обновить страницу.');
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -135,7 +140,9 @@ export default function FeedPage() {
           _count: { ...p._count, likesList: p._count.likesList + (data.liked ? 1 : -1) },
         } : p));
       }
-    } catch {}
+    } catch {
+      // Like failed silently — UI state already reverted via setLikedPosts
+    }
   };
 
   const handleRepost = async (postId: string, e: React.MouseEvent) => {
@@ -155,7 +162,9 @@ export default function FeedPage() {
           return next;
         });
       }
-    } catch {}
+    } catch {
+      // Repost failed silently
+    }
   };
 
   return (
@@ -212,6 +221,14 @@ export default function FeedPage() {
 
         {loading ? (
           <SkeletonFeed count={3} />
+        ) : feedError ? (
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 flex items-center justify-center">
+              <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{feedError}</h3>
+            <button onClick={() => { setFeedError(null); fetchPosts(1, false); }} className="btn-primary mt-4">Попробовать снова</button>
+          </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">

@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const sort = searchParams.get('sort') || 'newest';
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100);
     const authorId = searchParams.get('authorId');
 
     const where: Record<string, unknown> = { isPublished: true };
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
         take: limit,
         orderBy,
         include: {
-          author: { select: { id: true, name: true, email: true } },
+          author: { select: { id: true, name: true } },
           _count: { select: { comments: true, likesList: true } },
         },
       }),
@@ -78,16 +78,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Слишком много постов. Подождите 5 минут.' }, { status: 429 });
     }
 
+    const allowedCategories = ['news', 'project', 'article', 'product'];
+    const validCategory = allowedCategories.includes(category) ? category : 'news';
+
+    const validImages = Array.isArray(images)
+      ? images.filter((img: unknown) => {
+          if (typeof img !== 'string') return false;
+          if (img.startsWith('/uploads/')) return true;
+          try {
+            const url = new URL(img);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+          } catch {
+            return false;
+          }
+        }).slice(0, 10)
+      : [];
+    const validTags = Array.isArray(tags)
+      ? tags.filter((t: unknown) => typeof t === 'string' && t.length <= 50).slice(0, 20)
+      : [];
+
     const post = await prisma.post.create({
       data: {
         title: sanitizeInput(title),
         content: sanitizeInput(content),
-        category: category || 'news',
-        images: JSON.stringify(images || []),
-        tags: JSON.stringify(tags || []),
+        category: validCategory,
+        images: JSON.stringify(validImages),
+        tags: JSON.stringify(validTags),
         authorId: user.id,
       },
-      include: { author: { select: { id: true, name: true, email: true } } },
+      include: { author: { select: { id: true, name: true } } },
     });
 
     return NextResponse.json({ post }, { status: 201 });

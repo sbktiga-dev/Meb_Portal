@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserFromToken } from '@/lib/auth';
+import { sanitizeInput } from '@/lib/validation';
+
+const MAX_COMMENT_LENGTH = 2000;
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -8,7 +12,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const { getUserFromToken } = await import('@/lib/auth');
     const token = authHeader.split(' ')[1];
     const user = await getUserFromToken(token);
     if (!user) {
@@ -18,12 +21,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const body = await request.json();
     const { content } = body;
 
-    if (!content) {
+    if (!content?.trim()) {
       return NextResponse.json({ error: 'Комментарий не может быть пустым' }, { status: 400 });
     }
 
+    const sanitized = sanitizeInput(content.trim());
+    if (sanitized.length > MAX_COMMENT_LENGTH) {
+      return NextResponse.json({ error: `Комментарий не может превышать ${MAX_COMMENT_LENGTH} символов` }, { status: 400 });
+    }
+
     const comment = await prisma.comment.create({
-      data: { content, authorId: user.id, postId: params.id },
+      data: { content: sanitized, authorId: user.id, postId: params.id },
       include: { author: { select: { id: true, name: true } } },
     });
 

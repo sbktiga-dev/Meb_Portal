@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -24,6 +24,14 @@ export default function RegisterPage() {
       if (!res.ok) { setError(data.error || 'Ошибка регистрации'); return; }
       localStorage.setItem('token', data.token);
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+
+      try {
+        await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+      } catch {}
+
       window.location.href = '/dashboard';
     } catch {
       setError('Ошибка сети');

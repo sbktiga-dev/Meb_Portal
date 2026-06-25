@@ -1,14 +1,22 @@
-﻿'use client';
+'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      setSuccess('Email подтверждён! Теперь вы можете войти.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +41,49 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="bg-white rounded-2xl shadow-card p-8">
+      {success && (
+        <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
+          {success}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+          <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-premium" placeholder="you@example.com" />
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-semibold text-gray-700">Пароль</label>
+            <Link href="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700 font-medium">Забыли пароль?</Link>
+          </div>
+          <input type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="input-premium" placeholder="••••••••" />
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5">
+          {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Войти'}
+        </button>
+      </form>
+
+      <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+        <p className="text-sm text-gray-500">
+          Нет аккаунта?{' '}
+          <Link href="/register" className="text-brand-600 hover:text-brand-700 font-semibold">Зарегистрироваться</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 relative">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-brand-100/40 rounded-full blur-3xl" />
@@ -51,36 +102,9 @@ export default function LoginPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Добро пожаловать</h1>
           <p className="text-gray-500 mt-2">Войдите в свой аккаунт</p>
         </div>
-
-        <div className="bg-white rounded-2xl shadow-card p-8">
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-              <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-premium" placeholder="you@example.com" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Пароль</label>
-              <input type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="input-premium" placeholder="••••••••" />
-            </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5">
-              {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Войти'}
-            </button>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-500">
-              Нет аккаунта?{' '}
-              <Link href="/register" className="text-brand-600 hover:text-brand-700 font-semibold">Зарегистрироваться</Link>
-            </p>
-          </div>
-        </div>
+        <Suspense fallback={<div className="bg-white rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );

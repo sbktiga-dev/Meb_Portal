@@ -81,7 +81,7 @@ export default function MessagesPage() {
                   </div>
                   {conv.lastMessage && (
                     <p className="text-sm text-gray-500 truncate mt-0.5">
-                      {conv.lastMessage.author.name}: {conv.lastMessage.content}
+                      {conv.lastMessage.author.name || 'Пользователь'}: {conv.lastMessage.content}
                     </p>
                   )}
                 </div>

@@ -48,6 +48,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Название обязательно' }, { status: 400 });
     }
 
+    if (name.trim().length > 100) {
+      return NextResponse.json({ error: 'Название не может превышать 100 символов' }, { status: 400 });
+    }
+
     const bookmark = await prisma.bookmark.create({
       data: {
         name: name.trim(),

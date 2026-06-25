@@ -85,12 +85,14 @@ export default function NotificationsDropdown() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await fetch(`/api/notifications/${id}/read`, {
+      const res = await fetch(`/api/notifications/${id}/read`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-      setUnread(prev => Math.max(0, prev - 1));
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        setUnread(prev => Math.max(0, prev - 1));
+      }
     } catch {}
   };
 

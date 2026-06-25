@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
     const category = searchParams.get('category');
 
     const where: Record<string, unknown> = { isPublished: true };
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, name: true } } },
       }),
       prisma.portfolioItem.count({ where }),
     ]);
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
         tags: JSON.stringify(tags || []),
         userId: user.id,
       },
-      include: { user: { select: { id: true, name: true, email: true } } },
+      include: { user: { select: { id: true, name: true } } },
     });
 
     return NextResponse.json({ item }, { status: 201 });

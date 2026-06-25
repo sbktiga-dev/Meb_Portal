@@ -15,6 +15,10 @@ export default function DashboardSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [notifyDocs, setNotifyDocs] = useState(true);
+  const [notifyImages, setNotifyImages] = useState(true);
+  const [notifyNewsletter, setNotifyNewsletter] = useState(false);
+  const [savingPrefs, setSavingPrefs] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -101,8 +105,22 @@ export default function DashboardSettingsPage() {
 
   const handleDeleteAccount = async () => {
     if (!confirm('Вы уверены? Это действие необратимо.')) return;
-    // TODO: implement account deletion
-    alert('Функция удаления аккаунта будет доступна позже');
+    setMessage('Функция удаления аккаунта будет доступна позже');
+    setMessageType('error');
+  };
+
+  const handleSaveNotifications = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setSavingPrefs(true);
+    try {
+      await fetch('/api/auth/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ notificationPrefs: { notifyDocs, notifyImages, notifyNewsletter } }),
+      });
+    } catch {}
+    setSavingPrefs(false);
   };
 
   return (
@@ -193,17 +211,20 @@ export default function DashboardSettingsPage() {
             <div className="space-y-3">
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-gray-700">Email-уведомления о новых документах</span>
-                <input type="checkbox" defaultChecked className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <input type="checkbox" checked={notifyDocs} onChange={e => setNotifyDocs(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-gray-700">Уведомления о новых изображениях</span>
-                <input type="checkbox" defaultChecked className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <input type="checkbox" checked={notifyImages} onChange={e => setNotifyImages(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-gray-700">Рассылка новостей платформы</span>
-                <input type="checkbox" className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <input type="checkbox" checked={notifyNewsletter} onChange={e => setNotifyNewsletter(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
               </label>
             </div>
+            <button onClick={handleSaveNotifications} disabled={savingPrefs} className="mt-4 btn-secondary text-sm">
+              {savingPrefs ? 'Сохранение...' : 'Сохранить настройки'}
+            </button>
           </div>
 
           {/* Опасная зона */}

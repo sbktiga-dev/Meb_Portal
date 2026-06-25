@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const sort = searchParams.get('sort') || 'newest';
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100);
     const authorId = searchParams.get('authorId');
     const filter = searchParams.get('filter');
 
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         take: limit,
         orderBy,
         include: {
-          author: { select: { id: true, name: true, email: true, avatar: true } },
+          author: { select: { id: true, name: true, avatar: true } },
           _count: { select: { comments: true, likesList: true } },
         },
       }),

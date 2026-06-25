@@ -8,7 +8,7 @@ export async function GET(
   try {
     const specialist = await prisma.specialist.findUnique({
       where: { id: params.id },
-      include: { user: { select: { id: true, name: true, email: true, phone: true, avatar: true } } },
+      include: { user: { select: { id: true, name: true, avatar: true } } },
     });
 
     if (!specialist) {

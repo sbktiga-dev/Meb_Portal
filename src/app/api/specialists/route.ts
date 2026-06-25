@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const type = searchParams.get('type');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
     const where: Record<string, unknown> = {};
     if (type) where.type = type;
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        include: { user: { select: { name: true, email: true } } },
+        include: { user: { select: { name: true } } },
         orderBy,
       }),
       prisma.specialist.count({ where }),

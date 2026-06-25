@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -213,11 +213,11 @@ export default function AdminPage() {
                           <img src={u.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            {(u.name || u.email).charAt(0).toUpperCase()}
+                            {(u.name || '?').charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{u.name || u.email.split('@')[0]}</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{u.name || 'Пользователь'}</p>
                           <p className="text-xs text-gray-400">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</p>
                         </div>
                         {u.role === 'ADMIN' && <span className="badge-brand text-[10px]">Admin</span>}

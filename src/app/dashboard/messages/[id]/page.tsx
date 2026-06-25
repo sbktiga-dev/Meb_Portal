@@ -29,6 +29,7 @@ export default function ChatPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,14 +39,32 @@ export default function ChatPage() {
       .then(r => r.json())
       .then(d => { if (d.user) setCurrentUserId(d.user.id); });
 
+    fetch(`/api/conversations/${params.id}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => {
+        if (d.conversation) {
+          const other = d.conversation.participants?.find((p: { user: { id: string } }) => p.user?.id !== d.conversation.participants.find((pp: { userId: string }) => true)?.userId);
+          if (other?.user) setOtherUser(other.user);
+        }
+      })
+      .catch(() => {});
+
     fetchMessages(token);
     const interval = setInterval(() => fetchMessages(token), 5000);
     return () => clearInterval(interval);
   }, [params.id, router]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (shouldAutoScroll.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    shouldAutoScroll.current = nearBottom;
+  };
 
   const fetchMessages = async (token: string) => {
     try {
@@ -55,11 +74,6 @@ export default function ChatPage() {
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages);
-        if (data.messages.length > 0) {
-          const lastMsg = data.messages[data.messages.length - 1];
-          const other = lastMsg.author.id !== currentUserId ? lastMsg.author : null;
-          if (other && !otherUser) setOtherUser(other as OtherUser);
-        }
       }
     } catch {} finally { setLoading(false); }
   };
@@ -118,7 +132,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="flex-1 overflow-y-auto py-4" onScroll={handleScroll}>
         <div className="max-w-2xl mx-auto px-4 space-y-4">
           {messages.map((msg) => {
             const isMine = msg.author.id === currentUserId;

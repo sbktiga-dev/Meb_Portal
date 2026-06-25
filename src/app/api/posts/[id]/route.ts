@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sanitizeInput, validatePostTitle, validatePostContent } from '@/lib/validation';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const post = await prisma.post.findUnique({
       where: { id: params.id },
       include: {
-        author: { select: { id: true, name: true, email: true, avatar: true } },
+        author: { select: { id: true, name: true, avatar: true } },
         comments: {
           include: { author: { select: { id: true, name: true, avatar: true } } },
           orderBy: { createdAt: 'desc' },
@@ -52,16 +53,43 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const body = await request.json();
     const { title, content, category, images, tags } = body;
 
+    const updateData: Record<string, unknown> = {};
+
+    if (title !== undefined) {
+      const titleCheck = validatePostTitle(title);
+      if (!titleCheck.valid) return NextResponse.json({ error: titleCheck.error }, { status: 400 });
+      updateData.title = sanitizeInput(title);
+    }
+    if (content !== undefined) {
+      const contentCheck = validatePostContent(content);
+      if (!contentCheck.valid) return NextResponse.json({ error: contentCheck.error }, { status: 400 });
+      updateData.content = sanitizeInput(content);
+    }
+    if (category !== undefined) {
+      const allowed = ['news', 'project', 'article', 'product'];
+      updateData.category = allowed.includes(category) ? category : 'news';
+    }
+    if (images !== undefined) {
+      const validImages = Array.isArray(images)
+        ? images.filter((img: unknown) => {
+            if (typeof img !== 'string') return false;
+            if (img.startsWith('/uploads/')) return true;
+            try { const u = new URL(img); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
+          }).slice(0, 10)
+        : [];
+      updateData.images = JSON.stringify(validImages);
+    }
+    if (tags !== undefined) {
+      const validTags = Array.isArray(tags)
+        ? tags.filter((t: unknown) => typeof t === 'string' && t.length <= 50).slice(0, 20)
+        : [];
+      updateData.tags = JSON.stringify(validTags);
+    }
+
     const updated = await prisma.post.update({
       where: { id: params.id },
-      data: {
-        ...(title !== undefined && { title }),
-        ...(content !== undefined && { content }),
-        ...(category !== undefined && { category }),
-        ...(images !== undefined && { images: JSON.stringify(images) }),
-        ...(tags !== undefined && { tags: JSON.stringify(tags) }),
-      },
-      include: { author: { select: { id: true, name: true, email: true } } },
+      data: updateData,
+      include: { author: { select: { id: true, name: true } } },
     });
 
     return NextResponse.json({ post: updated });

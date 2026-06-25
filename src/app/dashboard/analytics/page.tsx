@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
         ]);
 
         const posts = postsData.posts || [];
-        const portfolio = portfolioData.portfolio || [];
+        const portfolio = portfolioData.items || [];
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 

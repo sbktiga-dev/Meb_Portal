@@ -18,11 +18,13 @@ export default function NewPostPage() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
+    const remaining = 10 - images.length;
+    if (remaining <= 0) { setError('Максимум 10 изображений'); return; }
+    const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     try {
       const newImages: string[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (const file of toUpload) {
         const formData = new FormData();
         formData.append('file', file);
         const token = localStorage.getItem('token');
@@ -32,8 +34,8 @@ export default function NewPostPage() {
           body: formData,
         });
         const data = await res.json();
-        if (res.ok && data.image?.url) {
-          newImages.push(data.image.url);
+        if (res.ok && data.url) {
+          newImages.push(data.url);
         }
       }
       setImages(prev => [...prev, ...newImages]);

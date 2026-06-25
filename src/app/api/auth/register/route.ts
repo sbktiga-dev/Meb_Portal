@@ -30,19 +30,21 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
+    const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
+    const userRole = (body.role && allowedRoles.includes(body.role)) ? body.role : 'USER';
+
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name: name || null,
-        role: body.role || 'USER',
+        role: userRole,
         inn: body.inn || null,
       },
       select: { id: true, email: true, name: true, role: true, inn: true },
     });
 
     let businessId: string | null = null;
-    const userRole = body.role || 'USER';
 
     if (userRole === 'COMPANY') {
       const company = await prisma.company.create({

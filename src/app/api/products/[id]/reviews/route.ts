@@ -30,14 +30,19 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const body = await request.json();
     const { score, comment } = body;
 
-    if (!score || score < 1 || score > 5) {
-      return NextResponse.json({ error: 'Оценка от 1 до 5' }, { status: 400 });
+    if (typeof score !== 'number' || !Number.isInteger(score) || score < 1 || score > 5) {
+      return NextResponse.json({ error: 'Оценка должна быть целым числом от 1 до 5' }, { status: 400 });
+    }
+
+    const trimmedComment = comment?.trim() || null;
+    if (trimmedComment && trimmedComment.length > 2000) {
+      return NextResponse.json({ error: 'Комментарий не может превышать 2000 символов' }, { status: 400 });
     }
 
     const review = await prisma.productReview.create({
       data: {
         score: Math.round(score),
-        comment: comment?.trim() || null,
+        comment: trimmedComment,
         userId: user.id,
         productId: params.id,
       },

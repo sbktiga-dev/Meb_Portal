@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          author: { select: { id: true, name: true, email: true, avatar: true } },
+          author: { select: { id: true, name: true, avatar: true } },
           _count: { select: { comments: true, likesList: true } },
         },
       }),
@@ -63,8 +63,17 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { postId, isPublished } = body;
 
-    if (!postId) {
+    if (!postId || typeof postId !== 'string') {
       return NextResponse.json({ error: 'postId обязателен' }, { status: 400 });
+    }
+
+    if (typeof isPublished !== 'boolean') {
+      return NextResponse.json({ error: 'isPublished должен быть boolean' }, { status: 400 });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
     }
 
     await prisma.post.update({
@@ -96,6 +105,11 @@ export async function DELETE(request: Request) {
 
     if (!postId) {
       return NextResponse.json({ error: 'postId обязателен' }, { status: 400 });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
     }
 
     await prisma.post.delete({ where: { id: postId } });

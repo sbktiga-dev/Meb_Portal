@@ -123,7 +123,7 @@ export default function SpecialistDetailPage() {
               )}
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100/70 transition-colors animate-fade-in-up stagger-5">
                 <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                <div><p className="text-xs text-gray-400">Email</p><p className="font-medium text-gray-900">{specialist.user.email}</p></div>
+                <div><p className="text-xs text-gray-400">Специалист</p><p className="font-medium text-gray-900">{specialist.user.name || 'Пользователь'}</p></div>
               </div>
             </div>
 

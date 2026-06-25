@@ -65,7 +65,7 @@ export default function EventDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.error) { alert(data.error); return; }
+      if (!res.ok) return;
       setIsParticipant(data.joined);
       setEvent(prev => prev ? { ...prev, _count: { ...prev._count, participants: prev._count.participants + (data.joined ? 1 : -1) } } : prev);
     } finally {

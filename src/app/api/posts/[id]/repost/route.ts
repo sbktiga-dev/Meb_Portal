@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { sanitizeInput } from '@/lib/validation';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       data: {
         userId: user.id,
         postId: params.id,
-        comment: body.comment?.trim() || null,
+        comment: sanitizeInput(body.comment?.trim() || '') || null,
       },
     });
 

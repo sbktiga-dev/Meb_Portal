@@ -16,6 +16,8 @@ model User {
   role          String         @default("USER")
   inn           String?
   phone         String?
+  emailVerified Boolean        @default(false)
+  verificationToken String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -132,6 +134,7 @@ model ProductReview {
   productId     String
 
   @@unique([userId, productId])
+  @@index([productId])
 }
 
 model Image {
@@ -148,6 +151,8 @@ model Image {
   updatedAt     DateTime        @updatedAt
 
   downloadsList Download[]
+
+  @@index([downloads])
 }
 
 model Download {
@@ -158,6 +163,9 @@ model Download {
   userId        String
   image         Image           @relation(fields: [imageId], references: [id])
   imageId       String
+
+  @@index([userId])
+  @@index([imageId])
 }
 
 model Document {
@@ -212,6 +220,7 @@ model Rating {
   specialistId  String
 
   @@unique([userId, specialistId])
+  @@index([specialistId])
 }
 
 model Post {
@@ -236,6 +245,9 @@ model Post {
   comments      Comment[]
   likesList     PostLike[]
   reposts       Repost[]
+
+  @@index([authorId])
+  @@index([isPublished, createdAt])
 }
 
 model PortfolioItem {
@@ -252,6 +264,8 @@ model PortfolioItem {
 
   user          User            @relation(fields: [userId], references: [id])
   userId        String
+
+  @@index([userId])
 }
 
 model Comment {
@@ -263,6 +277,8 @@ model Comment {
   authorId      String
   post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId        String
+
+  @@index([postId])
 }
 
 model PostLike {
@@ -271,10 +287,11 @@ model PostLike {
 
   user          User            @relation(fields: [userId], references: [id])
   userId        String
-  post          Post            @relation(fields: [postId], references: [id])
+  post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId        String
 
   @@unique([userId, postId])
+  @@index([postId])
 }
 
 model Follow {
@@ -302,6 +319,9 @@ model Notification {
   fromUser      User?          @relation("NotificationFrom", fields: [fromUserId], references: [id])
   fromUserId    String?
   postId        String?
+
+  @@index([userId])
+  @@index([userId, read])
 }
 
 model Favorite {
@@ -347,6 +367,10 @@ model Message {
   authorId      String
   conversation  Conversation   @relation(fields: [conversationId], references: [id])
   conversationId String
+
+  @@index([conversationId])
+  @@index([authorId])
+  @@index([createdAt])
 }
 
 model Group {
@@ -387,6 +411,8 @@ model GroupPost {
   authorId      String
   group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       String
+
+  @@index([groupId])
 }
 
 model Bookmark {
@@ -453,4 +479,17 @@ model EventParticipant {
   eventId       String
 
   @@unique([userId, eventId])
+  @@index([eventId])
+}
+
+model PasswordResetToken {
+  id            String         @id @default(cuid())
+  token         String         @unique
+  userId        String
+  expiresAt     DateTime
+  used          Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+
+  @@index([token])
+  @@index([userId])
 }

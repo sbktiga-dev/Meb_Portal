@@ -6,19 +6,28 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const follows = await prisma.follow.findMany({
-      where: { followerId: params.id },
-      include: {
-        following: {
-          select: { id: true, name: true, email: true, avatar: true, role: true },
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
+
+    const [follows, total] = await Promise.all([
+      prisma.follow.findMany({
+        where: { followerId: params.id },
+        include: {
+          following: {
+            select: { id: true, name: true, avatar: true, role: true },
+          },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.follow.count({ where: { followerId: params.id } }),
+    ]);
 
     const following = follows.map((f) => f.following);
 
-    return NextResponse.json({ following, total: following.length });
+    return NextResponse.json({ following, total, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

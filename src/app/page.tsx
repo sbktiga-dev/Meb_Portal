@@ -11,6 +11,7 @@ interface StatsData {
   documents: number;
   suppliers: number;
   companies: number;
+  specialists: number;
 }
 
 interface ImageData {
@@ -108,7 +109,7 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight animate-fade-in-up">
-              Библиотека<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 drop-shadow-[0_0_24px_rgba(255,255,255,0.4)]">Библиотека</span><br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-brand-500">мебельщика</span>
             </h1>
 
@@ -135,7 +136,7 @@ export default function HomePage() {
       {stats && (
         <section className="relative -mt-10 z-10 section-container">
           <div className="bg-white rounded-3xl shadow-card p-8 md:p-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
               <div className="text-center">
                 <AnimatedCounter value={stats.images} />
                 <div className="text-[#717171] mt-2 font-medium">Изображений</div>
@@ -147,6 +148,10 @@ export default function HomePage() {
               <div className="text-center">
                 <AnimatedCounter value={(stats.companies || 0) + (stats.suppliers || 0)} />
                 <div className="text-[#717171] mt-2 font-medium">Компаний</div>
+              </div>
+              <div className="text-center">
+                <AnimatedCounter value={stats.specialists || 0} />
+                <div className="text-[#717171] mt-2 font-medium">Специалистов</div>
               </div>
               <div className="text-center">
                 <AnimatedCounter value={stats.users} />

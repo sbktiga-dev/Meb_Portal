@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -171,7 +171,7 @@ export default function AdminPostsPage() {
                                   {post.author.name?.charAt(0) || '?'}
                                 </div>
                               )}
-                              {post.author.name || post.author.email}
+                              {post.author.name || 'Аноним'}
                             </span>
                             <span>{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
                             <span>{post._count.likesList} лайков</span>

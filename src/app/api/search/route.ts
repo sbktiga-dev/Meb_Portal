@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       prisma.user.findMany({
         where: { OR: [{ name: searchQuery }, { email: searchQuery }] },
         take: 5,
-        select: { id: true, name: true, email: true, avatar: true, role: true },
+        select: { id: true, name: true, avatar: true, role: true },
       }),
     ]);
 

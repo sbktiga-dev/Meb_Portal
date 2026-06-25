@@ -57,8 +57,10 @@ export default function BookmarksPage() {
     if (!confirm('Удалить коллекцию?')) return;
     const token = localStorage.getItem('token');
     if (!token) return;
-    await fetch(`/api/bookmarks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-    setBookmarks(prev => prev.filter(b => b.id !== id));
+    const res = await fetch(`/api/bookmarks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    if (res.ok) {
+      setBookmarks(prev => prev.filter(b => b.id !== id));
+    }
   };
 
   return (

@@ -58,15 +58,17 @@ export async function GET(request: Request) {
       prisma.product.count({ where }),
     ]);
 
-    const productsWithRating = await Promise.all(
-      products.map(async (p) => {
-        const agg = await prisma.productReview.aggregate({
-          where: { productId: p.id },
-          _avg: { score: true },
-        });
-        return { ...p, avgRating: agg._avg.score || 0 };
-      })
-    );
+    const ratings = await prisma.productReview.groupBy({
+      by: ['productId'],
+      where: { productId: { in: products.map(p => p.id) } },
+      _avg: { score: true },
+    });
+    const ratingMap = new Map(ratings.map(r => [r.productId, r._avg.score || 0]));
+
+    const productsWithRating = products.map(p => ({
+      ...p,
+      avgRating: ratingMap.get(p.id) || 0,
+    }));
 
     return NextResponse.json({
       products: productsWithRating,

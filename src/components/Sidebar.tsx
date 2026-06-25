@@ -46,7 +46,7 @@ export default function Sidebar() {
             const href = (item as MenuItem).href;
             const label = (item as MenuItem).label;
             const icon = (item as MenuItem).icon;
-            const isActive = pathname === href;
+            const isActive = pathname === href || pathname?.startsWith(href + '/');
             return (
                 <Link
                   key={href}
@@ -69,7 +69,7 @@ export default function Sidebar() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 safe-area-bottom">
         <div className="flex items-center justify-around px-2 py-1">
           {mobileNavItems.map(item => {
-            const isActive = pathname === item.href || (item.href === '/dashboard' && pathname === '/dashboard');
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
             return (
               <Link
                 key={item.href}

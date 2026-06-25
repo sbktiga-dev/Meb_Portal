@@ -33,17 +33,23 @@ export async function GET(request: Request) {
       prisma.favorite.count({ where }),
     ]);
 
-    const enriched = await Promise.all(
-      favorites.map(async (fav) => {
-        let item = null;
-        if (fav.itemType === 'image') {
-          item = await prisma.image.findUnique({ where: { id: fav.itemId } });
-        } else if (fav.itemType === 'document') {
-          item = await prisma.document.findUnique({ where: { id: fav.itemId } });
-        }
-        return { ...fav, item };
-      })
-    );
+    const imageIds = favorites.filter(f => f.itemType === 'image').map(f => f.itemId);
+    const docIds = favorites.filter(f => f.itemType === 'document').map(f => f.itemId);
+
+    const [images, documents] = await Promise.all([
+      imageIds.length > 0 ? prisma.image.findMany({ where: { id: { in: imageIds } } }) : [],
+      docIds.length > 0 ? prisma.document.findMany({ where: { id: { in: docIds } } }) : [],
+    ]);
+
+    const imageMap = new Map(images.map(i => [i.id, i]));
+    const docMap = new Map(documents.map(d => [d.id, d]));
+
+    const enriched = favorites.map(fav => ({
+      ...fav,
+      item: fav.itemType === 'image' ? imageMap.get(fav.itemId) || null
+        : fav.itemType === 'document' ? docMap.get(fav.itemId) || null
+        : null,
+    }));
 
     return NextResponse.json({
       favorites: enriched,
@@ -72,6 +78,10 @@ export async function POST(request: Request) {
 
     if (!itemType || !itemId) {
       return NextResponse.json({ error: 'itemType и itemId обязательны' }, { status: 400 });
+    }
+
+    if (!['image', 'document'].includes(itemType)) {
+      return NextResponse.json({ error: 'Недопустимый тип элемента' }, { status: 400 });
     }
 
     const existing = await prisma.favorite.findUnique({

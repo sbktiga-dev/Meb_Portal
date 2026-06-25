@@ -1,0 +1,54 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import crypto from 'crypto';
+
+export async function POST(req: NextRequest) {
+  try {
+    const ip = getClientIp(req);
+    const { allowed, resetAt } = rateLimit(`forgot-password:${ip}`, 3, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много запросов. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
+    }
+
+    const body = await req.json();
+    const { email } = body;
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email обязателен' }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return NextResponse.json({
+        message: 'Если аккаунт с таким email существует, письмо с инструкциями отправлено',
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await prisma.passwordResetToken.create({
+      data: {
+        token: resetToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+
+    console.log(`\n🔑 PASSWORD RESET LINK:\n${resetUrl}\n`);
+
+    return NextResponse.json({
+      message: 'Если аккаунт с таким email существует, письмо с инструкциями отправлено',
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  }
+}

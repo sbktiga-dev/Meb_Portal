@@ -26,6 +26,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'itemType и itemId обязательны' }, { status: 400 });
     }
 
+    if (!['image', 'document', 'post', 'product'].includes(itemType)) {
+      return NextResponse.json({ error: 'Недопустимый тип элемента' }, { status: 400 });
+    }
+
     const existing = await prisma.bookmarkItem.findUnique({
       where: { bookmarkId_itemType_itemId: { bookmarkId: params.id, itemType, itemId } },
     });

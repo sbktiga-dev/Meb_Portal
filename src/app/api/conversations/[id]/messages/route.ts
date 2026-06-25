@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function GET(
   request: Request,
@@ -83,11 +84,24 @@ export async function POST(
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`msg:${user.id}`, 30, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много сообщений. Подождите минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
+    }
+
     const body = await request.json();
     const { content } = body;
 
     if (!content?.trim()) {
       return NextResponse.json({ error: 'Сообщение не может быть пустым' }, { status: 400 });
+    }
+
+    if (content.trim().length > 5000) {
+      return NextResponse.json({ error: 'Сообщение не может превышать 5000 символов' }, { status: 400 });
     }
 
     const message = await prisma.message.create({

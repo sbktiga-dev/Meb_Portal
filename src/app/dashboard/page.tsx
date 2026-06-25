@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -62,7 +62,8 @@ export default function DashboardPage() {
           setUser(userData.user);
           const dlList = downloadsData.downloads || [];
           setDownloads(dlList);
-          setPosts(postsData.posts || []);
+          const userPosts = (postsData.posts || []).filter((p: { author?: { id?: string } }) => p.author?.id === userData.user.id);
+          setPosts(userPosts);
 
           let followersCount = 0;
           let followingCount = 0;

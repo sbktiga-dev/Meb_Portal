@@ -16,6 +16,7 @@ export default function DashboardProfilePage() {
   const [inn, setInn] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -59,11 +60,14 @@ export default function DashboardProfilePage() {
       const data = await res.json();
       if (res.ok && data.url) {
         setAvatar(data.url);
+        setMessageType('success');
         setMessage('Аватар загружен. Нажмите "Сохранить"');
       } else {
+        setMessageType('error');
         setMessage(data.error || 'Ошибка загрузки');
       }
     } catch {
+      setMessageType('error');
       setMessage('Ошибка сети');
     } finally {
       setUploading(false);
@@ -89,11 +93,14 @@ export default function DashboardProfilePage() {
       const data = await res.json();
       if (res.ok) {
         setUser(data.user);
+        setMessageType('success');
         setMessage('Профиль сохранён');
       } else {
+        setMessageType('error');
         setMessage(data.error || 'Ошибка сохранения');
       }
     } catch {
+      setMessageType('error');
       setMessage('Ошибка сети');
     } finally {
       setSaving(false);
@@ -212,7 +219,7 @@ export default function DashboardProfilePage() {
               >
                 {saving ? 'Сохранение...' : 'Сохранить изменения'}
               </button>
-              {message && <span className="text-sm text-green-600">{message}</span>}
+              {message && <span className={`text-sm ${messageType === 'error' ? 'text-red-600' : 'text-green-600'}`}>{message}</span>}
             </div>
           </div>
         </div>

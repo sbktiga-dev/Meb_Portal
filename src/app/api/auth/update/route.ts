@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken, hashPassword, verifyPassword } from '@/lib/auth';
+import { validateRequest, updateProfileSchema } from '@/lib/validations';
 
 export async function PUT(req: NextRequest) {
   try {
@@ -16,7 +17,12 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, phone, inn, avatar } = body;
+    const validation = validateRequest(updateProfileSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+
+    const { name, phone, inn, avatar } = validation.data;
 
     const user = await prisma.user.update({
       where: { id: payload.userId },

@@ -217,12 +217,12 @@ async function main() {
 
   console.log('Создание изображений...');
   const images = [
-    { title: 'Кухня в стиле минимализм', description: 'Современная кухня с фасадами из МДФ, покрытыми эмалью. Белые фасады, столешница из искусственного камня.', url: '/uploads/kitchen-minimalism.jpg', style: 'Минимализм', category: 'Кухни', tags: JSON.stringify(['кухня', 'минимализм', 'белый']), downloads: 45 },
-    { title: 'Гардеробная с островом', description: 'Просторная гардеробная с встроенной системой хранения и островом с ящиками.', url: '/uploads/wardrobe-island.jpg', style: 'Классика', category: 'Гардеробные', tags: JSON.stringify(['гардеробная', 'классика', 'остров']), downloads: 32 },
-    { title: 'Шкаф-купе лофт', description: 'Встроенный шкаф-купе в стиле лофт с зеркальными раздвижными дверями.', url: '/uploads/wardrobe-loft.jpg', style: 'Лофт', category: 'Шкафы', tags: JSON.stringify(['шкаф', 'купе', 'лофт']), downloads: 28 },
-    { title: 'Обеденный стол скандинавский', description: 'Стол из натурального дерева в скандинавском стиле. Чистые линии, тёплые тона.', url: '/uploads/table-scandinavian.jpg', style: 'Скандинавия', category: 'Столы', tags: JSON.stringify(['стол', 'скандинавия', 'дерево']), downloads: 19 },
-    { title: 'Кухонный гарнитур модерн', description: 'Кухня в стиле модерн с глянцевыми фасадами и встроенной техникой.', url: '/uploads/kitchen-modern.jpg', style: 'Модерн', category: 'Кухни', tags: JSON.stringify(['кухня', 'модерн', 'глянец']), downloads: 15 },
-    { title: 'Стеллаж для книг кантри', description: 'Деревянный стеллаж в стиле кантри. Натуральное дерево, тёплые тона.', url: '/uploads/shelf-country.jpg', style: 'Кантри', category: 'Стеллажи', tags: JSON.stringify(['стеллаж', 'кантри', 'дерево']), downloads: 22 },
+    { title: 'Кухня в стиле минимализм', description: 'Современная кухня с фасадами из МДФ, покрытыми эмалью. Белые фасады, столешница из искусственного камня.', url: '/uploads/1782336788220-0swu2q.jpg', style: 'Минимализм', category: 'Кухни', tags: JSON.stringify(['кухня', 'минимализм', 'белый']), downloads: 45 },
+    { title: 'Гардеробная с островом', description: 'Просторная гардеробная с встроенной системой хранения и островом с ящиками.', url: '/uploads/1782336942856-7yo86i.jpg', style: 'Классика', category: 'Гардеробные', tags: JSON.stringify(['гардеробная', 'классика', 'остров']), downloads: 32 },
+    { title: 'Шкаф-купе лофт', description: 'Встроенный шкаф-купе в стиле лофт с зеркальными раздвижными дверями.', url: '/uploads/1782337086104-uac5py.jpg', style: 'Лофт', category: 'Шкафы', tags: JSON.stringify(['шкаф', 'купе', 'лофт']), downloads: 28 },
+    { title: 'Обеденный стол скандинавский', description: 'Стол из натурального дерева в скандинавском стиле. Чистые линии, тёплые тона.', url: '/uploads/1782337547578-3e4ga4.jpg', style: 'Скандинавия', category: 'Столы', tags: JSON.stringify(['стол', 'скандинавия', 'дерево']), downloads: 19 },
+    { title: 'Кухонный гарнитур модерн', description: 'Кухня в стиле модерн с глянцевыми фасадами и встроенной техникой.', url: '/uploads/1782337627756-vzhet1.jpg', style: 'Модерн', category: 'Кухни', tags: JSON.stringify(['кухня', 'модерн', 'глянец']), downloads: 15 },
+    { title: 'Стеллаж для книг кантри', description: 'Деревянный стеллаж в стиле кантри. Натуральное дерево, тёплые тона.', url: '/uploads/1782001538379-ffo84e.jfif', style: 'Кантри', category: 'Стеллажи', tags: JSON.stringify(['стеллаж', 'кантри', 'дерево']), downloads: 22 },
   ];
 
   for (const img of images) {

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { put } from '@vercel/blob';
 
 export async function POST(request: Request) {
   try {
@@ -29,15 +30,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Обязательные поля не заполнены' }, { status: 400 });
     }
 
-    // In production, upload file to S3/MinIO and save URL
-    const mockUrl = `/uploads/${Date.now()}-${file.name}`;
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const blob = await put(`gallery/${filename}`, file, {
+      access: 'public',
+    });
 
     const image = await prisma.image.create({
       data: {
         title,
         description: description || null,
-        url: mockUrl,
-        thumbnail: mockUrl,
+        url: blob.url,
+        thumbnail: blob.url,
         style: style || null,
         category: category || null,
         tags: tags ? JSON.stringify(tags.split(',').map((t) => t.trim())) : '[]',

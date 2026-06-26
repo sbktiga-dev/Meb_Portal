@@ -42,17 +42,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
       const result = await prisma.$transaction(async (tx) => {
         const count = await tx.eventParticipant.count({ where: { eventId: params.id } });
         if (count >= maxP) {
-          return null;
+          return { success: false, newCount: count };
         }
-        return tx.eventParticipant.create({
+        await tx.eventParticipant.create({
           data: { userId: user.id, eventId: params.id, status: 'going' },
         });
+        const newCount = await tx.eventParticipant.count({ where: { eventId: params.id } });
+        return { success: true, newCount };
       });
-      if (!result) {
+      if (!result.success) {
         return NextResponse.json({ error: 'Достигнут лимит участников' }, { status: 400 });
       }
-      const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
-      return NextResponse.json({ joined: true, participants: newCount });
+      return NextResponse.json({ joined: true, participants: result.newCount });
     }
 
     await prisma.eventParticipant.create({

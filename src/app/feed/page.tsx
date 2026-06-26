@@ -120,7 +120,7 @@ export default function FeedPage() {
     e.preventDefault();
     e.stopPropagation();
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) { window.location.href = '/login'; return; }
     try {
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: 'POST',
@@ -136,12 +136,11 @@ export default function FeedPage() {
         });
         setPosts(prev => prev.map(p => p.id === postId ? {
           ...p,
-          likes: p.likes + (data.liked ? 1 : -1),
-          _count: { ...p._count, likesList: p._count.likesList + (data.liked ? 1 : -1) },
+          likes: data.likes ?? (p.likes + (data.liked ? 1 : -1)),
+          _count: { ...p._count, likesList: data.likes ?? (p._count.likesList + (data.liked ? 1 : -1)) },
         } : p));
       }
     } catch {
-      // Like failed silently — UI state already reverted via setLikedPosts
     }
   };
 

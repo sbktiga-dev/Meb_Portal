@@ -38,17 +38,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
         where: { userId_postId: { userId, postId: params.id } },
       });
       liked = !!existingLike;
-
-      const viewKey = `viewed_${params.id}`;
-      const cookieHeader = request.headers.get('cookie') || '';
-      if (!cookieHeader.includes(viewKey)) {
-        await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
-        post.views += 1;
-      }
-    } else {
-      await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
-      post.views += 1;
     }
+
+    await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
+    post.views += 1;
 
     return NextResponse.json({ post, liked });
   } catch {

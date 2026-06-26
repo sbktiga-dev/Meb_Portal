@@ -6,7 +6,6 @@ import { getUserFromToken } from '@/lib/auth';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
-    console.log('LIKE post:', params.id);
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
@@ -15,44 +14,40 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const token = authHeader.split(' ')[1];
     const user = await getUserFromToken(token);
     if (!user) {
-      console.log('LIKE: invalid token');
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
-    console.log('LIKE: user', user.id, 'post', params.id);
 
-    const result = await prisma.$transaction(async (tx) => {
-      const existing = await tx.postLike.findUnique({
-        where: { userId_postId: { userId: user.id, postId: params.id } },
-      });
-
-      if (existing) {
-        await tx.postLike.delete({ where: { id: existing.id } });
-        await tx.$executeRaw`UPDATE Post SET likes = GREATEST(likes - 1, 0) WHERE id = ${params.id}`;
-        return { liked: false };
-      }
-
-      await tx.postLike.create({ data: { userId: user.id, postId: params.id } });
-      await tx.post.update({ where: { id: params.id }, data: { likes: { increment: 1 } } });
-
-      const post = await tx.post.findUnique({ where: { id: params.id }, select: { authorId: true, title: true } });
-      if (post && post.authorId !== user.id) {
-        const userName = user.name || user.email;
-        await tx.notification.create({
-          data: {
-            type: 'like',
-            message: `${userName} лайкнул ваш пост «${post.title}»`,
-            userId: post.authorId,
-            fromUserId: user.id,
-            postId: params.id,
-            link: `/feed/${params.id}`,
-          },
-        });
-      }
-
-      return { liked: true };
+    const existing = await prisma.postLike.findUnique({
+      where: { userId_postId: { userId: user.id, postId: params.id } },
     });
 
-    return NextResponse.json(result);
+    if (existing) {
+      await prisma.postLike.delete({ where: { id: existing.id } });
+      const post = await prisma.post.findUnique({ where: { id: params.id }, select: { likes: true } });
+      const newLikes = Math.max((post?.likes || 1) - 1, 0);
+      await prisma.post.update({ where: { id: params.id }, data: { likes: newLikes } });
+      return NextResponse.json({ liked: false, likes: newLikes });
+    }
+
+    await prisma.postLike.create({ data: { userId: user.id, postId: params.id } });
+    await prisma.post.update({ where: { id: params.id }, data: { likes: { increment: 1 } } });
+
+    const post = await prisma.post.findUnique({ where: { id: params.id }, select: { authorId: true, title: true, likes: true } });
+    if (post && post.authorId !== user.id) {
+      const userName = user.name || user.email;
+      await prisma.notification.create({
+        data: {
+          type: 'like',
+          message: `${userName} лайкнул ваш пост «${post.title}»`,
+          userId: post.authorId,
+          fromUserId: user.id,
+          postId: params.id,
+          link: `/feed/${params.id}`,
+        },
+      });
+    }
+
+    return NextResponse.json({ liked: true, likes: post?.likes || 0 });
   } catch (e) {
     console.error('Like error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

@@ -92,7 +92,7 @@ export default function PostDetailPage() {
       const data = await res.json();
       if (res.ok) {
         setLiked(data.liked);
-        setPost(prev => prev ? { ...prev, likes: prev.likes + (data.liked ? 1 : -1) } : prev);
+        setPost(prev => prev ? { ...prev, likes: data.likes ?? (prev.likes + (data.liked ? 1 : -1)) } : prev);
       }
     } catch {}
   };

@@ -17,6 +17,7 @@ interface Stats {
 interface ImageData {
   id: string;
   title: string;
+  url: string;
   style: string | null;
   category: string | null;
   downloads: number;
@@ -166,8 +167,14 @@ export default function HomeContent({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {recentImages.map((img) => (
               <Link key={img.id} href={`/gallery/${img.id}`} className="card-base overflow-hidden group">
-                <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-36 md:h-40 flex items-center justify-center text-brand-200 group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-300">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-36 md:h-40 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-300">
+                  {img.url ? (
+                    <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-brand-200">
+                      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </div>
+                  )}
                 </div>
                 <div className="p-3.5">
                   <h3 className="font-semibold text-sm truncate group-hover:text-brand-600 transition-colors">{img.title}</h3>
@@ -255,10 +262,10 @@ export default function HomeContent({
                     </div>
                   )}
                   <div className="flex items-center gap-1 px-4 py-2.5 mt-1">
-                    <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer rounded-lg hover:bg-red-50">
+                    <Link href={`/feed/${post.id}`} className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
                       {post._count.likesList}
-                    </span>
+                    </Link>
                     <Link href={`/feed/${post.id}`} className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-brand-500 transition-colors rounded-lg hover:bg-brand-50">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                       {post._count.comments}

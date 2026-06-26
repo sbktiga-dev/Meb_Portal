@@ -21,6 +21,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Событие не найдено' }, { status: 404 });
     }
 
+    const participantCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
+
     const existing = await prisma.eventParticipant.findUnique({
       where: { userId_eventId: { userId: user.id, eventId: params.id } },
     });
@@ -29,7 +31,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       await prisma.eventParticipant.delete({
         where: { userId_eventId: { userId: user.id, eventId: params.id } },
       });
-      return NextResponse.json({ joined: false });
+      const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
+      return NextResponse.json({ joined: false, participants: newCount });
     }
 
     if (event.maxParticipants) {
@@ -46,14 +49,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
       if (!result) {
         return NextResponse.json({ error: 'Достигнут лимит участников' }, { status: 400 });
       }
-      return NextResponse.json({ joined: true });
+      const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
+      return NextResponse.json({ joined: true, participants: newCount });
     }
 
     await prisma.eventParticipant.create({
       data: { userId: user.id, eventId: params.id, status: 'going' },
     });
 
-    return NextResponse.json({ joined: true });
+    const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
+    return NextResponse.json({ joined: true, participants: newCount });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

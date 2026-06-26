@@ -67,7 +67,7 @@ export default function EventDetailPage() {
       const data = await res.json();
       if (!res.ok) return;
       setIsParticipant(data.joined);
-      setEvent(prev => prev ? { ...prev, _count: { ...prev._count, participants: prev._count.participants + (data.joined ? 1 : -1) } } : prev);
+      setEvent(prev => prev ? { ...prev, _count: { ...prev._count, participants: data.participants ?? (prev._count.participants + (data.joined ? 1 : -1)) } } : prev);
     } finally {
       setJoining(false);
     }

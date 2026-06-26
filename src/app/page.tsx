@@ -17,7 +17,7 @@ export default async function HomePage() {
     prisma.image.findMany({
       take: 6,
       orderBy: { downloads: 'desc' },
-      select: { id: true, title: true, style: true, category: true, downloads: true },
+      select: { id: true, title: true, url: true, style: true, category: true, downloads: true },
     }),
     prisma.document.findMany({
       take: 5,

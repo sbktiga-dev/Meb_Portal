@@ -6,6 +6,16 @@ import { sanitizeInput, validatePostTitle, validatePostContent } from '@/lib/val
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+    let userId: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const { getUserFromToken } = await import('@/lib/auth');
+        const u = await getUserFromToken(authHeader.split(' ')[1]);
+        if (u) userId = u.id;
+      } catch {}
+    }
+
     const post = await prisma.post.findUnique({
       where: { id: params.id },
       include: {
@@ -22,9 +32,25 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
     }
 
-    await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
+    let liked = false;
+    if (userId) {
+      const existingLike = await prisma.postLike.findUnique({
+        where: { userId_postId: { userId, postId: params.id } },
+      });
+      liked = !!existingLike;
 
-    return NextResponse.json({ post: { ...post, views: post.views + 1 } });
+      const viewKey = `viewed_${params.id}`;
+      const cookieHeader = request.headers.get('cookie') || '';
+      if (!cookieHeader.includes(viewKey)) {
+        await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
+        post.views += 1;
+      }
+    } else {
+      await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
+      post.views += 1;
+    }
+
+    return NextResponse.json({ post, liked });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

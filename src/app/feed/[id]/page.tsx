@@ -68,9 +68,13 @@ export default function PostDetailPage() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/posts/${params.id}`);
+        const token = localStorage.getItem('token');
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`/api/posts/${params.id}`, { headers });
         const data = await res.json();
         setPost(data.post);
+        if (data.liked !== undefined) setLiked(data.liked);
       } catch { setPost(null); }
       finally { setLoading(false); }
     };

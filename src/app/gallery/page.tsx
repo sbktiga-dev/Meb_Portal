@@ -7,6 +7,7 @@ import InfiniteScroll from '@/components/InfiniteScroll';
 interface ImageData {
   id: string;
   title: string;
+  url: string;
   style: string | null;
   category: string | null;
   thumbnail: string | null;
@@ -185,9 +186,14 @@ export default function GalleryPage() {
               const tags: string[] = (() => { try { return JSON.parse(img.tags); } catch { return []; } })();
               return (
                 <a key={img.id} href={`/gallery/${img.id}`} className="card-base overflow-hidden group hover-lift">
-                  <div className="relative bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-48 flex items-center justify-center text-brand-200 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-500">
-                    <svg className="w-12 h-12 text-brand-300 group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                    <div className="absolute inset-0 bg-brand-500/0 group-hover:bg-brand-500/5 transition-colors duration-300" />
+                  <div className="relative bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-48 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-500">
+                    {img.url ? (
+                      <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-brand-200">
+                        <svg className="w-12 h-12 text-brand-300 group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold group-hover:text-brand-600 transition-colors truncate">{img.title}</h3>

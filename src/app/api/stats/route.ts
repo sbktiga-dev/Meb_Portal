@@ -16,7 +16,7 @@ export async function GET() {
 
     return NextResponse.json({
       stats: { users, images, documents, suppliers, companies, specialists },
-    });
+    }, { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' } });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

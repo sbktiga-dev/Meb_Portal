@@ -72,10 +72,14 @@ export async function GET(request: Request) {
       avgRating: ratingMap.get(p.id) || 0,
     }));
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       products: productsWithRating,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
+    if (!search && !brand) {
+      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    }
+    return res;
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

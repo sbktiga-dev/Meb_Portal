@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       content: JSON.parse(r.content as string),
     }));
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       references: parsed,
       pagination: {
         page,
@@ -44,6 +44,10 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
+    if (!category && !search) {
+      res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    }
+    return res;
   } catch (error) {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       prisma.image.count({ where }),
     ]);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       images,
       pagination: {
         page,
@@ -49,6 +49,10 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
+    if (!style && !category && !search) {
+      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    }
+    return res;
   } catch (error) {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

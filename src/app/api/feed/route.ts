@@ -55,10 +55,14 @@ export async function GET(request: Request) {
       prisma.post.count({ where }),
     ]);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       posts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
+    if (!filter) {
+      res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=120');
+    }
+    return res;
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

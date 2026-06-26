@@ -28,10 +28,14 @@ export async function GET(request: Request) {
       prisma.event.count({ where }),
     ]);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       events,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
+    if (!type) {
+      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    }
+    return res;
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

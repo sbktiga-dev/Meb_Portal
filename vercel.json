@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma db push --skip-generate && prisma generate && npx tsx scripts/fix-image-urls.ts && next build",
+  "buildCommand": "prisma db push --skip-generate && prisma generate && npx tsx scripts/ensure-admin.ts && npx tsx scripts/fix-image-urls.ts && next build",
   "installCommand": "npm install",
   "regions": ["iad1"]
 }

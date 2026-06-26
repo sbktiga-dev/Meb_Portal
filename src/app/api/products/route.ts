@@ -84,3 +84,41 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+    const { verifyToken } = await import('@/lib/auth');
+    const token = authHeader.split(' ')[1];
+    const user = verifyToken(token);
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { name, description, price, category, brand, images, specs } = body;
+
+    if (!name || !category) {
+      return NextResponse.json({ error: 'Название и категория обязательны' }, { status: 400 });
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description: description || null,
+        price: price ? parseFloat(price) : null,
+        category,
+        brand: brand || null,
+        images: images ? JSON.stringify(images) : '[]',
+        specs: specs ? JSON.stringify(specs) : '[]',
+      },
+    });
+
+    return NextResponse.json({ product }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  }
+}

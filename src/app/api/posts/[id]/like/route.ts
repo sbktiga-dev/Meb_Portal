@@ -6,6 +6,7 @@ import { getUserFromToken } from '@/lib/auth';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
+    console.log('LIKE post:', params.id);
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
@@ -14,8 +15,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const token = authHeader.split(' ')[1];
     const user = await getUserFromToken(token);
     if (!user) {
+      console.log('LIKE: invalid token');
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
+    console.log('LIKE: user', user.id, 'post', params.id);
 
     const result = await prisma.$transaction(async (tx) => {
       const existing = await tx.postLike.findUnique({
@@ -50,7 +53,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     return NextResponse.json(result);
-  } catch {
+  } catch (e) {
+    console.error('Like error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

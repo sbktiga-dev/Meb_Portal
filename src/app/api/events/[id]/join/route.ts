@@ -6,8 +6,10 @@ import { getUserFromToken } from '@/lib/auth';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
+    console.log('JOIN event:', params.id);
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
+      console.log('JOIN: no auth header');
       return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
     }
     const token = authHeader.split(' ')[1];
@@ -59,7 +61,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
     return NextResponse.json({ joined: true, participants: newCount });
-  } catch {
+  } catch (e) {
+    console.error('Event join error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

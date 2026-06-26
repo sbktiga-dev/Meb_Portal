@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [downloads, setDownloads] = useState<DownloadData[]>([]);
   const [posts, setPosts] = useState<PostData[]>([]);
   const [stats, setStats] = useState<StatsData>({ downloads: 0, favoriteImages: 0, posts: 0, portfolio: 0, followers: 0, following: 0 });
+  const [notifications, setNotifications] = useState<{ id: string; type: string; message: string; read: boolean; createdAt: string; fromUser: { name: string | null; avatar: string | null } | null }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,8 +57,9 @@ export default function DashboardPage() {
       fetch('/api/downloads', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ downloads: [] })),
       fetch('/api/posts?limit=5', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ posts: [] })),
       fetch('/api/portfolio?limit=1', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
+      fetch('/api/notifications?limit=10', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ notifications: [] })),
     ])
-      .then(async ([userData, downloadsData, postsData, portfolioData]) => {
+      .then(async ([userData, downloadsData, postsData, portfolioData, notifData]) => {
         if (userData.user) {
           setUser(userData.user);
           const dlList = downloadsData.downloads || [];
@@ -79,6 +81,7 @@ export default function DashboardPage() {
           } catch {}
 
           setStats({ downloads: dlList.length, favoriteImages: 0, posts: postsData.pagination?.total || 0, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount });
+          setNotifications(notifData.notifications || []);
         } else {
           localStorage.removeItem('token');
           document.cookie = 'token=; path=/; max-age=0';

@@ -29,6 +29,7 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isParticipant, setIsParticipant] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
   const [joining, setJoining] = useState(false);
 
   const fetchEvent = useCallback(async () => {
@@ -43,7 +44,9 @@ export default function EventDetailPage() {
         const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
         if (meRes.ok) {
           const me = await meRes.json();
-          setIsParticipant(data.event.participants.some((p: { user: { id: string } }) => p.user.id === me.user.id));
+          const userId = me.user?.id;
+          setIsParticipant(data.event.participants.some((p: { user: { id: string }; status: string }) => p.user.id === userId && p.status !== 'organizer'));
+          setIsOrganizer(data.event.organizer.id === userId);
         }
       }
     } catch {
@@ -65,9 +68,10 @@ export default function EventDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (!res.ok) return;
-      setIsParticipant(data.joined);
-      setEvent(prev => prev ? { ...prev, _count: { ...prev._count, participants: data.participants ?? (prev._count.participants + (data.joined ? 1 : -1)) } } : prev);
+      if (res.ok) {
+        setIsParticipant(data.joined);
+        setEvent(prev => prev ? { ...prev, _count: { ...prev._count, participants: data.participants ?? prev._count.participants } } : prev);
+      }
     } finally {
       setJoining(false);
     }
@@ -168,13 +172,17 @@ export default function EventDetailPage() {
                   </div>
 
                   {!isPast && (
-                    <button
-                      onClick={handleJoin}
-                      disabled={joining}
-                      className={`w-full ${isParticipant ? 'btn-ghost border border-gray-200' : 'btn-primary'}`}
-                    >
-                      {joining ? '...' : isParticipant ? 'Отписаться' : 'Участвовать'}
-                    </button>
+                    isOrganizer ? (
+                      <div className="w-full text-center text-sm text-brand-600 font-medium py-2">Вы организатор</div>
+                    ) : (
+                      <button
+                        onClick={handleJoin}
+                        disabled={joining}
+                        className={`w-full ${isParticipant ? 'btn-ghost border border-gray-200' : 'btn-primary'}`}
+                      >
+                        {joining ? '...' : isParticipant ? 'Отписаться' : 'Участвовать'}
+                      </button>
+                    )
                   )}
                 </div>
 

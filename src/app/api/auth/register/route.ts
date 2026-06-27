@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
       });
       await prisma.user.update({ where: { id: user.id }, data: { manufacturerId: manufacturer.id } });
       businessId = manufacturer.id;
+    } else if (userRole === 'USER') {
+      const specialistType = body.specialistType || 'DESIGNER';
+      const allowedTypes = ['DESIGNER', 'TECHNOLOGIST', 'INSTALLER', 'MANAGER'];
+      const specType = allowedTypes.includes(specialistType) ? specialistType : 'DESIGNER';
+      const specialist = await prisma.specialist.create({
+        data: { type: specType },
+      });
+      await prisma.user.update({ where: { id: user.id }, data: { specialistId: specialist.id } });
+      businessId = specialist.id;
     }
 
     const token = generateToken({

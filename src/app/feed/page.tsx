@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonFeed } from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
+import Lightbox from '@/components/Lightbox';
 
 interface PostData {
   id: string;
@@ -49,6 +50,7 @@ export default function FeedPage() {
   const [repostedPosts, setRepostedPosts] = useState<Set<string>>(new Set());
   const [authorId, setAuthorId] = useState<string | null>(null);
   const [feedError, setFeedError] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -289,7 +291,7 @@ export default function FeedPage() {
 
                   {/* Images — vertical stack */}
                   {postImages.length > 0 && (
-                    <Link href={`/feed/${post.id}`} className="block">
+                    <div className="block cursor-pointer" onClick={() => setLightbox({ images: postImages, index: 0 })}>
                       <div className="relative bg-gray-50">
                         {postImages.length === 1 ? (
                           <div className="relative w-full" style={{ paddingBottom: '75%' }}>
@@ -329,7 +331,7 @@ export default function FeedPage() {
                           </div>
                         )}
                       </div>
-                    </Link>
+                    </div>
                   )}
 
                   {/* Tags */}
@@ -382,6 +384,10 @@ export default function FeedPage() {
           </div>
         )}
       </div>
+
+      {lightbox && (
+        <Lightbox images={lightbox.images} initialIndex={lightbox.index} onClose={() => setLightbox(null)} />
+      )}
     </div>
   );
 }

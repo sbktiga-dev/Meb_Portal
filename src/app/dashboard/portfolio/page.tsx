@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
+import Lightbox from '@/components/Lightbox';
 
 interface PortfolioData {
   id: string;
@@ -30,6 +31,7 @@ export default function PortfolioPage() {
   const [items, setItems] = useState<PortfolioData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -88,7 +90,7 @@ export default function PortfolioPage() {
               const images: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
               return (
                 <div key={item.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
-                  <div className="h-48 relative group">
+                  <div className="h-48 relative group cursor-pointer" onClick={() => images.length > 0 && setLightbox({ images, index: 0 })}>
                     {images.length > 0 ? (
                       <img src={images[0]} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
@@ -137,6 +139,10 @@ export default function PortfolioPage() {
           </div>
         )}
       </div>
+
+      {lightbox && (
+        <Lightbox images={lightbox.images} initialIndex={lightbox.index} onClose={() => setLightbox(null)} />
+      )}
     </div>
   );
 }

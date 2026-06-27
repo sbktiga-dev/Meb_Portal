@@ -130,16 +130,17 @@ export default function FeedPage() {
   const handleLike = async (postId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    let token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (!token) {
-      const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
-      if (match) token = decodeURIComponent(match[1]);
+      const hasCookie = document.cookie.includes('token=');
+      if (!hasCookie) { window.location.href = '/login'; return; }
     }
-    if (!token) { window.location.href = '/login'; return; }
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers,
       });
       const data = await res.json();
       if (res.ok) {

@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import NotificationsDropdown from './NotificationsDropdown';
 import SearchModal from './SearchModal';
+import RoleBadge from './RoleBadge';
 
 interface UserData {
   id: string;
@@ -172,15 +173,18 @@ export default function Header() {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    {user.avatar ? (
-                      <div className="w-7 h-7 rounded-full overflow-hidden">
-                        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                        {(user.name || '?').charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    <div className="relative">
+                      {user.avatar ? (
+                        <div className="w-7 h-7 rounded-full overflow-hidden">
+                          <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                          {(user.name || '?').charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <RoleBadge role={user.role} size="sm" />
+                    </div>
                     <span className="text-sm font-medium text-gray-600 max-w-[100px] truncate hidden xl:block">{user.name || 'Пользователь'}</span>
                     <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-150 ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <polyline points="6 9 12 15 18 9"/>

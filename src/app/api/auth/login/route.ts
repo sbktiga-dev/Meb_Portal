@@ -33,6 +33,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
     }
 
+    if (user.banned) {
+      return NextResponse.json({ error: 'Ваш аккаунт заблокирован' }, { status: 403 });
+    }
+
     const token = generateToken({
       userId: user.id,
       email: user.email,

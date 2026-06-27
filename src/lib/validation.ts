@@ -48,3 +48,7 @@ export function validatePostTitle(title: string): { valid: boolean; error?: stri
   if (title.length > 200) return { valid: false, error: 'Заголовок слишком длинный (макс. 200 символов)' };
   return { valid: true };
 }
+
+export function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{1,30}$/.test(id);
+}

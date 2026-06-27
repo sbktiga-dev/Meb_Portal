@@ -15,6 +15,7 @@ model User {
   name          String?
   avatar        String?
   role          String         @default("USER")
+  banned        Boolean        @default(false)
   inn           String?
   phone         String?
   emailVerified Boolean        @default(false)

@@ -38,6 +38,13 @@ const roleLabels: Record<string, { label: string; color: string; icon: string }>
   CLIENT: { label: 'Клиент', color: 'bg-gray-100 text-gray-700', icon: '○' },
 };
 
+const categoryLabels: Record<string, { label: string; color: string }> = {
+  news: { label: 'Новость', color: 'text-blue-600 bg-blue-50' },
+  project: { label: 'Проект', color: 'text-emerald-600 bg-emerald-50' },
+  article: { label: 'Статья', color: 'text-purple-600 bg-purple-50' },
+  product: { label: 'Товар', color: 'text-amber-600 bg-amber-50' },
+};
+
 const specialistTypes: Record<string, string> = {
   DESIGNER: 'Дизайнер',
   TECHNOLOGIST: 'Технолог',
@@ -69,6 +76,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'posts' | 'portfolio' | 'about'>('posts');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -191,6 +199,40 @@ export default function ProfilePage() {
               )}
             </div>
 
+            {/* Quick actions */}
+            {!isOwnProfile && currentUserId && (
+              <div className="card-base p-5 space-y-2">
+                <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
+                <FollowButton userId={user.id} />
+                <Link href={`/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Написать сообщение
+                </Link>
+                <button onClick={() => { navigator.clipboard.writeText(window.location.href); }} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  Поделиться профилем
+                </button>
+              </div>
+            )}
+
+            {isOwnProfile && (
+              <div className="card-base p-5 space-y-2">
+                <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
+                <Link href="/dashboard/profile" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  Редактировать профиль
+                </Link>
+                <Link href="/dashboard/portfolio/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                  Добавить работу
+                </Link>
+                <Link href="/feed/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  Написать пост
+                </Link>
+              </div>
+            )}
+
             {/* Social links */}
             {Object.keys(socialLinks).length > 0 && (
               <div className="card-base p-5 space-y-3">
@@ -287,75 +329,149 @@ export default function ProfilePage() {
 
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Specialist info */}
-            {specialist && (
-              <div className="card-base p-5 space-y-3">
-                <h3 className="font-bold text-gray-900">О специалисте</h3>
-                {specialist.description && <p className="text-sm text-gray-600">{specialist.description}</p>}
-                <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                  {specialist.experience != null && <span>Опыт: {specialist.experience} лет</span>}
-                  <span>Рейтинг: {specialist.rating.toFixed(1)} ★</span>
-                  <span>Тип: {specialistTypes[specialist.type] || specialist.type}</span>
-                </div>
-              </div>
-            )}
+            {/* Tabs */}
+            <div className="card-base p-1 flex gap-1">
+              {[
+                { key: 'posts' as const, label: 'Публикации', count: recentPosts.length },
+                { key: 'portfolio' as const, label: 'Портфолио', count: recentPortfolio.length },
+                { key: 'about' as const, label: 'О себе', count: null },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    activeTab === tab.key
+                      ? 'bg-brand-500 text-white shadow-sm'
+                      : 'text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {tab.label}
+                  {tab.count !== null && <span className={`ml-1.5 text-xs ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400'}`}>({tab.count})</span>}
+                </button>
+              ))}
+            </div>
 
-            {/* Portfolio */}
-            {recentPortfolio.length > 0 && (
-              <div className="card-base p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900">Портфолио</h3>
-                  <Link href={`/portfolio/${user.id}`} className="text-sm text-brand-600 hover:text-brand-700">Все →</Link>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {recentPortfolio.map(item => {
-                    const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
-                    return (
-                      <Link key={item.id} href={`/portfolio/${user.id}`} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-                        {imgs[0] ? (
-                          <img src={imgs[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                          <span className="text-white text-sm font-medium">{item.title}</span>
+            {/* Tab: Posts */}
+            {activeTab === 'posts' && (
+              <>
+                {recentPosts.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentPosts.map(post => (
+                      <Link key={post.id} href={`/feed/${post.id}`} className="card-base block p-5 hover:shadow-md transition-shadow">
+                        <h4 className="font-bold text-gray-900 mb-2">{post.title}</h4>
+                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${categoryLabels[post.category]?.color || 'text-gray-500'}`}>
+                            {categoryLabels[post.category]?.label || post.category}
+                          </span>
+                          <span className="flex items-center gap-1">♥ {post.likes}</span>
+                          <span className="flex items-center gap-1">👁 {post.views}</span>
+                          <span className="flex items-center gap-1">💬 {post._count.comments}</span>
+                          <span className="ml-auto text-xs">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
                         </div>
                       </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Recent posts */}
-            {recentPosts.length > 0 && (
-              <div className="card-base p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900">Публикации</h3>
-                  <Link href={`/feed?authorId=${user.id}`} className="text-sm text-brand-600 hover:text-brand-700">Все →</Link>
-                </div>
-                <div className="space-y-3">
-                  {recentPosts.map(post => (
-                    <Link key={post.id} href={`/feed/${post.id}`} className="block p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                      <h4 className="font-medium text-gray-900 text-sm mb-1">{post.title}</h4>
-                      <div className="flex items-center gap-3 text-xs text-gray-400">
-                        <span>{post.category}</span>
-                        <span>♥ {post.likes}</span>
-                        <span>👁 {post.views}</span>
-                        <span>💬 {post._count.comments}</span>
-                        <span className="ml-auto">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
-                      </div>
+                    ))}
+                    <Link href={`/feed?authorId=${user.id}`} className="block text-center py-3 text-sm text-brand-600 hover:text-brand-700 font-medium">
+                      Все публикации →
                     </Link>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                ) : (
+                  <div className="card-base p-10 text-center">
+                    <p className="text-gray-400">Пока нет публикаций</p>
+                  </div>
+                )}
+              </>
             )}
 
-            {recentPosts.length === 0 && recentPortfolio.length === 0 && (
-              <div className="card-base p-10 text-center">
-                <p className="text-gray-400">Пока нет публикаций</p>
+            {/* Tab: Portfolio */}
+            {activeTab === 'portfolio' && (
+              <>
+                {recentPortfolio.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {recentPortfolio.map(item => {
+                      const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
+                      return (
+                        <Link key={item.id} href={`/portfolio/${user.id}`} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                          {imgs[0] ? (
+                            <img src={imgs[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                            <span className="text-white text-sm font-bold">{item.title}</span>
+                            {item.category && <span className="text-white/70 text-xs">{item.category}</span>}
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="card-base p-10 text-center">
+                    <p className="text-gray-400">Пока нет работ в портфолио</p>
+                  </div>
+                )}
+                {recentPortfolio.length > 0 && (
+                  <Link href={`/portfolio/${user.id}`} className="block text-center py-3 text-sm text-brand-600 hover:text-brand-700 font-medium">
+                    Все работы →
+                  </Link>
+                )}
+              </>
+            )}
+
+            {/* Tab: About */}
+            {activeTab === 'about' && (
+              <div className="space-y-5">
+                {user.bio && (
+                  <div className="card-base p-5">
+                    <h3 className="font-bold text-gray-900 mb-2">О себе</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">{user.bio}</p>
+                  </div>
+                )}
+
+                {specialist && (
+                  <div className="card-base p-5">
+                    <h3 className="font-bold text-gray-900 mb-3">Опыт работы</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 rounded-xl bg-purple-50 text-center">
+                        <div className="text-2xl font-bold text-purple-600">{specialistTypes[specialist.type]}</div>
+                        <div className="text-xs text-purple-500 mt-1">Специализация</div>
+                      </div>
+                      {specialist.experience != null && (
+                        <div className="p-3 rounded-xl bg-blue-50 text-center">
+                          <div className="text-2xl font-bold text-blue-600">{specialist.experience}+</div>
+                          <div className="text-xs text-blue-500 mt-1">Лет опыта</div>
+                        </div>
+                      )}
+                      <div className="p-3 rounded-xl bg-amber-50 text-center">
+                        <div className="text-2xl font-bold text-amber-600">{specialist.rating.toFixed(1)}</div>
+                        <div className="text-xs text-amber-500 mt-1">Рейтинг</div>
+                      </div>
+                      <div className="p-3 rounded-xl bg-emerald-50 text-center">
+                        <div className="text-2xl font-bold text-emerald-600">{user._count.followers}</div>
+                        <div className="text-xs text-emerald-500 mt-1">Подписчиков</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="card-base p-5">
+                  <h3 className="font-bold text-gray-900 mb-3">Деятельность</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                      <span className="text-sm text-gray-600">Публикаций</span>
+                      <span className="font-bold text-gray-900">{user._count.posts}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                      <span className="text-sm text-gray-600">Работ в портфолио</span>
+                      <span className="font-bold text-gray-900">{user._count.portfolio}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                      <span className="text-sm text-gray-600">На портале с</span>
+                      <span className="font-bold text-gray-900">{joinDate}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

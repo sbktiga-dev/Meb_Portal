@@ -50,6 +50,28 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${window.scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
@@ -260,7 +282,7 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className="lg:hidden pb-4 animate-fade-in-down">
+          <div className="lg:hidden pb-4 animate-fade-in-down max-h-[calc(100vh-56px)] overflow-y-auto overscroll-contain">
             <div className="mb-3 px-4">
               <SearchModal />
             </div>
@@ -271,6 +293,7 @@ export default function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    onClick={() => setMenuOpen(false)}
                     className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
                     }`}
@@ -288,6 +311,7 @@ export default function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    onClick={() => setMenuOpen(false)}
                     className={`block px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
                     }`}
@@ -302,15 +326,19 @@ export default function Header() {
                   <div className="px-4 py-2">
                     <NotificationsDropdown />
                   </div>
-                  <Link href="/dashboard" className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
+                  <Link href={`/profile/${user.id}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Моя страница
+                  </Link>
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
                     Личный кабинет
                   </Link>
                   {user.role === 'ADMIN' && (
-                    <Link href="/admin" className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
+                    <Link href="/admin" onClick={() => setMenuOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
                       Админ-панель
                     </Link>
                   )}
-                  <button onClick={handleLogout} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50">
+                  <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50">
                     Выйти
                   </button>
                 </>

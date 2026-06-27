@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
 
 export async function POST(
   request: Request,
@@ -18,6 +19,15 @@ export async function POST(
     const user = await getUserFromToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`follow:${user.id}:${ip}`, RATE_LIMITS.follow.maxRequests, RATE_LIMITS.follow.windowMs);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много подписок. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const targetUserId = params.id;
@@ -64,7 +74,8 @@ export async function POST(
     });
 
     return NextResponse.json({ followed: true });
-  } catch {
+  } catch (e) {
+    console.error('Follow error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

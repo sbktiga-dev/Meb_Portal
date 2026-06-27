@@ -29,6 +29,9 @@ export const RATE_LIMITS = {
   auth: { windowMs: 60_000, maxRequests: 10 },
   upload: { windowMs: 60_000, maxRequests: 20 },
   search: { windowMs: 60_000, maxRequests: 30 },
+  comment: { windowMs: 60_000, maxRequests: 10 },
+  like: { windowMs: 60_000, maxRequests: 30 },
+  follow: { windowMs: 60_000, maxRequests: 20 },
 } as const;
 
 export function getClientIp(req: NextRequest | Request): string {

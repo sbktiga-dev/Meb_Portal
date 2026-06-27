@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -15,6 +16,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const user = await getUserFromToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`like:${user.id}:${ip}`, RATE_LIMITS.like.maxRequests, RATE_LIMITS.like.windowMs);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много лайков. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const existing = await prisma.postLike.findUnique({

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
 
 const MAX_COMMENT_LENGTH = 2000;
 
@@ -18,6 +19,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const user = await getUserFromToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`comment:${user.id}:${ip}`, RATE_LIMITS.comment.maxRequests, RATE_LIMITS.comment.windowMs);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много комментариев. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const body = await request.json();
@@ -53,7 +63,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     return NextResponse.json({ comment }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Comment error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

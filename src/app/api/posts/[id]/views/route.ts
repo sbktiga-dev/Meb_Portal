@@ -10,7 +10,8 @@ export async function POST(_request: Request, { params }: { params: { id: string
       data: { views: { increment: 1 } },
     });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Views error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

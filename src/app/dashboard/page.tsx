@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import { pluralizeLikes, pluralizeComments, pluralizePosts, pluralizeNew } from '@/lib/pluralize';
 
 interface UserData {
   id: string;
@@ -251,7 +252,7 @@ export default function DashboardPage() {
           <div className="card-base p-6 mb-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-gray-900">Уведомления</h2>
-              <span className="text-sm text-gray-400">{notifications.length} новых</span>
+              <span className="text-sm text-gray-400">{pluralizeNew(notifications.length)}</span>
             </div>
             <div className="space-y-2">
               {notifications.slice(0, 5).map(n => (
@@ -311,8 +312,8 @@ export default function DashboardPage() {
                       <p className="font-medium text-gray-900 text-sm group-hover:text-brand-600 transition-colors">{post.title}</p>
                       <div className="flex gap-3 text-xs text-gray-400 mt-0.5">
                         {post.category && <span>{post.category}</span>}
-                        <span>{post.likes} лайков</span>
-                        <span>{post._count.comments} комментариев</span>
+                        <span>{pluralizeLikes(post.likes)}</span>
+                        <span>{pluralizeComments(post._count.comments)}</span>
                       </div>
                     </div>
                   </div>

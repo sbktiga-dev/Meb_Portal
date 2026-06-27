@@ -142,7 +142,7 @@ export default function PostDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <div className="section-container py-10 max-w-3xl">
-        <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4 animate-fade-in">
+        <button onClick={() => { if (window.history.length > 1) router.back(); else router.push('/feed'); }} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           Назад к ленте
         </button>
@@ -246,8 +246,10 @@ export default function PostDetailPage() {
           <div className="card-base p-6 mb-6">
             <textarea value={commentText} onChange={e => setCommentText(e.target.value)}
               placeholder="Напишите комментарий..."
+              maxLength={2000}
               className="input-premium resize-none" rows={3} />
-            <div className="flex justify-end mt-3">
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-xs text-gray-400">{commentText.length}/2000</span>
               <button onClick={handleComment} disabled={submitting || !commentText.trim()} className="btn-primary !px-6 !py-2.5 text-sm">
                 {submitting ? 'Отправка...' : 'Отправить'}
               </button>

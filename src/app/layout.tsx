@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'МебПортал' }],
   creator: 'МебПортал',
   publisher: 'МебПортал',
+  icons: {
+    icon: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'ru_RU',

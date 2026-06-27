@@ -8,11 +8,20 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const limit = parseInt(searchParams.get('limit') || '50');
     const type = searchParams.get('type');
 
     const where: Record<string, unknown> = {};
     if (type) where.type = type;
+
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+    await prisma.event.deleteMany({
+      where: {
+        endDate: { not: null, lt: cutoff },
+      },
+    });
 
     const [events, total] = await Promise.all([
       prisma.event.findMany({
@@ -23,17 +32,29 @@ export async function GET(request: Request) {
           organizer: { select: { id: true, name: true, avatar: true } },
           _count: { select: { participants: true } },
         },
-        orderBy: { startDate: 'asc' },
+        orderBy: [
+          { startDate: 'asc' },
+        ],
       }),
       prisma.event.count({ where }),
     ]);
 
+    const active = events.filter(e => {
+      const end = e.endDate ? new Date(e.endDate) : new Date(e.startDate);
+      return end >= now;
+    });
+    const past = events.filter(e => {
+      const end = e.endDate ? new Date(e.endDate) : new Date(e.startDate);
+      return end < now;
+    });
+    const sorted = [...active, ...past];
+
     const res = NextResponse.json({
-      events,
+      events: sorted,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
     if (!type) {
-      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
     }
     return res;
   } catch {

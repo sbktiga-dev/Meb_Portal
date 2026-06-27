@@ -37,6 +37,31 @@ export default function ShortcutsPage() {
         </div>
 
         <div className="mt-8 card-base p-6 animate-fade-in-up stagger-2">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Значки ролей</h2>
+          <p className="text-sm text-gray-500 mb-4">Цветные значки на аватарках показывают роль участника</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { icon: '✦', label: 'Специалист', color: 'bg-purple-500', desc: 'Дизайнер, технолог, монтажник, менеджер' },
+              { icon: '◆', label: 'Компания', color: 'bg-blue-500', desc: 'Компания или ИП в мебельной отрасли' },
+              { icon: '●', label: 'Поставщик', color: 'bg-emerald-500', desc: 'Поставщик материалов и фурнитуры' },
+              { icon: '■', label: 'Производство', color: 'bg-amber-500', desc: 'Мебельное производство' },
+              { icon: '○', label: 'Клиент', color: 'bg-gray-400', desc: 'Заказчик мебели' },
+              { icon: '★', label: 'Администратор', color: 'bg-red-500', desc: 'Администратор портала' },
+            ].map(role => (
+              <div key={role.label} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                <span className={`w-8 h-8 ${role.color} text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+                  {role.icon}
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">{role.label}</div>
+                  <div className="text-xs text-gray-500">{role.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 card-base p-6 animate-fade-in-up stagger-3">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Навигация</h2>
           <div className="grid grid-cols-2 gap-3">
             {[

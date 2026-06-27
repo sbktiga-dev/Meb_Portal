@@ -42,10 +42,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
         postId: params.id,
         comment: sanitizeInput(body.comment?.trim() || '') || null,
       },
-    });
+    }).catch(() => null);
+
+    if (!repost) {
+      return NextResponse.json({ error: 'Уже репостнуто' }, { status: 400 });
+    }
 
     return NextResponse.json({ repost }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Repost error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

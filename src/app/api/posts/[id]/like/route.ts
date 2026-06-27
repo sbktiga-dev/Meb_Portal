@@ -32,24 +32,35 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     if (existing) {
-      await prisma.postLike.delete({ where: { id: existing.id } });
-      const post = await prisma.post.findUnique({ where: { id: params.id }, select: { likes: true } });
-      const newLikes = Math.max((post?.likes || 1) - 1, 0);
-      await prisma.post.update({ where: { id: params.id }, data: { likes: newLikes } });
-      return NextResponse.json({ liked: false, likes: newLikes });
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.postLike.delete({ where: { id: existing.id } });
+        const post = await tx.post.update({
+          where: { id: params.id },
+          data: { likes: { decrement: 1 } },
+          select: { likes: true },
+        });
+        return { likes: Math.max(post.likes, 0) };
+      });
+      return NextResponse.json({ liked: false, likes: result.likes });
     }
 
-    await prisma.postLike.create({ data: { userId: user.id, postId: params.id } });
-    await prisma.post.update({ where: { id: params.id }, data: { likes: { increment: 1 } } });
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.postLike.create({ data: { userId: user.id, postId: params.id } });
+      const post = await tx.post.update({
+        where: { id: params.id },
+        data: { likes: { increment: 1 } },
+        select: { authorId: true, title: true, likes: true },
+      });
+      return post;
+    });
 
-    const post = await prisma.post.findUnique({ where: { id: params.id }, select: { authorId: true, title: true, likes: true } });
-    if (post && post.authorId !== user.id) {
+    if (result.authorId !== user.id) {
       const userName = user.name || user.email;
       await prisma.notification.create({
         data: {
           type: 'like',
-          message: `${userName} лайкнул ваш пост «${post.title}»`,
-          userId: post.authorId,
+          message: `${userName} лайкнул ваш пост «${result.title}»`,
+          userId: result.authorId,
           fromUserId: user.id,
           postId: params.id,
           link: `/feed/${params.id}`,
@@ -57,7 +68,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       });
     }
 
-    return NextResponse.json({ liked: true, likes: post?.likes || 0 });
+    return NextResponse.json({ liked: true, likes: result.likes });
   } catch (e) {
     console.error('Like error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

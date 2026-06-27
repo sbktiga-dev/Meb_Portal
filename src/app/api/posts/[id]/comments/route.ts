@@ -30,6 +30,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
       );
     }
 
+    const postExists = await prisma.post.findUnique({ where: { id: params.id }, select: { id: true } });
+    if (!postExists) {
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+    }
+
     const body = await request.json();
     const { content } = body;
 

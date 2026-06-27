@@ -104,7 +104,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-hide relative z-50">
+          <nav className="hidden lg:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-hide">
             {navLinks.map(link => {
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
               return (
@@ -121,39 +121,40 @@ export default function Header() {
                 </Link>
               );
             })}
-            <div className="relative shrink-0" ref={catalogRef}>
-              <button
-                onClick={() => setCatalogOpen(!catalogOpen)}
-                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 flex items-center gap-1 ${
-                  participantsLinks.some(l => pathname === l.href || pathname?.startsWith(l.href + '/'))
-                    ? 'bg-brand-50 text-brand-600'
-                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                Участники
-                <svg className={`w-3 h-3 transition-transform ${catalogOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              {catalogOpen && (
-                <div className="absolute left-0 mt-2 w-52 bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 py-2 animate-fade-in-down z-[100]">
-                  {participantsLinks.map(link => {
-                    const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setCatalogOpen(false)}
-                        className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${
-                          isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
           </nav>
+
+          <div className="hidden lg:flex items-center gap-2 shrink-0 relative" ref={catalogRef}>
+            <button
+              onClick={() => setCatalogOpen(!catalogOpen)}
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap flex items-center gap-1 ${
+                participantsLinks.some(l => pathname === l.href || pathname?.startsWith(l.href + '/'))
+                  ? 'bg-brand-50 text-brand-600'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Участники
+              <svg className={`w-3 h-3 transition-transform ${catalogOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            {catalogOpen && (
+              <div className="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 py-2 animate-fade-in-down z-[100]">
+                {participantsLinks.map(link => {
+                  const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setCatalogOpen(false)}
+                      className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${
+                        isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <div className="hidden lg:flex items-center gap-2 shrink-0">
             <SearchModal />

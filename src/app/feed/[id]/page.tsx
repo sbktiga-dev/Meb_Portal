@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
 import Lightbox from '@/components/Lightbox';
+import RoleBadge from '@/components/RoleBadge';
 
 interface CommentData {
   id: string;
@@ -23,7 +24,7 @@ interface PostData {
   likes: number;
   views: number;
   createdAt: string;
-  author: { id: string; name: string | null; avatar: string | null };
+  author: { id: string; name: string | null; avatar: string | null; role?: string };
   comments: CommentData[];
   _count: { comments: number; likesList: number };
 }
@@ -177,15 +178,18 @@ export default function PostDetailPage() {
 
           <div className="p-4 sm:p-8">
             <div className="flex items-center gap-4 mb-6">
-              {post.author.avatar ? (
-                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
-                  <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <div className={`w-14 h-14 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md`}>
-                  {post.author.name?.charAt(0) || '?'}
-                </div>
-              )}
+              <div className="relative flex-shrink-0">
+                {post.author.avatar ? (
+                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
+                    <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className={`w-14 h-14 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md`}>
+                    {post.author.name?.charAt(0) || '?'}
+                  </div>
+                )}
+                {post.author.role && <RoleBadge role={post.author.role} size="md" />}
+              </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                 <span className="font-bold text-gray-900 text-lg">{post.author.name || 'Аноним'}</span>

@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         take: limit,
         orderBy,
         include: {
-          author: { select: { id: true, name: true, avatar: true } },
+          author: { select: { id: true, name: true, avatar: true, role: true } },
           _count: { select: { comments: true, likesList: true } },
         },
       }),

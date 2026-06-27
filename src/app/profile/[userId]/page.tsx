@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
+import RoleBadge from '@/components/RoleBadge';
 
 interface ProfileData {
   user: {
@@ -113,15 +114,18 @@ export default function ProfilePage() {
 
         <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-10">
           <div className="flex flex-col sm:flex-row items-end sm:items-end gap-4">
-            {user.avatar ? (
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
-                <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <div className={`w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg flex-shrink-0`}>
-                {user.name?.charAt(0) || '?'}
-              </div>
-            )}
+            <div className="relative flex-shrink-0">
+              {user.avatar ? (
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className={`w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg`}>
+                  {user.name?.charAt(0) || '?'}
+                </div>
+              )}
+              <RoleBadge role={user.role} size="lg" />
+            </div>
             <div className="flex-1 pb-2">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2xl font-bold text-gray-900">{user.name || 'Пользователь'}</h1>

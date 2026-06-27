@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { SkeletonFeed } from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
 import Lightbox from '@/components/Lightbox';
+import RoleBadge from '@/components/RoleBadge';
 
 interface PostData {
   id: string;
@@ -17,7 +18,7 @@ interface PostData {
   likes: number;
   views: number;
   createdAt: string;
-  author: { id: string; name: string | null; email: string; avatar: string | null };
+  author: { id: string; name: string | null; email: string; avatar: string | null; role?: string };
   _count: { comments: number; likesList: number };
 }
 
@@ -260,15 +261,18 @@ export default function FeedPage() {
                 <article key={post.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   {/* Header */}
                   <div className="flex items-center gap-3 p-5 pb-0">
-                    {post.author.avatar ? (
-                      <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-                        <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
-                      </div>
-                    ) : (
-                      <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0`}>
-                        {post.author.name?.charAt(0) || '?'}
-                      </div>
-                    )}
+                    <div className="relative flex-shrink-0">
+                      {post.author.avatar ? (
+                        <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                          <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
+                        </div>
+                      ) : (
+                        <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
+                          {post.author.name?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      {post.author.role && <RoleBadge role={post.author.role} />}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-gray-900 truncate">{post.author.name || 'Аноним'}</span>

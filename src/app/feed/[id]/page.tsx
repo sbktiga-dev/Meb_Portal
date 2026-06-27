@@ -75,6 +75,13 @@ export default function PostDetailPage() {
         const data = await res.json();
         setPost(data.post);
         if (data.liked !== undefined) setLiked(data.liked);
+
+        const viewed = JSON.parse(localStorage.getItem('viewedPosts') || '[]');
+        if (!viewed.includes(params.id)) {
+          fetch(`/api/posts/${params.id}/views`, { method: 'POST' });
+          localStorage.setItem('viewedPosts', JSON.stringify([...viewed, params.id]));
+          if (data.post) data.post.views += 1;
+        }
       } catch { setPost(null); }
       finally { setLoading(false); }
     };

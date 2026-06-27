@@ -16,10 +16,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
       } catch {}
     }
 
-    const cookieHeader = request.headers.get('cookie') || '';
-    const viewedKey = `viewed_${params.id}`;
-    const alreadyViewed = cookieHeader.split(';').some(c => c.trim().startsWith(`${viewedKey}=`));
-
     const post = await prisma.post.findUnique({
       where: { id: params.id },
       include: {
@@ -44,20 +40,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       liked = !!existingLike;
     }
 
-    if (!alreadyViewed) {
-      await prisma.post.update({ where: { id: params.id }, data: { views: { increment: 1 } } });
-      post.views += 1;
-    }
-
-    const res = NextResponse.json({ post, liked });
-    if (!alreadyViewed) {
-      res.cookies.set(viewedKey, '1', {
-        maxAge: 86400,
-        path: '/',
-        sameSite: 'lax',
-      });
-    }
-    return res;
+    return NextResponse.json({ post, liked });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

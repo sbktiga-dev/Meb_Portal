@@ -21,10 +21,18 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
     setPos({ x: 0, y: 0 });
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.15 : 0.15;
-    setScale(prev => Math.min(Math.max(prev + delta, 0.5), 4));
+  const wheelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wheelRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.15 : 0.15;
+      setScale(prev => Math.min(Math.max(prev + delta, 0.5), 4));
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
   }, []);
 
   const handleDoubleClick = useCallback(() => {
@@ -35,9 +43,16 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
     }
   }, [scale, resetTransform]);
 
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => { cleanupRef.current?.(); };
+  }, []);
+
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (scale <= 1) return;
     e.preventDefault();
+    cleanupRef.current?.();
     setDragging(true);
     const startX = e.clientX - pos.x;
     const startY = e.clientY - pos.y;
@@ -46,6 +61,11 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
     };
     const onUp = () => {
       setDragging(false);
+      cleanupRef.current = null;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    cleanupRef.current = () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
@@ -148,9 +168,9 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
       </div>
 
       <div
+        ref={wheelRef}
         className="w-full h-full flex items-center justify-center p-4 md:p-16"
         onClick={(e) => e.stopPropagation()}
-        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

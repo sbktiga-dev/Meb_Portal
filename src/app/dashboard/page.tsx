@@ -52,7 +52,12 @@ export default function DashboardPage() {
       const hasCookie = document.cookie.includes('token=');
       if (!hasCookie) { window.location.href = '/login'; return; }
     }
-    const authToken = token || '';
+    let authToken = token || '';
+    if (!authToken) {
+      const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+      if (match) authToken = decodeURIComponent(match[1]);
+    }
+    if (!authToken) { window.location.href = '/login'; return; }
     Promise.all([
       fetch('/api/auth/me', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()),
       fetch('/api/downloads', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ downloads: [] })),

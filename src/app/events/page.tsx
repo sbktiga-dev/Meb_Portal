@@ -49,6 +49,13 @@ export default function EventsPage() {
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
+  useEffect(() => {
+    if (!showCreate) return;
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowCreate(false); };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showCreate]);
+
   const handleCreate = async () => {
     const token = localStorage.getItem('token');
     if (!token || !newEvent.title.trim() || !newEvent.startDate) return;

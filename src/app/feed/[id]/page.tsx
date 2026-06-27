@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import Lightbox from '@/components/Lightbox';
 
 interface CommentData {
   id: string;
@@ -276,22 +277,7 @@ export default function PostDetailPage() {
       </div>
 
       {selectedImage !== null && postImages.length > 0 && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-          <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={() => setSelectedImage(null)}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
-          </button>
-          <div className="max-w-4xl w-full rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-            <img src={postImages[selectedImage]} alt="" className="w-full h-auto max-h-[80vh] object-contain" />
-          </div>
-          {postImages.length > 1 && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-              {postImages.map((_, idx) => (
-                <button key={idx} onClick={(e) => { e.stopPropagation(); setSelectedImage(idx); }}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${idx === selectedImage ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/60'}`} />
-              ))}
-            </div>
-          )}
-        </div>
+        <Lightbox images={postImages} initialIndex={selectedImage} onClose={() => setSelectedImage(null)} />
       )}
     </div>
   );

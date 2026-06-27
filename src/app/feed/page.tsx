@@ -73,6 +73,7 @@ export default function FeedPage() {
         headers.Authorization = `Bearer ${token}`;
       }
       const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}`, { headers });
+      if (!res.ok) throw new Error('API error');
       const data = await res.json();
       const newPosts = data.posts || [];
       if (append) {

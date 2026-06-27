@@ -86,9 +86,10 @@ export default function RegisterPage() {
               <input type="text" value={form.inn} onChange={e => setForm({ ...form, inn: e.target.value })} className="input-premium" placeholder="Необязательно" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Роль</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Вы</label>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="input-premium">
-                <option value="USER">Специалист</option>
+                <option value="CLIENT">Клиент — хочу заказать мебель</option>
+                <option value="USER">Специалист — дизайнер, технолог</option>
                 <option value="COMPANY">Компания / ИП</option>
                 <option value="SUPPLIER">Поставщик</option>
                 <option value="MANUFACTURER">Производство</option>

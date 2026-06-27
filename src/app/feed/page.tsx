@@ -67,7 +67,7 @@ export default function FeedPage() {
       const filterParam = feedFilter === 'subscriptions' ? '&filter=subscriptions' : '';
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
-      if (token && feedFilter === 'subscriptions') {
+      if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
       const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}`, { headers });
@@ -77,6 +77,13 @@ export default function FeedPage() {
         setPosts(prev => [...prev, ...newPosts]);
       } else {
         setPosts(newPosts);
+      }
+      if (data.likedPostIds?.length) {
+        setLikedPosts(prev => {
+          const next = new Set(prev);
+          data.likedPostIds.forEach((id: string) => next.add(id));
+          return next;
+        });
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
       setFeedError(null);
@@ -136,12 +143,11 @@ export default function FeedPage() {
         });
         setPosts(prev => prev.map(p => p.id === postId ? {
           ...p,
-          likes: data.likes ?? (p.likes + (data.liked ? 1 : -1)),
-          _count: { ...p._count, likesList: data.likes ?? (p._count.likesList + (data.liked ? 1 : -1)) },
+          likes: data.likes,
+          _count: { ...p._count, likesList: data.likes },
         } : p));
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handleRepost = async (postId: string, e: React.MouseEvent) => {
@@ -338,7 +344,7 @@ export default function FeedPage() {
                   <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 mt-3">
                     <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-500 hover:bg-gray-50'}`}>
                       <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                      {post._count.likesList}
+                      {post.likes}
                     </button>
                     <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>

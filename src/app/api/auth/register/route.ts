@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
+    const allowedRoles = ['CLIENT', 'USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
     const userRole = (body.role && allowedRoles.includes(body.role)) ? body.role : 'USER';
 
     const user = await prisma.user.create({

@@ -108,7 +108,7 @@ export default function DashboardPage() {
   }
 
   const roleLabels: Record<string, string> = {
-    USER: 'Специалист', SPECIALIST: 'Специалист', COMPANY: 'Компания / ИП',
+    CLIENT: 'Клиент', USER: 'Специалист', SPECIALIST: 'Специалист', COMPANY: 'Компания / ИП',
     SUPPLIER: 'Поставщик', MANUFACTURER: 'Производство', ADMIN: 'Администратор',
   };
 
@@ -235,6 +235,34 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Notifications */}
+        {notifications.length > 0 && (
+          <div className="card-base p-6 mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-gray-900">Уведомления</h2>
+              <span className="text-sm text-gray-400">{notifications.length} новых</span>
+            </div>
+            <div className="space-y-2">
+              {notifications.slice(0, 5).map(n => (
+                <div key={n.id} className={`flex items-start gap-3 p-3.5 rounded-xl transition-colors ${n.read ? 'bg-white' : 'bg-brand-50/50'}`}>
+                  {n.fromUser?.avatar ? (
+                    <img src={n.fromUser.avatar} alt="" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      {n.fromUser?.name?.charAt(0) || '?'}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-700 leading-relaxed">{n.message}</p>
+                    <span className="text-xs text-gray-400 mt-0.5 block">{new Date(n.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  {!n.read && <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-2" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* My Posts */}
         <div className="card-base p-6 mb-8">

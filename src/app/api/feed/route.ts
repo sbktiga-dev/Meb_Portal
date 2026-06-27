@@ -55,8 +55,25 @@ export async function GET(request: Request) {
       prisma.post.count({ where }),
     ]);
 
+    let likedPostIds: string[] = [];
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const u = await getUserFromToken(authHeader.split(' ')[1]);
+        if (u) {
+          const postIds = posts.map(p => p.id);
+          const likes = await prisma.postLike.findMany({
+            where: { userId: u.id, postId: { in: postIds } },
+            select: { postId: true },
+          });
+          likedPostIds = likes.map(l => l.postId);
+        }
+      } catch {}
+    }
+
     const res = NextResponse.json({
       posts,
+      likedPostIds,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
     if (!filter) {

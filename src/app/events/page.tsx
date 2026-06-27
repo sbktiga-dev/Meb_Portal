@@ -27,9 +27,10 @@ export default function EventsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [showCreate, setShowCreate] = useState(false);
   const [newEvent, setNewEvent] = useState({
-    title: '', description: '', location: '', startDate: '', endDate: '', type: 'offline', maxParticipants: '',
+    title: '', description: '', location: '', startDate: '', endDate: '', type: 'offline', maxParticipants: '', coverImage: '',
   });
   const [creating, setCreating] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -67,6 +68,29 @@ export default function EventsPage() {
       }
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        setNewEvent(p => ({ ...p, coverImage: data.url }));
+      }
+    } finally {
+      setUploadingCover(false);
     }
   };
 
@@ -117,6 +141,30 @@ export default function EventsPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Описание</label>
                   <textarea value={newEvent.description} onChange={e => setNewEvent(p => ({ ...p, description: e.target.value }))} className="input-premium min-h-[80px]" placeholder="О чём событие?" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Обложка</label>
+                  {newEvent.coverImage ? (
+                    <div className="relative rounded-xl overflow-hidden h-40">
+                      <img src={newEvent.coverImage} alt="" className="w-full h-full object-cover" />
+                      <button onClick={() => setNewEvent(p => ({ ...p, coverImage: '' }))}
+                        className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-brand-400 transition-colors">
+                      {uploadingCover ? (
+                        <div className="w-6 h-6 border-2 border-brand-200 border-t-brand-500 rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <svg className="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                          <span className="text-sm text-gray-400">Нажмите для загрузки</span>
+                        </>
+                      )}
+                      <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+                    </label>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

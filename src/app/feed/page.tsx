@@ -130,12 +130,16 @@ export default function FeedPage() {
   const handleLike = async (postId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const token = localStorage.getItem('token');
+    let token = localStorage.getItem('token');
+    if (!token) {
+      const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+      if (match) token = decodeURIComponent(match[1]);
+    }
     if (!token) { window.location.href = '/login'; return; }
     try {
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (res.ok) {
@@ -261,9 +265,9 @@ export default function FeedPage() {
                 <article key={post.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   {/* Header */}
                   <div className="flex items-center gap-3 p-5 pb-0">
-                    <div className="relative flex-shrink-0">
+                    <div className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (
-                        <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                        <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
                           <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
                         </div>
                       ) : (
@@ -271,7 +275,7 @@ export default function FeedPage() {
                           {post.author.name?.charAt(0) || '?'}
                         </div>
                       )}
-                      {post.author.role && <RoleBadge role={post.author.role} />}
+                      <RoleBadge role={post.author.role || 'USER'} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">

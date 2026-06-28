@@ -282,11 +282,11 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className="lg:hidden pb-4 animate-fade-in-down max-h-[calc(100vh-56px)] overflow-y-auto overscroll-contain">
-            <div className="mb-3 px-4">
+          <div className="lg:hidden fixed inset-x-0 top-14 bottom-0 bg-white z-40 animate-fade-in-down overflow-y-auto overscroll-contain">
+            <div className="mb-3 px-4 pt-3">
               <SearchModal />
             </div>
-            <nav className="space-y-1">
+            <nav className="space-y-1 px-2 pb-20">
               {navLinks.map(link => {
                 const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
                 return (

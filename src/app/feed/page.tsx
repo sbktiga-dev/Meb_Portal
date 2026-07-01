@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonFeed } from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
 import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
+import PromotionBadge from '@/components/PromotionBadge';
+import BannerAd from '@/components/BannerAd';
 
 interface PostData {
   id: string;
@@ -20,6 +22,14 @@ interface PostData {
   createdAt: string;
   author: { id: string; name: string | null; email: string; avatar: string | null; role?: string };
   _count: { comments: number; likesList: number };
+  isPromoted?: boolean;
+}
+
+interface BannerData {
+  id: string;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
 }
 
 const categoryLabels: Record<string, { label: string; color: string; bg: string }> = {
@@ -52,6 +62,8 @@ export default function FeedPage() {
   const [authorId, setAuthorId] = useState<string | null>(null);
   const [feedError, setFeedError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
+  const [promotedPosts, setPromotedPosts] = useState<PostData[]>([]);
+  const [feedBanners, setFeedBanners] = useState<BannerData[]>([]);
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,6 +103,10 @@ export default function FeedPage() {
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
       setFeedError(null);
+
+      if (!append && data.promotedPosts) {
+        setPromotedPosts(data.promotedPosts);
+      }
     } catch {
       if (!append) {
         setPosts([]);
@@ -107,6 +123,13 @@ export default function FeedPage() {
     setHasMore(true);
     fetchPosts(1, false);
   }, [fetchPosts]);
+
+  useEffect(() => {
+    fetch('/api/promotion/active?position=feed')
+      .then(r => r.json())
+      .then(data => { if (data.banners) setFeedBanners(data.banners); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -254,6 +277,99 @@ export default function FeedPage() {
           </div>
         ) : (
           <div className="max-w-2xl mx-auto space-y-8">
+            {/* Продвинутые посты */}
+            {promotedPosts.map((post, i) => {
+              const tags: string[] = (() => { try { return JSON.parse(post.tags); } catch { return []; } })();
+              const postImages: string[] = (() => { try { return JSON.parse(post.images); } catch { return []; } })();
+              const cat = categoryLabels[post.category] || categoryLabels.news;
+              const gradientIdx = (post.author.name?.charCodeAt(0) || 0) % avatarGradients.length;
+              const isLiked = likedPosts.has(post.id);
+              const timeAgo = getTimeAgo(post.createdAt);
+
+              return (
+                <article key={`promoted-${post.id}`} className="card-base overflow-hidden animate-fade-in-up border-amber-200">
+                  <div className="bg-amber-50 px-5 py-2 border-b border-amber-100">
+                    <PromotionBadge />
+                  </div>
+                  <div className="flex items-center gap-3 p-5 pb-0">
+                    <div className="relative w-11 h-11 flex-shrink-0">
+                      {post.author.avatar ? (
+                        <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
+                          <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
+                        </div>
+                      ) : (
+                        <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
+                          {post.author.name?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <RoleBadge role={post.author.role || 'USER'} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900 truncate">{post.author.name || 'Аноним'}</span>
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{timeAgo}</span>
+                    </div>
+                    <FollowButton userId={post.author.id} compact />
+                    <Link href={`/feed/${post.id}`} className="text-gray-400 hover:text-brand-500 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </Link>
+                  </div>
+                  <div className="px-5 pt-4 pb-3">
+                    <Link href={`/feed/${post.id}`}>
+                      <h2 className="text-lg font-bold text-gray-900 mb-2 hover:text-brand-600 transition-colors leading-snug">{post.title}</h2>
+                    </Link>
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">{post.content}</p>
+                  </div>
+                  {postImages.length > 0 && (
+                    <div className="block cursor-pointer" onClick={() => setLightbox({ images: postImages, index: 0 })}>
+                      <div className="relative bg-gray-50">
+                        {postImages.length === 1 ? (
+                          <div className="relative w-full" style={{ paddingBottom: '75%' }}>
+                            <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" unoptimized />
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-0.5">
+                            {postImages.slice(0, 4).map((img, idx) => (
+                              <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
+                                <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {tags.length > 0 && (
+                    <div className="px-5 pt-3 flex flex-wrap gap-1.5">
+                      {tags.slice(0, 5).map(tag => <span key={tag} className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full font-medium">#{tag}</span>)}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 mt-3">
+                    <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-500 hover:bg-gray-50'}`}>
+                      <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                      {post.likes}
+                    </button>
+                    <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                      {post._count.comments}
+                    </Link>
+                    <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      {post.views}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
+
+            {/* Баннер после продвинутых */}
+            {promotedPosts.length > 0 && feedBanners.length > 0 && (
+              <BannerAd title={feedBanners[0].title} imageUrl={feedBanners[0].imageUrl} linkUrl={feedBanners[0].linkUrl} />
+            )}
+
+            {/* Обычные посты */}
             {posts.map((post, i) => {
               const tags: string[] = (() => { try { return JSON.parse(post.tags); } catch { return []; } })();
               const postImages: string[] = (() => { try { return JSON.parse(post.images); } catch { return []; } })();
@@ -263,7 +379,8 @@ export default function FeedPage() {
               const timeAgo = getTimeAgo(post.createdAt);
 
               return (
-                <article key={post.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
+                <Fragment key={post.id}>
+                <article className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   {/* Header */}
                   <div className="flex items-center gap-3 p-5 pb-0">
                     <div className="relative w-11 h-11 flex-shrink-0">
@@ -376,6 +493,10 @@ export default function FeedPage() {
                     </span>
                   </div>
                 </article>
+                {(i + 1) % 3 === 0 && feedBanners.length > 0 && (
+                  <BannerAd title={feedBanners[i % feedBanners.length].title} imageUrl={feedBanners[i % feedBanners.length].imageUrl} linkUrl={feedBanners[i % feedBanners.length].linkUrl} />
+                )}
+                </Fragment>
               );
             })}
 

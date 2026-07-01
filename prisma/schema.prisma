@@ -57,6 +57,8 @@ model User {
   organizedEvents Event[]
   eventParticipations EventParticipant[]
   productReviews ProductReview[]
+  promotions     Promotion[]
+  banners        Banner[]
 }
 
 model Specialist {
@@ -252,6 +254,7 @@ model Post {
   comments      Comment[]
   likesList     PostLike[]
   reposts       Repost[]
+  promotions    Promotion[]
 
   @@index([authorId])
   @@index([isPublished, createdAt])
@@ -498,5 +501,40 @@ model PasswordResetToken {
   createdAt     DateTime       @default(now())
 
   @@index([token])
+  @@index([userId])
+}
+
+model Promotion {
+  id        String   @id @default(cuid())
+  status    String   @default("pending") // pending | active | expired
+  startDate DateTime @default(now())
+  endDate   DateTime
+  createdAt DateTime @default(now())
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([postId])
+  @@index([userId])
+  @@index([status, endDate])
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String
+  linkUrl   String
+  position  String   @default("both") // feed | gallery | both
+  status    String   @default("pending") // pending | active | expired
+  startDate DateTime @default(now())
+  endDate   DateTime
+  createdAt DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([status, position])
   @@index([userId])
 }

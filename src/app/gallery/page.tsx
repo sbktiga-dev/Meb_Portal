@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
+import BannerAd from '@/components/BannerAd';
 
 interface ImageData {
   id: string;
@@ -13,6 +14,13 @@ interface ImageData {
   thumbnail: string | null;
   downloads: number;
   tags: string;
+}
+
+interface BannerData {
+  id: string;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
 }
 
 export default function GalleryPage() {
@@ -27,6 +35,7 @@ export default function GalleryPage() {
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [galleryBanners, setGalleryBanners] = useState<BannerData[]>([]);
 
   const styles = ['Все', 'Классика', 'Минимализм', 'Лофт', 'Скандинавия', 'Модерн', 'Кантри'];
   const categories = ['Все', 'Кухни', 'Гардеробные', 'Шкафы', 'Столы', 'Стеллажи', 'Детская'];
@@ -68,6 +77,13 @@ export default function GalleryPage() {
     setHasMore(true);
     fetchImages(1, false);
   }, [fetchImages]);
+
+  useEffect(() => {
+    fetch('/api/promotion/active?position=gallery')
+      .then(r => r.json())
+      .then(data => { if (data.banners) setGalleryBanners(data.banners); })
+      .catch(() => {});
+  }, []);
 
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
@@ -168,6 +184,13 @@ export default function GalleryPage() {
             )}
           </div>
         </div>
+
+        {/* Баннер в каталоге */}
+        {galleryBanners.length > 0 && (
+          <div className="mb-8">
+            <BannerAd title={galleryBanners[0].title} imageUrl={galleryBanners[0].imageUrl} linkUrl={galleryBanners[0].linkUrl} />
+          </div>
+        )}
 
         {/* Results */}
         {loading ? (

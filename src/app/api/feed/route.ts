@@ -57,13 +57,32 @@ export async function GET(request: Request) {
       prisma.post.count({ where }),
     ]);
 
+    let promotedPosts: Array<Record<string, unknown>> = [];
+    if (page === 1) {
+      const now = new Date();
+      const activePromotions = await prisma.promotion.findMany({
+        where: { status: 'active', endDate: { gt: now } },
+        include: {
+          post: {
+            include: {
+              author: { select: { id: true, name: true, avatar: true, role: true } },
+              _count: { select: { comments: true, likesList: true } },
+            },
+          },
+        },
+        take: 3,
+        orderBy: { startDate: 'desc' },
+      });
+      promotedPosts = activePromotions.map(p => ({ ...p.post, isPromoted: true, promotionId: p.id }));
+    }
+
     let likedPostIds: string[] = [];
     const authHeader = request.headers.get('authorization');
     if (authHeader?.startsWith('Bearer ')) {
       try {
         const u = await getUserFromToken(authHeader.split(' ')[1]);
         if (u) {
-          const postIds = posts.map(p => p.id);
+          const postIds = [...posts.map(p => p.id), ...promotedPosts.map(p => p.id as string)];
           const likes = await prisma.postLike.findMany({
             where: { userId: u.id, postId: { in: postIds } },
             select: { postId: true },
@@ -75,6 +94,7 @@ export async function GET(request: Request) {
 
     const res = NextResponse.json({
       posts,
+      promotedPosts,
       likedPostIds,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });

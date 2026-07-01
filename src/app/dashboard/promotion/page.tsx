@@ -12,7 +12,17 @@ export default function PromotionPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    setLoading(false);
+
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => {
+        if (d.user?.role === 'CLIENT') {
+          router.push('/dashboard');
+          return;
+        }
+        setLoading(false);
+      })
+      .catch(() => { setLoading(false); });
   }, [router]);
 
   if (loading) {

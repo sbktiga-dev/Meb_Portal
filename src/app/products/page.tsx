@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 
@@ -41,7 +42,7 @@ export default function ProductsPage() {
   const [total, setTotal] = useState(0);
   const [compareIds, setCompareIds] = useState<string[]>([]);
 
-  const fetchProducts = useCallback(async (pageNum: number, append = false) => {
+  const fetchProducts = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) setLoadingMore(true);
     else setLoading(true);
     try {
@@ -51,14 +52,15 @@ export default function ProductsPage() {
       params.set('sort', sortBy);
       params.set('page', String(pageNum));
       params.set('limit', '20');
-      const res = await fetch(`/api/products?${params}`);
+      const res = await fetch(`/api/products?${params}`, { signal });
       const data = await res.json();
       const newProducts = data.products || [];
       if (append) setProducts(prev => [...prev, ...newProducts]);
       else setProducts(newProducts);
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
       setTotal(data.pagination?.total || 0);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       if (!append) setProducts([]);
     } finally {
       setLoading(false);
@@ -66,7 +68,13 @@ export default function ProductsPage() {
     }
   }, [search, category, sortBy]);
 
-  useEffect(() => { setPage(1); setHasMore(true); fetchProducts(1, false); }, [fetchProducts]);
+  useEffect(() => {
+    const controller = new AbortController();
+    setPage(1);
+    setHasMore(true);
+    fetchProducts(1, false, controller.signal);
+    return () => controller.abort();
+  }, [fetchProducts]);
 
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
@@ -150,7 +158,7 @@ export default function ProductsPage() {
                   <Link href={`/products/${product.id}`} className="block">
                     <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-50 overflow-hidden">
                       {productImages.length > 0 ? (
-                        <img src={productImages[0]} alt={product.name} className="w-full h-full object-cover" />
+                        <Image src={productImages[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" unoptimized />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>

@@ -64,6 +64,7 @@ export default function FeedPage() {
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [promotedPosts, setPromotedPosts] = useState<PostData[]>([]);
   const [feedBanners, setFeedBanners] = useState<BannerData[]>([]);
+  const [search, setSearch] = useState('');
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function FeedPage() {
     setAuthorId(params.get('authorId'));
   }, []);
 
-  const fetchPosts = useCallback(async (pageNum: number, append = false) => {
+  const fetchPosts = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {
       setLoadingMore(true);
     } else {
@@ -85,7 +86,7 @@ export default function FeedPage() {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
-      const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}`, { headers });
+      const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}${search ? `&search=${encodeURIComponent(search)}` : ''}`, { headers, signal });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       const newPosts = data.posts || [];
@@ -107,7 +108,8 @@ export default function FeedPage() {
       if (!append && data.promotedPosts) {
         setPromotedPosts(data.promotedPosts);
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       if (!append) {
         setPosts([]);
         setFeedError('Не удалось загрузить ленту. Попробуйте обновить страницу.');
@@ -116,19 +118,23 @@ export default function FeedPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [category, sort, authorId, feedFilter]);
+  }, [category, sort, authorId, feedFilter, search]);
 
   useEffect(() => {
+    const controller = new AbortController();
     setPage(1);
     setHasMore(true);
-    fetchPosts(1, false);
+    fetchPosts(1, false, controller.signal);
+    return () => controller.abort();
   }, [fetchPosts]);
 
   useEffect(() => {
-    fetch('/api/promotion/active?position=feed')
+    const controller = new AbortController();
+    fetch('/api/promotion/active?position=feed', { signal: controller.signal })
       .then(r => r.json())
       .then(data => { if (data.banners) setFeedBanners(data.banners); })
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -216,6 +222,26 @@ export default function FeedPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             Создать пост
           </Link>
+        </div>
+
+        <div className="mb-6 animate-fade-in-up stagger-1">
+          <div className="relative max-w-md">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Поиск по заголовку, содержанию, тегам..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition"
+            />
+            {search && (
+              <button onClick={() => { setSearch(''); setPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-8 animate-fade-in-up stagger-1">

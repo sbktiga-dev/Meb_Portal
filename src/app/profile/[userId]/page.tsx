@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonProfile } from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
 import RoleBadge from '@/components/RoleBadge';
 
@@ -79,29 +80,36 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'posts' | 'portfolio' | 'about'>('posts');
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
         .then(r => r.json())
         .then(d => { if (d.user) setCurrentUserId(d.user.id); })
         .catch(() => {});
     }
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`/api/users/${params.userId}/profile`);
+        const res = await fetch(`/api/users/${params.userId}/profile`, { signal: controller.signal });
         if (!res.ok) { setProfile(null); return; }
         const data = await res.json();
         setProfile(data);
-      } catch { setProfile(null); }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setProfile(null);
+      }
       finally { setLoading(false); }
     };
     fetchProfile();
+    return () => controller.abort();
   }, [params.userId]);
 
-  if (loading) return <Loading text="Загрузка профиля..." />;
+  if (loading) return <div className="min-h-screen bg-gray-50/50"><div className="max-w-4xl mx-auto px-4 py-12"><SkeletonProfile /></div></div>;
   if (!profile) return <div className="text-center py-20 text-gray-500">Пользователь не найден</div>;
 
   const { user, specialist, company, supplier, manufacturer, recentPosts, recentPortfolio } = profile;
@@ -116,7 +124,7 @@ export default function ProfilePage() {
       {/* Cover + Avatar */}
       <div className="relative">
         <div className="h-48 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
-          {user.cover && <img src={user.cover} alt="" className="w-full h-full object-cover" />}
+          {user.cover && <Image src={user.cover} alt="" fill className="object-cover" sizes="100vw" unoptimized />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
@@ -124,8 +132,8 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-end sm:items-end gap-4">
             <div className="relative flex-shrink-0">
               {user.avatar ? (
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
+                  <Image src={user.avatar} alt="" fill className="object-cover" sizes="128px" unoptimized />
                 </div>
               ) : (
                 <div className={`w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg`}>

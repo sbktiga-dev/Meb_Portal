@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Loading from '@/components/Loading';
+import { SkeletonPage } from '@/components/Loading';
 import FavoriteButton from '@/components/FavoriteButton';
 
 interface DocumentData {
@@ -23,11 +23,16 @@ export default function DocumentDetailPage() {
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchDoc = async () => {
-      try { const res = await fetch(`/api/documents/${params.id}`); const data = await res.json(); setDoc(data.document); }
-      catch { setDoc(null); } finally { setLoading(false); }
+      try { const res = await fetch(`/api/documents/${params.id}`, { signal: controller.signal }); const data = await res.json(); setDoc(data.document); }
+      catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setDoc(null);
+      } finally { setLoading(false); }
     };
     fetchDoc();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleDownload = async () => {
@@ -51,7 +56,7 @@ export default function DocumentDetailPage() {
     } catch {} finally { setDownloading(false); }
   };
 
-  if (loading) return <Loading text="Загрузка документа..." />;
+  if (loading) return <SkeletonPage />;
   if (!doc) return <div className="text-center py-20 text-gray-500">Документ не найден</div>;
 
   return (

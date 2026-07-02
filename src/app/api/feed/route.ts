@@ -15,10 +15,18 @@ export async function GET(request: Request) {
     const limit = Math.min(Number.isFinite(rawLimit) && rawLimit > 0 ? rawLimit : 10, 100);
     const authorId = searchParams.get('authorId');
     const filter = searchParams.get('filter');
+    const search = searchParams.get('search');
 
     const where: Record<string, unknown> = { isPublished: true };
     if (category && category !== 'all') where.category = category;
     if (authorId) where.authorId = authorId;
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+        { tags: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     if (filter === 'subscriptions') {
       const authHeader = request.headers.get('authorization');

@@ -22,16 +22,20 @@ export default function AdminManufacturersPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
-  const fetchData = () => {
+  const fetchData = (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    fetch('/api/manufacturers?limit=100', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/manufacturers?limit=100', { headers: { Authorization: `Bearer ${token}` }, signal })
       .then(r => r.json())
       .then(d => setItems(d.manufacturers || []))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
+  }, []);
 
   const handleCreate = async () => {
     const token = localStorage.getItem('token');

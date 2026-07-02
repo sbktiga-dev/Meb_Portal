@@ -16,6 +16,11 @@ export const updateProfileSchema = z.object({
   phone: z.string().max(20).optional(),
   inn: z.string().max(12).optional(),
   avatar: z.string().optional(),
+  cover: z.string().optional(),
+  bio: z.string().max(500).optional(),
+  location: z.string().max(100).optional(),
+  website: z.string().max(200).optional(),
+  socialLinks: z.string().optional(),
 });
 
 export const createPostSchema = z.object({

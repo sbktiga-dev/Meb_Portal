@@ -26,14 +26,16 @@ export default function AdminImagesPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { window.location.href = '/login'; return; }
 
-    fetch('/api/images?limit=100', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/images?limit=100', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(res => res.json())
       .then(data => setImages(data.images || []))
       .catch(() => setImages([]))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const handleUpload = async () => {

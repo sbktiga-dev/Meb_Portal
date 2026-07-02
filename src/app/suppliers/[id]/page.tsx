@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonPage } from '@/components/Loading';
 
 interface SupplierData {
   id: string;
@@ -29,21 +30,28 @@ export default function SupplierDetailPage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
         .then(r => r.json())
         .then(d => { if (d.user) setCurrentUserId(d.user.id); })
         .catch(() => {});
     }
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchSupplier = async () => {
-      try { const res = await fetch(`/api/suppliers/${params.id}`); const data = await res.json(); setSupplier(data.supplier); }
-      catch { setSupplier(null); } finally { setLoading(false); }
+      try { const res = await fetch(`/api/suppliers/${params.id}`, { signal: controller.signal }); const data = await res.json(); setSupplier(data.supplier); }
+      catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setSupplier(null);
+      } finally { setLoading(false); }
     };
     fetchSupplier();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +84,7 @@ export default function SupplierDetailPage() {
 
   const isOwner = currentUserId && supplier?.userId === currentUserId;
 
-  if (loading) return <Loading text="Загрузка..." />;
+  if (loading) return <SkeletonPage />;
   if (!supplier) return <div className="text-center py-20 text-gray-500">Поставщик не найден</div>;
 
   const cats: string[] = (() => { try { return JSON.parse(supplier.categories); } catch { return []; } })();
@@ -95,8 +103,8 @@ export default function SupplierDetailPage() {
               {isOwner ? (
                 <button onClick={() => fileInputRef.current?.click()} className="relative group flex-shrink-0" disabled={uploading}>
                   {supplier.logo ? (
-                    <div className="w-16 h-16 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
-                      <img src={supplier.logo} alt={supplier.companyName} className="w-full h-full object-contain" />
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50 relative">
+                      <Image src={supplier.logo} alt={supplier.companyName} fill className="object-contain" sizes="64px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-16 h-16 bg-gradient-to-br from-brand-50 to-orange-50 rounded-2xl flex items-center justify-center text-brand-500 font-bold text-2xl">
@@ -116,8 +124,8 @@ export default function SupplierDetailPage() {
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                 </button>
               ) : supplier.logo ? (
-                <div className="w-16 h-16 rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50">
-                  <img src={supplier.logo} alt={supplier.companyName} className="w-full h-full object-contain" />
+                <div className="w-16 h-16 rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
+                  <Image src={supplier.logo} alt={supplier.companyName} fill className="object-contain" sizes="64px" unoptimized />
                 </div>
               ) : (
                 <div className="w-16 h-16 bg-gradient-to-br from-brand-50 to-orange-50 rounded-2xl flex items-center justify-center text-brand-500 font-bold text-2xl flex-shrink-0">

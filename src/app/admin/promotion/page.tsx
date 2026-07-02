@@ -46,7 +46,7 @@ export default function AdminPromotionPage() {
   const [filter, setFilter] = useState('pending');
   const [updating, setUpdating] = useState<string | null>(null);
 
-  const loadData = async (status?: string) => {
+  const loadData = async (status?: string, signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
@@ -54,19 +54,24 @@ export default function AdminPromotionPage() {
       const params = status ? `?status=${status}` : '';
       const res = await fetch(`/api/admin/promotion${params}`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal,
       });
       if (!res.ok) { router.push('/dashboard'); return; }
       const data = await res.json();
       setPromotions(data.promotions || []);
       setBanners(data.banners || []);
-    } catch {
-      // Error handled silently
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadData(filter); }, [filter]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadData(filter, controller.signal);
+    return () => controller.abort();
+  }, [filter]);
 
   const handleStatusChange = async (type: 'promotion' | 'banner', id: string, newStatus: string) => {
     setUpdating(id);

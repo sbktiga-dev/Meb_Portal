@@ -2,22 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
-import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-    const { allowed, resetAt } = rateLimit(`forgot-password:${ip}`, 3, 60000);
+    const body = await req.json();
+    const { email } = body;
+
+    const { allowed, resetAt } = checkDualRateLimit(ip, email, 'forgot-password', 3, 60000);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Слишком много запросов. Попробуйте через минуту.' },
         { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
       );
     }
-
-    const body = await req.json();
-    const { email } = body;
 
     if (!email) {
       return NextResponse.json({ error: 'Email обязателен' }, { status: 400 });

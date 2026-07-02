@@ -32,16 +32,16 @@ export default function EventDetailPage() {
   const [isOrganizer, setIsOrganizer] = useState(false);
   const [joining, setJoining] = useState(false);
 
-  const fetchEvent = useCallback(async () => {
+  const fetchEvent = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/events/${params.id}`);
+      const res = await fetch(`/api/events/${params.id}`, { signal });
       if (!res.ok) { router.push('/events'); return; }
       const data = await res.json();
       setEvent(data.event);
 
       const token = localStorage.getItem('token');
       if (token) {
-        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal });
         if (meRes.ok) {
           const me = await meRes.json();
           const userId = me.user?.id;
@@ -49,14 +49,19 @@ export default function EventDetailPage() {
           setIsOrganizer(data.event.organizer.id === userId);
         }
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       router.push('/events');
     } finally {
       setLoading(false);
     }
   }, [params.id, router]);
 
-  useEffect(() => { fetchEvent(); }, [fetchEvent]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchEvent(controller.signal);
+    return () => controller.abort();
+  }, [fetchEvent]);
 
   const handleJoin = async () => {
     const token = localStorage.getItem('token');

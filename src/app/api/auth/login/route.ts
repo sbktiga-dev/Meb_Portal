@@ -3,21 +3,21 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, generateToken } from '@/lib/auth';
-import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-    const { allowed, resetAt } = rateLimit(`login:${ip}`, 10, 60000);
+    const body = await req.json();
+    const { email, password } = body;
+
+    const { allowed, resetAt } = checkDualRateLimit(ip, email, 'login', 10, 60000);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Слишком много попыток. Попробуйте через минуту.' },
         { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
       );
     }
-
-    const body = await req.json();
-    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email и пароль обязательны' }, { status: 400 });

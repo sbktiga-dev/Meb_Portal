@@ -22,16 +22,20 @@ export default function AdminSuppliersPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
-  const fetchSuppliers = () => {
+  const fetchSuppliers = (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    fetch('/api/suppliers?limit=100', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/suppliers?limit=100', { headers: { Authorization: `Bearer ${token}` }, signal })
       .then(r => r.json())
       .then(d => setSuppliers(d.suppliers || []))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchSuppliers(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSuppliers(controller.signal);
+    return () => controller.abort();
+  }, []);
 
   const handleCreate = async () => {
     const token = localStorage.getItem('token');

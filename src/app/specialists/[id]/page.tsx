@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
+import { SkeletonPage } from '@/components/Loading';
 import StarRating from '@/components/StarRating';
+import toast from 'react-hot-toast';
 
 interface SpecialistData {
   id: string;
@@ -26,14 +27,18 @@ export default function SpecialistDetailPage() {
   const [userScore, setUserScore] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchSpecialist = async () => {
-      try { const res = await fetch(`/api/specialists/${params.id}`); const data = await res.json(); setSpecialist(data.specialist); }
-      catch { setSpecialist(null); } finally { setLoading(false); }
+      try { const res = await fetch(`/api/specialists/${params.id}`, { signal: controller.signal }); const data = await res.json(); setSpecialist(data.specialist); }
+      catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setSpecialist(null);
+      } finally { setLoading(false); }
     };
     fetchSpecialist();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleRate = async () => {
@@ -41,7 +46,6 @@ export default function SpecialistDetailPage() {
     if (!token) { router.push('/login'); return; }
     if (userScore === 0) return;
     setSubmitting(true);
-    setMessage('');
     try {
       const res = await fetch(`/api/specialists/${params.id}/rate`, {
         method: 'POST',
@@ -49,12 +53,12 @@ export default function SpecialistDetailPage() {
         body: JSON.stringify({ score: userScore, comment: comment || undefined }),
       });
       const data = await res.json();
-      if (res.ok) { setSpecialist(prev => prev ? { ...prev, rating: data.rating } : prev); setMessage('Спасибо за оценку!'); setUserScore(0); setComment(''); }
-      else { setMessage(data.error || 'Ошибка'); }
-    } catch { setMessage('Ошибка сети'); } finally { setSubmitting(false); }
+      if (res.ok) { setSpecialist(prev => prev ? { ...prev, rating: data.rating } : prev); toast.success('Спасибо за оценку!'); setUserScore(0); setComment(''); }
+      else { toast.error(data.error || 'Ошибка'); }
+    } catch { toast.error('Ошибка сети'); } finally { setSubmitting(false); }
   };
 
-  if (loading) return <Loading text="Загрузка..." />;
+  if (loading) return <SkeletonPage />;
   if (!specialist) return <div className="text-center py-20 text-gray-500">Специалист не найден</div>;
 
   return (
@@ -138,7 +142,6 @@ export default function SpecialistDetailPage() {
                 <button onClick={handleRate} disabled={submitting || userScore === 0} className="btn-primary !px-5 !py-2.5 text-sm">
                   {submitting ? 'Отправка...' : 'Оценить'}
                 </button>
-                {message && <span className="text-sm text-emerald-600 font-medium animate-fade-in">{message}</span>}
               </div>
             </div>
           </div>

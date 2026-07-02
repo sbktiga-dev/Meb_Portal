@@ -32,14 +32,15 @@ export default function ChatPage() {
   const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => { if (d.user) setCurrentUserId(d.user.id); });
 
-    fetch(`/api/conversations/${params.id}`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`/api/conversations/${params.id}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => {
         if (d.conversation) {
@@ -51,7 +52,7 @@ export default function ChatPage() {
 
     fetchMessages(token);
     const interval = setInterval(() => fetchMessages(token), 5000);
-    return () => clearInterval(interval);
+    return () => { controller.abort(); clearInterval(interval); };
   }, [params.id, router]);
 
   useEffect(() => {

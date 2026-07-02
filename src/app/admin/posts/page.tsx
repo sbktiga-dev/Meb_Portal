@@ -35,30 +35,37 @@ export default function AdminPostsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
       .catch(() => router.push('/login'));
+    return () => controller.abort();
   }, [router]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`/api/admin/posts?filter=${filter}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        setPosts(data.posts || []);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setPosts([]);
+      }
+      setLoading(false);
+    };
     fetchPosts();
+    return () => controller.abort();
   }, [filter]);
-
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/posts?filter=${filter}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setPosts(data.posts || []);
-    } catch { setPosts([]); }
-    setLoading(false);
-  };
 
   const handleToggle = async (postId: string, isPublished: boolean) => {
     const token = localStorage.getItem('token');

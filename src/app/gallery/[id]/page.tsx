@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Loading from '@/components/Loading';
+import { SkeletonPage } from '@/components/Loading';
 import Link from 'next/link';
 import FavoriteButton from '@/components/FavoriteButton';
 
@@ -35,19 +35,24 @@ export default function ImageDetailPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchImage = async () => {
       try {
-        const res = await fetch(`/api/images/${params.id}`);
+        const res = await fetch(`/api/images/${params.id}`, { signal: controller.signal });
         const data = await res.json();
         setImage(data.image);
         if (data.image?.category) {
-          const relRes = await fetch(`/api/images?category=${data.image.category}&limit=4`);
+          const relRes = await fetch(`/api/images?category=${data.image.category}&limit=4`, { signal: controller.signal });
           const relData = await relRes.json();
           setRelated((relData.images || []).filter((i: RelatedImage) => i.id !== params.id).slice(0, 3));
         }
-      } catch { setImage(null); } finally { setLoading(false); }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setImage(null);
+      } finally { setLoading(false); }
     };
     fetchImage();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleDownload = async () => {
@@ -79,7 +84,7 @@ export default function ImageDetailPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) return <Loading text="Загрузка изображения..." />;
+  if (loading) return <SkeletonPage />;
   if (!image) return <div className="text-center py-20 text-gray-500">Изображение не найдено</div>;
 
   const tags: string[] = (() => { try { return JSON.parse(image.tags); } catch { return []; } })();

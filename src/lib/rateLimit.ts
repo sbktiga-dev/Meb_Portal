@@ -88,3 +88,23 @@ export function getRateLimitHeaders(result: { remaining: number; resetAt: number
     'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
   };
 }
+
+export function checkDualRateLimit(
+  ip: string,
+  email: string | undefined,
+  action: string,
+  maxRequests: number,
+  windowMs: number
+): { allowed: boolean; resetAt: number } {
+  const ipKey = `${action}:ip:${ip}`;
+  const ipResult = rateLimit(ipKey, maxRequests, windowMs);
+  if (!ipResult.allowed) return ipResult;
+
+  if (email) {
+    const emailKey = `${action}:email:${email.toLowerCase().trim()}`;
+    const emailResult = rateLimit(emailKey, maxRequests, windowMs);
+    if (!emailResult.allowed) return emailResult;
+  }
+
+  return { allowed: true, resetAt: ipResult.resetAt };
+}

@@ -19,11 +19,11 @@ export default function BookmarksPage() {
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const fetchBookmarks = useCallback(async () => {
+  const fetchBookmarks = useCallback(async (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
     try {
-      const res = await fetch('/api/bookmarks', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch('/api/bookmarks', { headers: { Authorization: `Bearer ${token}` }, signal });
       const data = await res.json();
       setBookmarks(data.bookmarks || []);
     } catch {} finally {
@@ -31,7 +31,11 @@ export default function BookmarksPage() {
     }
   }, [router]);
 
-  useEffect(() => { fetchBookmarks(); }, [fetchBookmarks]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBookmarks(controller.signal);
+    return () => controller.abort();
+  }, [fetchBookmarks]);
 
   const handleCreate = async () => {
     const token = localStorage.getItem('token');

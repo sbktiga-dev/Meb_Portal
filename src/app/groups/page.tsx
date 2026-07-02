@@ -25,14 +25,14 @@ export default function GroupsPage() {
   const [newGroup, setNewGroup] = useState({ name: '', description: '', type: 'public' });
   const [creating, setCreating] = useState(false);
 
-  const fetchGroups = useCallback(async (pageNum: number, append = false) => {
+  const fetchGroups = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (!append) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       params.set('page', String(pageNum));
       params.set('limit', '20');
-      const res = await fetch(`/api/groups?${params}`);
+      const res = await fetch(`/api/groups?${params}`, { signal });
       const data = await res.json();
       const newGroups = data.groups || [];
       if (append) {
@@ -41,14 +41,19 @@ export default function GroupsPage() {
         setGroups(newGroups);
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       if (!append) setGroups([]);
     } finally {
       setLoading(false);
     }
   }, [search]);
 
-  useEffect(() => { fetchGroups(1, false); }, [fetchGroups]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchGroups(1, false, controller.signal);
+    return () => controller.abort();
+  }, [fetchGroups]);
 
   const handleCreate = async () => {
     const token = localStorage.getItem('token');

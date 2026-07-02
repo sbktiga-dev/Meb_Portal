@@ -29,7 +29,7 @@ export default function DocumentsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const fetchDocs = useCallback(async (pageNum: number, append = false) => {
+  const fetchDocs = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {
       setLoadingMore(true);
     } else {
@@ -42,7 +42,7 @@ export default function DocumentsPage() {
       params.set('sort', sortBy);
       params.set('page', String(pageNum));
       params.set('limit', '20');
-      const res = await fetch(`/api/documents?${params}`);
+      const res = await fetch(`/api/documents?${params}`, { signal });
       const data = await res.json();
       const newDocs = data.documents || [];
       if (append) {
@@ -51,7 +51,8 @@ export default function DocumentsPage() {
         setDocs(newDocs);
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       if (!append) setDocs([]);
     } finally {
       setLoading(false);
@@ -60,9 +61,11 @@ export default function DocumentsPage() {
   }, [selectedCategory, search, sortBy]);
 
   useEffect(() => {
+    const controller = new AbortController();
     setPage(1);
     setHasMore(true);
-    fetchDocs(1, false);
+    fetchDocs(1, false, controller.signal);
+    return () => controller.abort();
   }, [fetchDocs]);
 
   const loadMore = useCallback(() => {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
+import { SkeletonPage } from '@/components/Loading';
 import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
 
@@ -58,22 +58,25 @@ export default function PostDetailPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
         .then(r => r.json())
         .then(d => { if (d.user) setCurrentUserId(d.user.id); })
         .catch(() => {});
     }
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchPost = async () => {
       try {
         const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`/api/posts/${params.id}`, { headers });
+        const res = await fetch(`/api/posts/${params.id}`, { headers, signal: controller.signal });
         const data = await res.json();
         setPost(data.post);
         if (data.liked !== undefined) setLiked(data.liked);
@@ -84,10 +87,14 @@ export default function PostDetailPage() {
           localStorage.setItem('viewedPosts', JSON.stringify([...viewed, params.id]));
           if (data.post) data.post.views += 1;
         }
-      } catch { setPost(null); }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setPost(null);
+      }
       finally { setLoading(false); }
     };
     fetchPost();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleLike = async () => {
@@ -132,7 +139,7 @@ export default function PostDetailPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) return <Loading text="Загрузка поста..." />;
+  if (loading) return <SkeletonPage />;
   if (!post) return <div className="text-center py-20 text-gray-500">Пост не найден</div>;
 
   const tags: string[] = (() => { try { return JSON.parse(post.tags); } catch { return []; } })();

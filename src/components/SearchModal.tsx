@@ -53,20 +53,24 @@ export default function SearchModal() {
     }
   }, [isOpen]);
 
-  const search = useCallback(async (q: string) => {
+  const search = useCallback(async (q: string, signal?: AbortSignal) => {
     if (q.length < 2) { setResults(null); return; }
     setLoading(true);
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal });
       const data = await res.json();
       setResults(data.results);
-    } catch { setResults(null); }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      setResults(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => search(query), 300);
-    return () => clearTimeout(timer);
+    const controller = new AbortController();
+    const timer = setTimeout(() => search(query, controller.signal), 300);
+    return () => { clearTimeout(timer); controller.abort(); };
   }, [query, search]);
 
   const handleSelect = (path: string) => {

@@ -33,20 +33,25 @@ export default function ProductDetailPage() {
   const [reviewComment, setReviewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchProduct = useCallback(async () => {
+  const fetchProduct = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/products/${params.id}`);
+      const res = await fetch(`/api/products/${params.id}`, { signal });
       if (!res.ok) { router.push('/products'); return; }
       const data = await res.json();
       setProduct(data.product);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       router.push('/products');
     } finally {
       setLoading(false);
     }
   }, [params.id, router]);
 
-  useEffect(() => { fetchProduct(); }, [fetchProduct]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchProduct(controller.signal);
+    return () => controller.abort();
+  }, [fetchProduct]);
 
   const handleReview = async () => {
     const token = localStorage.getItem('token');

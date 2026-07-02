@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
+import toast from 'react-hot-toast';
 
 export default function DashboardSettingsPage() {
   const router = useRouter();
@@ -13,20 +14,19 @@ export default function DashboardSettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [notifyDocs, setNotifyDocs] = useState(true);
   const [notifyImages, setNotifyImages] = useState(true);
   const [notifyNewsletter, setNotifyNewsletter] = useState(false);
   const [savingPrefs, setSavingPrefs] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
     }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         if (data.user) {
@@ -37,6 +37,7 @@ export default function DashboardSettingsPage() {
       })
       .catch(() => router.push('/login'))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [router]);
 
   if (loading) return <Loading />;
@@ -56,18 +57,15 @@ export default function DashboardSettingsPage() {
     if (!token) return;
 
     if (newPassword !== confirmPassword) {
-      setMessage('Пароли не совпадают');
-      setMessageType('error');
+      toast.error('Пароли не совпадают');
       return;
     }
     if (newPassword.length < 6) {
-      setMessage('Пароль должен быть не менее 6 символов');
-      setMessageType('error');
+      toast.error('Пароль должен быть не менее 6 символов');
       return;
     }
 
     setSaving(true);
-    setMessage('');
     try {
       const res = await fetch('/api/auth/update', {
         method: 'POST',
@@ -80,18 +78,15 @@ export default function DashboardSettingsPage() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage('Пароль изменён');
-        setMessageType('success');
+        toast.success('Пароль изменён');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        setMessage(data.error || 'Ошибка');
-        setMessageType('error');
+        toast.error(data.error || 'Ошибка');
       }
     } catch {
-      setMessage('Ошибка сети');
-      setMessageType('error');
+      toast.error('Ошибка сети');
     } finally {
       setSaving(false);
     }
@@ -105,8 +100,7 @@ export default function DashboardSettingsPage() {
 
   const handleDeleteAccount = async () => {
     if (!confirm('Вы уверены? Это действие необратимо.')) return;
-    setMessage('Функция удаления аккаунта будет доступна позже');
-    setMessageType('error');
+    toast.error('Функция удаления аккаунта будет доступна позже');
   };
 
   const handleSaveNotifications = async () => {
@@ -196,11 +190,6 @@ export default function DashboardSettingsPage() {
                 >
                   {saving ? 'Сохранение...' : 'Изменить пароль'}
                 </button>
-                {message && (
-                  <span className={`text-sm ${messageType === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                    {message}
-                  </span>
-                )}
               </div>
             </div>
           </div>

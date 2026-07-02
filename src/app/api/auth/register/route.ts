@@ -3,13 +3,17 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { hashPassword, generateToken } from '@/lib/auth';
-import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
 import { validateRequest, registerSchema } from '@/lib/validations';
 
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-    const { allowed, resetAt } = rateLimit(`register:${ip}`, 5, 60000);
+    const body = await req.json();
+    const validation = validateRequest(registerSchema, body);
+
+    const emailForLimit = validation.success ? validation.data.email : undefined;
+    const { allowed, resetAt } = checkDualRateLimit(ip, emailForLimit, 'register', 5, 60000);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Слишком много регистраций. Попробуйте через минуту.' },
@@ -17,8 +21,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const validation = validateRequest(registerSchema, body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
@@ -36,11 +37,13 @@ export default function GalleryPage() {
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [galleryBanners, setGalleryBanners] = useState<BannerData[]>([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const styles = ['Все', 'Классика', 'Минимализм', 'Лофт', 'Скандинавия', 'Модерн', 'Кантри'];
   const categories = ['Все', 'Кухни', 'Гардеробные', 'Шкафы', 'Столы', 'Стеллажи', 'Детская'];
 
-  const fetchImages = useCallback(async (pageNum: number, append = false) => {
+  const fetchImages = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {
       setLoadingMore(true);
     } else {
@@ -51,10 +54,12 @@ export default function GalleryPage() {
       if (selectedStyle !== 'Все') params.set('style', selectedStyle);
       if (selectedCategory !== 'Все') params.set('category', selectedCategory);
       if (search) params.set('search', search);
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
       params.set('page', String(pageNum));
       params.set('limit', '20');
       params.set('sort', sortBy);
-      const res = await fetch(`/api/images?${params}`);
+      const res = await fetch(`/api/images?${params}`, { signal });
       const data = await res.json();
       const newImages = data.images || [];
       if (append) {
@@ -64,25 +69,30 @@ export default function GalleryPage() {
       }
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
       setTotal(data.pagination?.total || 0);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       if (!append) setImages([]);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [selectedStyle, selectedCategory, search, sortBy]);
+  }, [selectedStyle, selectedCategory, search, sortBy, dateFrom, dateTo]);
 
   useEffect(() => {
+    const controller = new AbortController();
     setPage(1);
     setHasMore(true);
-    fetchImages(1, false);
+    fetchImages(1, false, controller.signal);
+    return () => controller.abort();
   }, [fetchImages]);
 
   useEffect(() => {
-    fetch('/api/promotion/active?position=gallery')
+    const controller = new AbortController();
+    fetch('/api/promotion/active?position=gallery', { signal: controller.signal })
       .then(r => r.json())
       .then(data => { if (data.banners) setGalleryBanners(data.banners); })
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   const loadMore = useCallback(() => {
@@ -91,7 +101,7 @@ export default function GalleryPage() {
     fetchImages(nextPage, true);
   }, [page, fetchImages]);
 
-  const activeFilters = (selectedStyle !== 'Все' ? 1 : 0) + (selectedCategory !== 'Все' ? 1 : 0);
+  const activeFilters = (selectedStyle !== 'Все' ? 1 : 0) + (selectedCategory !== 'Все' ? 1 : 0) + (dateFrom || dateTo ? 1 : 0);
 
   return (
     <div className="min-h-screen">
@@ -145,6 +155,27 @@ export default function GalleryPage() {
 
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Период:</span>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+              />
+              <span className="text-gray-400">—</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => { setDateTo(e.target.value); setPage(1); }}
+                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+              />
+              {(dateFrom || dateTo) && (
+                <button onClick={() => { setDateFrom(''); setDateTo(''); setPage(1); }} className="text-xs text-red-500 hover:text-red-600 ml-1">Сбросить</button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-3 mt-4">
+            <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Стиль:</span>
               <div className="flex gap-1.5">
                 {styles.map(s => (
@@ -175,7 +206,7 @@ export default function GalleryPage() {
             </div>
             {activeFilters > 0 && (
               <button
-                onClick={() => { setSelectedStyle('Все'); setSelectedCategory('Все'); setPage(1); }}
+                onClick={() => { setSelectedStyle('Все'); setSelectedCategory('Все'); setDateFrom(''); setDateTo(''); setPage(1); }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -211,7 +242,7 @@ export default function GalleryPage() {
                 <a key={img.id} href={`/gallery/${img.id}`} className="card-base overflow-hidden group hover-lift">
                   <div className="relative bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-48 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-500">
                     {img.url ? (
-                      <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      <Image src={img.url} alt={img.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" unoptimized />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-brand-200">
                         <svg className="w-12 h-12 text-brand-300 group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>

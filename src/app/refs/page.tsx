@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Loading from '@/components/Loading';
+import { SkeletonList } from '@/components/Loading';
 
 interface RefData {
   id: string;
@@ -20,24 +20,27 @@ export default function RefsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchRefs = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (selectedCategory !== 'Все') params.set('category', selectedCategory);
-        const res = await fetch(`/api/refs?${params}`);
+        const res = await fetch(`/api/refs?${params}`, { signal: controller.signal });
         const data = await res.json();
         setRefs(data.references || []);
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setRefs([]);
       } finally {
         setLoading(false);
       }
     };
     fetchRefs();
+    return () => controller.abort();
   }, [selectedCategory]);
 
-  if (loading) return <Loading text="Загрузка справочников..." />;
+  if (loading) return <SkeletonList count={4} />;
 
   return (
     <div className="min-h-screen">

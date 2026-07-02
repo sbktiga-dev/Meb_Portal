@@ -4,28 +4,34 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
+import toast from 'react-hot-toast';
 
 export default function DashboardProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [inn, setInn] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [cover, setCover] = useState<string | null>(null);
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [website, setWebsite] = useState('');
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
     }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         if (data.user) {
@@ -34,12 +40,18 @@ export default function DashboardProfilePage() {
           setPhone(data.user.phone || '');
           setInn(data.user.inn || '');
           setAvatar(data.user.avatar || null);
+          setCover(data.user.cover || null);
+          setBio(data.user.bio || '');
+          setLocation(data.user.location || '');
+          setWebsite(data.user.website || '');
+          try { setSocialLinks(JSON.parse(data.user.socialLinks || '{}')); } catch { setSocialLinks({}); }
         } else {
           router.push('/login');
         }
       })
       .catch(() => router.push('/login'))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [router]);
 
   if (loading) return <Loading />;
@@ -60,17 +72,41 @@ export default function DashboardProfilePage() {
       const data = await res.json();
       if (res.ok && data.url) {
         setAvatar(data.url);
-        setMessageType('success');
-        setMessage('Аватар загружен. Нажмите "Сохранить"');
+        toast.success('Аватар загружен. Нажмите "Сохранить"');
       } else {
-        setMessageType('error');
-        setMessage(data.error || 'Ошибка загрузки');
+        toast.error(data.error || 'Ошибка загрузки');
       }
     } catch {
-      setMessageType('error');
-      setMessage('Ошибка сети');
+      toast.error('Ошибка сети');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setCover(data.url);
+        toast.success('Обложка загружена. Нажмите "Сохранить"');
+      } else {
+        toast.error(data.error || 'Ошибка загрузки');
+      }
+    } catch {
+      toast.error('Ошибка сети');
+    } finally {
+      setUploadingCover(false);
     }
   };
 
@@ -79,7 +115,6 @@ export default function DashboardProfilePage() {
     if (!token) return;
 
     setSaving(true);
-    setMessage('');
     try {
       const res = await fetch('/api/auth/update', {
         method: 'PUT',
@@ -87,21 +122,18 @@ export default function DashboardProfilePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, phone, inn, avatar }),
+        body: JSON.stringify({ name, phone, inn, avatar, cover, bio, location, website, socialLinks: JSON.stringify(socialLinks) }),
       });
 
       const data = await res.json();
       if (res.ok) {
         setUser(data.user);
-        setMessageType('success');
-        setMessage('Профиль сохранён');
+        toast.success('Профиль сохранён');
       } else {
-        setMessageType('error');
-        setMessage(data.error || 'Ошибка сохранения');
+        toast.error(data.error || 'Ошибка сохранения');
       }
     } catch {
-      setMessageType('error');
-      setMessage('Ошибка сети');
+      toast.error('Ошибка сети');
     } finally {
       setSaving(false);
     }
@@ -211,6 +243,82 @@ export default function DashboardProfilePage() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">О себе</label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition resize-none"
+                rows={3}
+                placeholder="Расскажите о себе, своём опыте и специализации"
+                maxLength={500}
+              />
+              <p className="text-xs text-gray-400 mt-1">{bio.length}/500</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Город / Регион</label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                  placeholder="Москва"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Вебсайт</label>
+                <input
+                  type="url"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Обложка профиля</label>
+              <div className="flex items-center gap-4">
+                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  {uploadingCover ? 'Загрузка...' : 'Загрузить обложку'}
+                  <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" disabled={uploadingCover} />
+                </label>
+                {cover && (
+                  <div className="relative w-32 h-16 rounded-lg overflow-hidden border border-gray-200">
+                    <img src={cover} alt="Обложка" className="w-full h-full object-cover" />
+                    <button onClick={() => setCover(null)} className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/70">×</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Социальные сети</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  { key: 'telegram', label: 'Telegram', placeholder: '@username' },
+                  { key: 'whatsapp', label: 'WhatsApp', placeholder: '+7 (999) 123-45-67' },
+                  { key: 'vk', label: 'ВКонтакте', placeholder: 'https://vk.com/...' },
+                  { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/...' },
+                ].map(s => (
+                  <div key={s.key} className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-20 shrink-0">{s.label}</span>
+                    <input
+                      type="text"
+                      value={socialLinks[s.key] || ''}
+                      onChange={(e) => setSocialLinks(prev => ({ ...prev, [s.key]: e.target.value }))}
+                      className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-amber-600 transition"
+                      placeholder={s.placeholder}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="flex items-center gap-4">
               <button
                 onClick={handleSave}
@@ -219,7 +327,6 @@ export default function DashboardProfilePage() {
               >
                 {saving ? 'Сохранение...' : 'Сохранить изменения'}
               </button>
-              {message && <span className={`text-sm ${messageType === 'error' ? 'text-red-600' : 'text-green-600'}`}>{message}</span>}
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Loading from '@/components/Loading';
+import { SkeletonList } from '@/components/Loading';
 
 interface SpecialistData {
   id: string;
@@ -35,26 +35,31 @@ export default function SpecialistsPage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('rating');
 
-  const fetchSpecialists = useCallback(async () => {
+  const fetchSpecialists = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (selectedType !== 'Все') params.set('type', selectedType);
       if (search) params.set('search', search);
       params.set('sort', sortBy);
-      const res = await fetch(`/api/specialists?${params}`);
+      const res = await fetch(`/api/specialists?${params}`, { signal });
       const data = await res.json();
       setSpecialists(data.specialists || []);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       setSpecialists([]);
     } finally {
       setLoading(false);
     }
   }, [selectedType, search, sortBy]);
 
-  useEffect(() => { fetchSpecialists(); }, [fetchSpecialists]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSpecialists(controller.signal);
+    return () => controller.abort();
+  }, [fetchSpecialists]);
 
-  if (loading) return <Loading text="Загрузка специалистов..." />;
+  if (loading) return <SkeletonList count={5} />;
 
   return (
     <div className="min-h-screen">

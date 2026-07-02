@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonGrid } from '@/components/Loading';
 
 interface ManufacturerData {
   id: string;
@@ -20,24 +21,27 @@ export default function ManufacturersPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchManufacturers = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (search) params.set('search', search);
-        const res = await fetch(`/api/manufacturers?${params}`);
+        const res = await fetch(`/api/manufacturers?${params}`, { signal: controller.signal });
         const data = await res.json();
         setManufacturers(data.manufacturers || []);
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setManufacturers([]);
       } finally {
         setLoading(false);
       }
     };
     fetchManufacturers();
+    return () => controller.abort();
   }, [search]);
 
-  if (loading) return <Loading text="Загрузка производств..." />;
+  if (loading) return <SkeletonGrid count={6} />;
 
   return (
     <div className="min-h-screen">
@@ -68,8 +72,8 @@ export default function ManufacturersPage() {
               <a key={m.id} href={`/manufacturers/${m.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-3">
                   {m.logo ? (
-                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50">
-                      <img src={m.logo} alt={m.name} className="w-full h-full object-contain" />
+                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
+                      <Image src={m.logo} alt={m.name} fill className="object-contain" sizes="56px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-14 h-14 bg-gradient-to-br from-brand-50 to-orange-50 rounded-xl flex items-center justify-center text-brand-500 font-bold text-xl flex-shrink-0">

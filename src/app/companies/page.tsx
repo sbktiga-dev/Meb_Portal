@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonGrid } from '@/components/Loading';
 
 interface CompanyData {
   id: string;
@@ -22,25 +23,30 @@ export default function CompaniesPage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
-  const fetchCompanies = useCallback(async () => {
+  const fetchCompanies = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       params.set('sort', sortBy);
-      const res = await fetch(`/api/companies?${params}`);
+      const res = await fetch(`/api/companies?${params}`, { signal });
       const data = await res.json();
       setCompanies(data.companies || []);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       setCompanies([]);
     } finally {
       setLoading(false);
     }
   }, [search, sortBy]);
 
-  useEffect(() => { fetchCompanies(); }, [fetchCompanies]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchCompanies(controller.signal);
+    return () => controller.abort();
+  }, [fetchCompanies]);
 
-  if (loading) return <Loading text="Загрузка компаний..." />;
+  if (loading) return <SkeletonGrid count={6} />;
 
   return (
     <div className="min-h-screen">
@@ -78,7 +84,7 @@ export default function CompaniesPage() {
               <a key={company.id} href={`/companies/${company.id}`} className="card-base overflow-hidden hover-lift group">
                 <div className="h-40 relative overflow-hidden">
                   {company.logo ? (
-                    <img src={company.logo} alt={company.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={company.logo} alt={company.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
                       <div className="w-16 h-16 bg-white rounded-2xl shadow-card flex items-center justify-center text-brand-500 font-bold text-2xl group-hover:scale-110 transition-transform duration-300">

@@ -215,6 +215,40 @@ export default function PromotionPage() {
           {error && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4">{error}</div>}
           {success && <div className="bg-green-50 text-green-600 px-4 py-3 rounded-lg mb-4">{success}</div>}
 
+          {/* Что даёт продвижение */}
+          <div className="bg-gradient-to-r from-brand-50 to-orange-50 border border-brand-100 rounded-xl p-5 mb-6">
+            <h2 className="font-bold text-gray-900 mb-3">Что даёт продвижение?</h2>
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Видимость</p>
+                  <p className="text-xs text-gray-500">Ваш контент показывается первым тысячам пользователей</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Охват</p>
+                  <p className="text-xs text-gray-500">Привлекаете новых клиентов и партнёров к вашему профилю</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Доверие</p>
+                  <p className="text-xs text-gray-500">Специальная метка «Продвижено» повышает лояльность</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Секция 1: Форма заявки */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Создать заявку на продвижение</h2>
@@ -230,6 +264,7 @@ export default function PromotionPage() {
                 />
                 <span className="font-medium text-gray-900">Продвижение поста</span>
               </label>
+              <p className="text-sm text-gray-500 mt-1 ml-8">Ваш пост закрепляется вверху ленты новостей с меткой «Продвижено». Пользователи видят его первым при входе на сайт.</p>
               {promotePost && (
                 <div className="mt-4 ml-8 space-y-3">
                   <div>
@@ -279,6 +314,7 @@ export default function PromotionPage() {
                 />
                 <span className="font-medium text-gray-900">Баннер в ленте</span>
               </label>
+              <p className="text-sm text-gray-500 mt-1 ml-8">Рекламный баннер отображается между постами в ленте новостей. Идеально для продвижения акций, скидок или новинок. Переход по ссылке на ваш сайт или страницу.</p>
               {bannerFeed && (
                 <div className="mt-4 ml-8 space-y-3">
                   <div className="grid md:grid-cols-2 gap-3">
@@ -347,6 +383,7 @@ export default function PromotionPage() {
                 />
                 <span className="font-medium text-gray-900">Баннер в каталоге изображений</span>
               </label>
+              <p className="text-sm text-gray-500 mt-1 ml-8">Баннер над сеткой изображений в каталоге. Показывается всем, кто просматривает галерею — одно из самых посещаемых мест портала. Клик ведёт на вашу страницу.</p>
               {bannerGallery && (
                 <div className="mt-4 ml-8 space-y-3">
                   <div className="grid md:grid-cols-2 gap-3">

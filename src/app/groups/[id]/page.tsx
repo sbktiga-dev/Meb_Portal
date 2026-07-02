@@ -43,37 +43,43 @@ export default function GroupDetailPage() {
   const [newPost, setNewPost] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const fetchGroup = useCallback(async () => {
+  const fetchGroup = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/groups/${params.id}`);
+      const res = await fetch(`/api/groups/${params.id}`, { signal });
       if (!res.ok) { router.push('/groups'); return; }
       const data = await res.json();
       setGroup(data.group);
 
       const token = localStorage.getItem('token');
       if (token) {
-        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal });
         if (meRes.ok) {
           const me = await meRes.json();
           setIsMember(data.group.members.some((m: { user: { id: string } }) => m.user.id === me.user.id));
         }
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       router.push('/groups');
     } finally {
       setLoading(false);
     }
   }, [params.id, router]);
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/groups/${params.id}/posts`);
+      const res = await fetch(`/api/groups/${params.id}/posts`, { signal });
       const data = await res.json();
       setPosts(data.posts || []);
     } catch {}
   }, [params.id]);
 
-  useEffect(() => { fetchGroup(); fetchPosts(); }, [fetchGroup, fetchPosts]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchGroup(controller.signal);
+    fetchPosts(controller.signal);
+    return () => controller.abort();
+  }, [fetchGroup, fetchPosts]);
 
   const handleJoin = async () => {
     const token = localStorage.getItem('token');

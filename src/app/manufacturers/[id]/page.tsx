@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonPage } from '@/components/Loading';
 
 interface ManufacturerData {
   id: string;
@@ -30,21 +31,28 @@ export default function ManufacturerDetailPage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
         .then(r => r.json())
         .then(d => { if (d.user) setCurrentUserId(d.user.id); })
         .catch(() => {});
     }
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchManufacturer = async () => {
-      try { const res = await fetch(`/api/manufacturers/${params.id}`); const data = await res.json(); setManufacturer(data.manufacturer); }
-      catch { setManufacturer(null); } finally { setLoading(false); }
+      try { const res = await fetch(`/api/manufacturers/${params.id}`, { signal: controller.signal }); const data = await res.json(); setManufacturer(data.manufacturer); }
+      catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setManufacturer(null);
+      } finally { setLoading(false); }
     };
     fetchManufacturer();
+    return () => controller.abort();
   }, [params.id]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +85,7 @@ export default function ManufacturerDetailPage() {
 
   const isOwner = currentUserId && manufacturer?.userId === currentUserId;
 
-  if (loading) return <Loading text="Загрузка..." />;
+  if (loading) return <SkeletonPage />;
   if (!manufacturer) return <div className="text-center py-20 text-gray-500">Производство не найдено</div>;
 
   return (
@@ -95,8 +103,8 @@ export default function ManufacturerDetailPage() {
               {isOwner ? (
                 <button onClick={() => fileInputRef.current?.click()} className="relative group flex-shrink-0" disabled={uploading}>
                   {manufacturer.logo ? (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in bg-white/10 backdrop-blur-sm">
-                      <img src={manufacturer.logo} alt={manufacturer.name} className="w-full h-full object-contain" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in bg-white/10 backdrop-blur-sm relative">
+                      <Image src={manufacturer.logo} alt={manufacturer.name} fill className="object-contain" sizes="80px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold border border-white/20 shadow-glass animate-scale-in">
@@ -116,8 +124,8 @@ export default function ManufacturerDetailPage() {
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                 </button>
               ) : manufacturer.logo ? (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in flex-shrink-0 bg-white/10 backdrop-blur-sm">
-                  <img src={manufacturer.logo} alt={manufacturer.name} className="w-full h-full object-contain" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in flex-shrink-0 bg-white/10 backdrop-blur-sm relative">
+                  <Image src={manufacturer.logo} alt={manufacturer.name} fill className="object-contain" sizes="80px" unoptimized />
                 </div>
               ) : (
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold border border-white/20 shadow-glass animate-scale-in flex-shrink-0">

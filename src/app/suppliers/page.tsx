@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Loading from '@/components/Loading';
+import Image from 'next/image';
+import { SkeletonList } from '@/components/Loading';
 
 interface SupplierData {
   id: string;
@@ -24,26 +25,31 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
-  const fetchSuppliers = useCallback(async () => {
+  const fetchSuppliers = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (selectedCategory !== 'Все') params.set('category', selectedCategory);
       if (search) params.set('search', search);
       params.set('sort', sortBy);
-      const res = await fetch(`/api/suppliers?${params}`);
+      const res = await fetch(`/api/suppliers?${params}`, { signal });
       const data = await res.json();
       setSuppliers(data.suppliers || []);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       setSuppliers([]);
     } finally {
       setLoading(false);
     }
   }, [selectedCategory, search, sortBy]);
 
-  useEffect(() => { fetchSuppliers(); }, [fetchSuppliers]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSuppliers(controller.signal);
+    return () => controller.abort();
+  }, [fetchSuppliers]);
 
-  if (loading) return <Loading text="Загрузка поставщиков..." />;
+  if (loading) return <SkeletonList count={5} />;
 
   return (
     <div className="min-h-screen">
@@ -90,8 +96,8 @@ export default function SuppliersPage() {
                 <a key={supplier.id} href={`/suppliers/${supplier.id}`} className="card-base p-6 hover-lift group">
                   <div className="flex items-start gap-4 mb-3">
                     {supplier.logo ? (
-                      <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50">
-                        <img src={supplier.logo} alt={supplier.companyName} className="w-full h-full object-contain" />
+                      <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
+                        <Image src={supplier.logo} alt={supplier.companyName} fill className="object-contain" sizes="56px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-14 h-14 bg-gradient-to-br from-brand-50 to-orange-50 rounded-xl flex items-center justify-center text-brand-500 font-bold text-xl flex-shrink-0">

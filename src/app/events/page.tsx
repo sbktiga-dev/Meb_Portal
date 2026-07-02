@@ -32,22 +32,27 @@ export default function EventsPage() {
   const [creating, setCreating] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (typeFilter !== 'all') params.set('type', typeFilter);
-      const res = await fetch(`/api/events?${params}`);
+      const res = await fetch(`/api/events?${params}`, { signal });
       const data = await res.json();
       setEvents(data.events || []);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       setEvents([]);
     } finally {
       setLoading(false);
     }
   }, [typeFilter]);
 
-  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchEvents(controller.signal);
+    return () => controller.abort();
+  }, [fetchEvents]);
 
   useEffect(() => {
     if (!showCreate) return;

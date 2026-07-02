@@ -33,9 +33,10 @@ export default function NotificationsDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 30000);
-    return () => clearInterval(interval);
+    const controller = new AbortController();
+    fetchUnread(controller.signal);
+    const interval = setInterval(() => fetchUnread(), 30000);
+    return () => { controller.abort(); clearInterval(interval); };
   }, []);
 
   useEffect(() => {
@@ -48,12 +49,13 @@ export default function NotificationsDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchUnread = async () => {
+  const fetchUnread = async (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
       const res = await fetch('/api/notifications/unread', {
         headers: { Authorization: `Bearer ${token}` },
+        signal,
       });
       const data = await res.json();
       setUnread(data.unread || 0);

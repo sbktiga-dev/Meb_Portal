@@ -28,23 +28,28 @@ export default function FavoritesPage() {
   const [removing, setRemoving] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetchFavorites(token);
+    const fetchFavorites = async () => {
+      setLoading(true);
+      try {
+        const typeParam = filter !== 'all' ? `&type=${filter}` : '';
+        const res = await fetch(`/api/favorites?limit=50${typeParam}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        setFavorites(data.favorites || []);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setFavorites([]);
+      }
+      setLoading(false);
+    };
+    fetchFavorites();
+    return () => controller.abort();
   }, [router, filter]);
-
-  const fetchFavorites = async (token: string) => {
-    setLoading(true);
-    try {
-      const typeParam = filter !== 'all' ? `&type=${filter}` : '';
-      const res = await fetch(`/api/favorites?limit=50${typeParam}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setFavorites(data.favorites || []);
-    } catch { setFavorites([]); }
-    setLoading(false);
-  };
 
   const handleRemove = async (id: string) => {
     const token = localStorage.getItem('token');

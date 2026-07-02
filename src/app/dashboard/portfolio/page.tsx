@@ -34,13 +34,15 @@ export default function PortfolioPage() {
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch('/api/portfolio?page=1&limit=50', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/portfolio?page=1&limit=50', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => setItems(d.items || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [router]);
 
   const handleDelete = async (id: string) => {

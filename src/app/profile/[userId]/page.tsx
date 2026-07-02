@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonProfile } from '@/components/Loading';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import FollowButton from '@/components/FollowButton';
 import RoleBadge from '@/components/RoleBadge';
 
@@ -137,14 +138,14 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className={`w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg`}>
-                  {user.name?.charAt(0) || '?'}
+                  {getDisplayInitial(user.name, user.role)}
                 </div>
               )}
               <RoleBadge role={user.role} size="lg" />
             </div>
             <div className="flex-1 pb-2">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-bold text-gray-900">{user.name || 'Пользователь'}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{getDisplayName(user.name, user.role)}</h1>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${roleInfo.color}`}>
                   {roleInfo.icon} {roleInfo.label}
                 </span>

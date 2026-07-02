@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { SkeletonPage } from '@/components/Loading';
 import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 
 interface CommentData {
   id: string;
@@ -192,14 +193,14 @@ export default function PostDetailPage() {
                   </div>
                 ) : (
                   <div className={`w-14 h-14 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md`}>
-                    {post.author.name?.charAt(0) || '?'}
+                    {getDisplayInitial(post.author.name, post.author.role)}
                   </div>
                 )}
                 {post.author.role && <RoleBadge role={post.author.role} size="md" />}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-900 text-lg">{post.author.name || 'Аноним'}</span>
+                <span className="font-bold text-gray-900 text-lg">{getDisplayName(post.author.name, post.author.role)}</span>
               </div>
                 <div className="text-sm text-gray-400">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
               </div>
@@ -274,10 +275,10 @@ export default function PostDetailPage() {
                 <div key={comment.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-9 h-9 bg-gradient-to-br ${commentGradient} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
-                      {comment.author.name?.charAt(0) || '?'}
+                      {getDisplayInitial(comment.author.name)}
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-900 text-sm">{comment.author.name || 'Аноним'}</span>
+                      <span className="font-semibold text-gray-900 text-sm">{getDisplayName(comment.author.name)}</span>
                       <div className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   </div>

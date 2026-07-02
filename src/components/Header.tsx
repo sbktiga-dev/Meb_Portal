@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import NotificationsDropdown from './NotificationsDropdown';
 import SearchModal from './SearchModal';
 import RoleBadge from './RoleBadge';
@@ -202,12 +203,12 @@ export default function Header() {
                         </div>
                       ) : (
                         <div className="w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                          {(user.name || '?').charAt(0).toUpperCase()}
+                          {getDisplayInitial(user.name, user.role).toUpperCase()}
                         </div>
                       )}
                       <RoleBadge role={user.role} size="sm" />
                     </div>
-                    <span className="text-sm font-medium text-gray-600 max-w-[100px] truncate hidden xl:block">{user.name || 'Пользователь'}</span>
+                    <span className="text-sm font-medium text-gray-600 max-w-[100px] truncate hidden xl:block">{getDisplayName(user.name, user.role)}</span>
                     <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-150 ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
@@ -223,11 +224,11 @@ export default function Header() {
                             </div>
                           ) : (
                             <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {(user.name || '?').charAt(0).toUpperCase()}
+                              {getDisplayInitial(user.name, user.role).toUpperCase()}
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-gray-900 text-sm">{user.name || 'Пользователь'}</p>
+                            <p className="font-semibold text-gray-900 text-sm">{getDisplayName(user.name, user.role)}</p>
                             <p className="text-xs text-gray-500 truncate">{user.email}</p>
                           </div>
                         </div>

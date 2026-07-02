@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 
 interface SearchResults {
   images: { id: string; title: string; style: string | null; category: string | null; downloads: number }[];
   documents: { id: string; title: string; category: string; fileType: string; downloads: number }[];
-  posts: { id: string; title: string; category: string; createdAt: string; author: { id: string; name: string | null; avatar: string | null } }[];
+  posts: { id: string; title: string; category: string; createdAt: string; author: { id: string; name: string | null; avatar: string | null; role?: string } }[];
   users: { id: string; name: string | null; email: string; avatar: string | null; role: string }[];
 }
 
@@ -134,10 +135,10 @@ export default function SearchModal() {
                           <button key={user.id} onClick={() => handleSelect(`/portfolio/${user.id}`)}
                             className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-gray-50 transition-colors text-left">
                             <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                              {user.name?.charAt(0) || '?'}
+                              {getDisplayInitial(user.name, user.role)}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{user.name || 'Пользователь'}</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">{getDisplayName(user.name, user.role)}</p>
                               <p className="text-xs text-gray-400">{user.role}</p>
                             </div>
                           </button>
@@ -157,7 +158,7 @@ export default function SearchModal() {
                               <p className="text-sm font-medium text-gray-900 truncate">{post.title}</p>
                               <div className="flex items-center gap-2 text-xs text-gray-400">
                                 <span>{categoryLabels[post.category] || post.category}</span>
-                                {post.author && <span>· {post.author.name || 'Аноним'}</span>}
+                                {post.author && <span>· {getDisplayName(post.author.name, post.author.role)}</span>}
                               </div>
                             </div>
                           </button>

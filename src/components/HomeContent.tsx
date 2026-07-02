@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRef, useEffect, useState } from 'react';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import FollowButton from '@/components/FollowButton';
 
 interface Stats {
@@ -41,7 +42,7 @@ interface PostData {
   likes: number;
   views: number;
   createdAt: string;
-  author: { id: string; name: string | null; avatar: string | null };
+  author: { id: string; name: string | null; avatar: string | null; role?: string };
   _count: { comments: number; likesList: number };
 }
 
@@ -226,12 +227,12 @@ export default function HomeContent({
                       </div>
                     ) : (
                       <div className={`w-10 h-10 bg-gradient-to-br ${avatarColor} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0`}>
-                        {post.author.name?.charAt(0) || '?'}
+                        {getDisplayInitial(post.author.name, post.author.role)}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 text-sm truncate">{post.author.name || 'Аноним'}</span>
+                        <span className="font-semibold text-gray-900 text-sm truncate">{getDisplayName(post.author.name, post.author.role)}</span>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</span>

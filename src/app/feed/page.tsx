@@ -9,6 +9,7 @@ import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
 import PromotionBadge from '@/components/PromotionBadge';
 import BannerAd from '@/components/BannerAd';
+import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 
 interface PostData {
   id: string;
@@ -335,14 +336,14 @@ export default function FeedPage() {
                         </div>
                       ) : (
                         <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
-                          {post.author.name?.charAt(0) || '?'}
+                          {getDisplayInitial(post.author.name, post.author.role)}
                         </div>
                       )}
                       <RoleBadge role={post.author.role || 'USER'} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 truncate">{post.author.name || 'Аноним'}</span>
+                        <span className="font-semibold text-gray-900 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400">{timeAgo}</span>
@@ -426,14 +427,14 @@ export default function FeedPage() {
                         </div>
                       ) : (
                         <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
-                          {post.author.name?.charAt(0) || '?'}
+                          {getDisplayInitial(post.author.name, post.author.role)}
                         </div>
                       )}
                       <RoleBadge role={post.author.role || 'USER'} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 truncate">{post.author.name || 'Аноним'}</span>
+                        <span className="font-semibold text-gray-900 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400">{timeAgo}</span>

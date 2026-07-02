@@ -33,7 +33,7 @@ export default function RegisterPage() {
         });
       } catch {}
 
-      window.location.href = '/dashboard';
+      window.location.href = form.role === 'CLIENT' ? '/onboarding' : '/dashboard';
     } catch {
       setError('Ошибка сети');
     } finally {

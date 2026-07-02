@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, imageUrl, linkUrl, position, duration } = body;
+    const { title, imageUrl, linkUrl, position, duration, targetCategory } = body;
 
     if (!title || !imageUrl || !linkUrl || !duration || !DURATION_DAYS[duration]) {
       return NextResponse.json({ error: 'title, imageUrl, linkUrl и duration (7/14/30) обязательны' }, { status: 400 });
@@ -57,6 +57,9 @@ export async function POST(req: NextRequest) {
     if (position && !['feed', 'gallery', 'both'].includes(position)) {
       return NextResponse.json({ error: 'position: feed, gallery или both' }, { status: 400 });
     }
+
+    const validCategories = ['all', 'kitchens', 'wardrobes', 'tables', 'shelves', 'sofas', 'beds', 'hardware', 'materials'];
+    const category = validCategories.includes(targetCategory) ? targetCategory : 'all';
 
     const now = new Date();
     const endDate = new Date(now);
@@ -68,6 +71,7 @@ export async function POST(req: NextRequest) {
         imageUrl,
         linkUrl,
         position: position || 'both',
+        targetCategory: category,
         userId: user.id,
         startDate: now,
         endDate,

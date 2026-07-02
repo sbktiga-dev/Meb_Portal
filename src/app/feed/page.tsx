@@ -130,7 +130,17 @@ export default function FeedPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/promotion/active?position=feed', { signal: controller.signal })
+    const token = localStorage.getItem('token');
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    fetch('/api/auth/me', { headers, signal: controller.signal })
+      .then(r => r.json())
+      .then(d => {
+        const interests = d.user?.interests ? JSON.parse(d.user.interests) : [];
+        const params = new URLSearchParams({ position: 'feed' });
+        if (interests.length > 0) params.set('interests', JSON.stringify(interests));
+        return fetch(`/api/promotion/active?${params}`, { signal: controller.signal });
+      })
       .then(r => r.json())
       .then(data => { if (data.banners) setFeedBanners(data.banners); })
       .catch(() => {});

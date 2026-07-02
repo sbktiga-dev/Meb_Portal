@@ -37,6 +37,18 @@ const DURATIONS = [
   { value: 30, label: '30 дней', price: '4 000 руб.' },
 ];
 
+const TARGET_CATEGORIES = [
+  { value: 'all', label: 'Все категории' },
+  { value: 'kitchens', label: 'Кухни' },
+  { value: 'wardrobes', label: 'Гардеробные' },
+  { value: 'tables', label: 'Столы' },
+  { value: 'shelves', label: 'Стеллажи' },
+  { value: 'sofas', label: 'Диваны' },
+  { value: 'beds', label: 'Кровати' },
+  { value: 'hardware', label: 'Фурнитура' },
+  { value: 'materials', label: 'Материалы' },
+];
+
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   pending: { text: 'Ожидает', color: 'bg-yellow-100 text-yellow-700' },
   active: { text: 'Активно', color: 'bg-green-100 text-green-700' },
@@ -59,8 +71,8 @@ export default function PromotionPage() {
   const [bannerFeedDuration, setBannerFeedDuration] = useState(7);
   const [bannerGalleryDuration, setBannerGalleryDuration] = useState(7);
 
-  const [bannerFeedForm, setBannerFeedForm] = useState({ title: '', imageUrl: '', linkUrl: '' });
-  const [bannerGalleryForm, setBannerGalleryForm] = useState({ title: '', imageUrl: '', linkUrl: '' });
+  const [bannerFeedForm, setBannerFeedForm] = useState({ title: '', imageUrl: '', linkUrl: '', targetCategory: 'all' });
+  const [bannerGalleryForm, setBannerGalleryForm] = useState({ title: '', imageUrl: '', linkUrl: '', targetCategory: 'all' });
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -170,8 +182,8 @@ export default function PromotionPage() {
         setBannerFeed(false);
         setBannerGallery(false);
         setSelectedPostId('');
-        setBannerFeedForm({ title: '', imageUrl: '', linkUrl: '' });
-        setBannerGalleryForm({ title: '', imageUrl: '', linkUrl: '' });
+        setBannerFeedForm({ title: '', imageUrl: '', linkUrl: '', targetCategory: 'all' });
+        setBannerGalleryForm({ title: '', imageUrl: '', linkUrl: '', targetCategory: 'all' });
         loadData();
       } else {
         setError('Ошибка при отправке одной из заявок');
@@ -350,6 +362,19 @@ export default function PromotionPage() {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Целевая аудитория</label>
+                    <select
+                      value={bannerFeedForm.targetCategory}
+                      onChange={e => setBannerFeedForm({ ...bannerFeedForm, targetCategory: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    >
+                      {TARGET_CATEGORIES.map(c => (
+                        <option key={c.value} value={c.value}>{c.label}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-400 mt-1">Показывать пользователям, интересующимся этой категорией мебели</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Срок</label>
                     <div className="flex gap-2">
                       {DURATIONS.map(d => (
@@ -417,6 +442,19 @@ export default function PromotionPage() {
                       className="w-full border border-gray-200 rounded-lg px-4 py-2"
                       placeholder="https://example.com/banner.jpg"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Целевая аудитория</label>
+                    <select
+                      value={bannerGalleryForm.targetCategory}
+                      onChange={e => setBannerGalleryForm({ ...bannerGalleryForm, targetCategory: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    >
+                      {TARGET_CATEGORIES.map(c => (
+                        <option key={c.value} value={c.value}>{c.label}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-400 mt-1">Показывать пользователям, интересующимся этой категорией мебели</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Срок</label>

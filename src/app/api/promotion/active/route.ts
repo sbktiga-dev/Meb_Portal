@@ -7,7 +7,13 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const position = searchParams.get('position') || 'feed';
+    const interestsParam = searchParams.get('interests');
     const now = new Date();
+
+    let userInterests: string[] = [];
+    if (interestsParam) {
+      try { userInterests = JSON.parse(interestsParam); } catch {}
+    }
 
     const promotions = await prisma.promotion.findMany({
       where: {
@@ -36,15 +42,30 @@ export async function GET(req: NextRequest) {
       take: 5,
     });
 
+    const bannerWhere: Record<string, unknown> = {
+      status: 'active',
+      endDate: { gt: now },
+      OR: [
+        { position: 'both' },
+        { position },
+      ],
+    };
+
+    if (userInterests.length > 0) {
+      bannerWhere.AND = [
+        {
+          OR: [
+            { targetCategory: 'all' },
+            { targetCategory: { in: userInterests } },
+          ],
+        },
+      ];
+    } else {
+      bannerWhere.targetCategory = 'all';
+    }
+
     const banners = await prisma.banner.findMany({
-      where: {
-        status: 'active',
-        endDate: { gt: now },
-        OR: [
-          { position: 'both' },
-          { position },
-        ],
-      },
+      where: bannerWhere,
       orderBy: { startDate: 'desc' },
       take: 3,
     });

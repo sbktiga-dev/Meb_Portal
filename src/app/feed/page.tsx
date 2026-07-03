@@ -313,7 +313,20 @@ export default function FeedPage() {
             <Link href="/feed/new" className="btn-primary">Создать первый пост</Link>
           </div>
         ) : (
-          <div className="max-w-2xl mx-auto space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_240px] gap-6">
+            {/* Left sidebar — баннеры на десктопе */}
+            <aside className="hidden lg:block">
+              {feedBanners.length > 0 && (
+                <div className="sticky top-20 space-y-4">
+                  {feedBanners.map((b) => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))}
+                </div>
+              )}
+            </aside>
+
+            {/* Center — посты */}
+            <div className="space-y-8 min-w-0">
             {/* Продвинутые посты */}
             {promotedPosts.map((post, i) => {
               const tags: string[] = (() => { try { return JSON.parse(post.tags); } catch { return []; } })();
@@ -401,9 +414,11 @@ export default function FeedPage() {
               );
             })}
 
-            {/* Баннер после продвинутых */}
+            {/* Баннер после продвинутых — только на мобильном */}
             {promotedPosts.length > 0 && feedBanners.length > 0 && (
-              <BannerAd title={feedBanners[0].title} imageUrl={feedBanners[0].imageUrl} linkUrl={feedBanners[0].linkUrl} />
+              <div className="lg:hidden">
+                <BannerAd title={feedBanners[0].title} imageUrl={feedBanners[0].imageUrl} linkUrl={feedBanners[0].linkUrl} />
+              </div>
             )}
 
             {/* Обычные посты */}
@@ -531,7 +546,9 @@ export default function FeedPage() {
                   </div>
                 </article>
                 {(i + 1) % 3 === 0 && feedBanners.length > 0 && (
-                  <BannerAd title={feedBanners[i % feedBanners.length].title} imageUrl={feedBanners[i % feedBanners.length].imageUrl} linkUrl={feedBanners[i % feedBanners.length].linkUrl} />
+                  <div className="lg:hidden">
+                    <BannerAd title={feedBanners[i % feedBanners.length].title} imageUrl={feedBanners[i % feedBanners.length].imageUrl} linkUrl={feedBanners[i % feedBanners.length].linkUrl} />
+                  </div>
                 )}
                 </Fragment>
               );
@@ -549,6 +566,18 @@ export default function FeedPage() {
                 <p className="text-center text-sm text-gray-400">Все посты загружены</p>
               )}
             </div>
+          </div>
+
+            {/* Right sidebar — баннеры на десктопе */}
+            <aside className="hidden lg:block">
+              {feedBanners.length > 1 && (
+                <div className="sticky top-20 space-y-4">
+                  {feedBanners.slice(1).map((b) => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))}
+                </div>
+              )}
+            </aside>
           </div>
         )}
       </div>

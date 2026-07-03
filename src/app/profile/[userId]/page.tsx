@@ -300,7 +300,7 @@ export default function ProfilePage() {
               {!isOwnProfile && currentUserId && (
                 <>
                   <FollowButton userId={user.id} />
-                  <Link href={`/messages?user=${user.id}`} className="btn-ghost text-sm !px-4">
+                  <Link href={`/dashboard/messages?user=${user.id}`} className="btn-ghost text-sm !px-4">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                     Написать
                   </Link>
@@ -331,7 +331,7 @@ export default function ProfilePage() {
               <div className="card-base p-4 md:p-5 space-y-2">
                 <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
                 <FollowButton userId={user.id} />
-                <Link href={`/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <Link href={`/dashboard/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                   Написать сообщение
                 </Link>

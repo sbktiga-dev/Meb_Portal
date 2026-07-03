@@ -60,6 +60,8 @@ model User {
   productReviews ProductReview[]
   promotions     Promotion[]
   banners        Banner[]
+  reviewsWritten  UserProfileReview[] @relation("ReviewsWritten")
+  reviewsReceived UserProfileReview[] @relation("ReviewsReceived")
 }
 
 model Specialist {
@@ -145,6 +147,22 @@ model ProductReview {
 
   @@unique([userId, productId])
   @@index([productId])
+}
+
+model UserProfileReview {
+  id          String    @id @default(cuid())
+  score       Int
+  comment     String?
+  createdAt   DateTime  @default(now())
+
+  reviewer     User     @relation("ReviewsWritten", fields: [reviewerId], references: [id])
+  reviewerId   String
+  target       User     @relation("ReviewsReceived", fields: [targetUserId], references: [id])
+  targetUserId String
+
+  @@unique([reviewerId, targetUserId])
+  @@index([targetUserId])
+  @@index([reviewerId])
 }
 
 model Image {

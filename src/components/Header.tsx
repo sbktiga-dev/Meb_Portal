@@ -34,7 +34,6 @@ const participantsLinks = [
 ];
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -49,28 +48,6 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${window.scrollY}px`;
-      document.body.style.width = '100%';
-    } else {
-      const scrollY = document.body.style.top;
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      if (scrollY) window.scrollTo(0, parseInt(scrollY || '0') * -1);
-    }
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-    };
-  }, [menuOpen]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -102,7 +79,7 @@ export default function Header() {
     }
   }, [pathname]);
 
-  useEffect(() => { setMenuOpen(false); setUserMenuOpen(false); }, [pathname]);
+  useEffect(() => { setUserMenuOpen(false); }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -269,89 +246,7 @@ export default function Header() {
             )}
           </div>
 
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
-            aria-label="Меню"
-          >
-            <div className="w-5 h-4 flex flex-col justify-between">
-              <span className={`h-0.5 bg-gray-700 rounded-full transition-all duration-300 origin-center ${menuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
-              <span className={`h-0.5 bg-gray-700 rounded-full transition-all duration-300 ${menuOpen ? 'opacity-0 scale-0' : ''}`} />
-              <span className={`h-0.5 bg-gray-700 rounded-full transition-all duration-300 origin-center ${menuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
-            </div>
-          </button>
         </div>
-
-        {menuOpen && (
-          <div className="lg:hidden animate-fade-in-down" style={{ maxHeight: 'calc(100vh - 56px)', overflowY: 'auto' }}>
-            <div className="mb-3 px-4 pt-3">
-              <SearchModal />
-            </div>
-            <nav className="space-y-1 px-2 pb-6">
-              {navLinks.map(link => {
-                const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-              <div className="px-4 py-1">
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Участники</span>
-              </div>
-              {participantsLinks.map(link => {
-                const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-              <hr className="my-2 border-gray-100" />
-              {user ? (
-                <>
-                  <div className="px-4 py-2">
-                    <NotificationsDropdown />
-                  </div>
-                  <Link href={`/profile/${user.id}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Моя страница
-                  </Link>
-                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
-                    Личный кабинет
-                  </Link>
-                  {user.role === 'ADMIN' && (
-                    <Link href="/admin" onClick={() => setMenuOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
-                      Админ-панель
-                    </Link>
-                  )}
-                  <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50">
-                    Выйти
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Войти</Link>
-                  <Link href="/register" className="block px-4 py-3 rounded-xl text-sm font-medium bg-brand-500 text-white text-center mx-4">Регистрация</Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );

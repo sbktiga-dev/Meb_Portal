@@ -17,7 +17,9 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         website: true,
         role: true,
         inn: true,
+        phone: true,
         socialLinks: true,
+        interests: true,
         createdAt: true,
         _count: {
           select: {
@@ -82,6 +84,12 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       },
     });
 
+    const reviewStats = await prisma.userProfileReview.aggregate({
+      where: { targetUserId: params.id },
+      _avg: { score: true },
+      _count: true,
+    });
+
     return NextResponse.json({
       user,
       specialist,
@@ -90,6 +98,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       manufacturer,
       recentPosts,
       recentPortfolio,
+      reviewStats: { average: reviewStats._avg.score, count: reviewStats._count },
     });
   } catch (e) {
     console.error('Profile error:', e);

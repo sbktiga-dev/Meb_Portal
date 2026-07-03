@@ -1,13 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonProfile } from '@/components/Loading';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import FollowButton from '@/components/FollowButton';
 import RoleBadge from '@/components/RoleBadge';
+import ContactInfo from '@/components/ContactInfo';
+import ReviewCard from '@/components/ReviewCard';
+import ReviewForm from '@/components/ReviewForm';
+import StarRating from '@/components/StarRating';
+import InfiniteScroll from '@/components/InfiniteScroll';
 
 interface ProfileData {
   user: {
@@ -20,7 +25,9 @@ interface ProfileData {
     website: string | null;
     role: string;
     inn: string | null;
+    phone: string | null;
     socialLinks: string;
+    interests: string;
     createdAt: string;
     _count: { posts: number; followers: number; following: number; portfolio: number };
   };
@@ -30,7 +37,12 @@ interface ProfileData {
   manufacturer: { id: string; name: string; description: string | null; logo: string | null; website: string | null; isVerified: boolean } | null;
   recentPosts: { id: string; title: string; category: string; likes: number; views: number; createdAt: string; _count: { comments: number } }[];
   recentPortfolio: { id: string; title: string; images: string; category: string | null; createdAt: string }[];
+  reviewStats: { average: number | null; count: number };
 }
+
+interface Post { id: string; title: string; category: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
+interface PortfolioItem { id: string; title: string; images: string; category: string | null; createdAt: string }
+interface Review { id: string; score: number; comment: string | null; createdAt: string; reviewer: { id: string; name: string | null; avatar: string | null; role: string } }
 
 const roleLabels: Record<string, { label: string; color: string; icon: string }> = {
   USER: { label: 'Специалист', color: 'bg-purple-100 text-purple-700', icon: '✦' },
@@ -54,31 +66,55 @@ const specialistTypes: Record<string, string> = {
   MANAGER: 'Менеджер',
 };
 
-const socialIcons: Record<string, string> = {
-  telegram: '✈',
-  whatsapp: '💬',
-  vk: 'V',
-  youtube: '▶',
-  instagram: '📷',
-  website: '🌐',
+const portfolioCategories = [
+  { key: '', label: 'Все' },
+  { key: 'kitchens', label: 'Кухни' },
+  { key: 'wardrobes', label: 'Шкафы' },
+  { key: 'tables', label: 'Столы' },
+  { key: 'shelves', label: 'Полки' },
+  { key: 'sofas', label: 'Диваны' },
+  { key: 'beds', label: 'Кровати' },
+  { key: 'other', label: 'Другое' },
+];
+
+const interestLabels: Record<string, string> = {
+  kitchens: 'Кухни', wardrobes: 'Шкафы', tables: 'Столы', shelves: 'Полки',
+  sofas: 'Диваны', beds: 'Кровати', hardware: 'Фурнитура', materials: 'Материалы',
+  minimalism: 'Минимализм', classic: 'Классика', modern: 'Современный',
 };
 
 const avatarGradients = [
-  'from-brand-400 to-orange-500',
-  'from-emerald-400 to-teal-500',
-  'from-purple-400 to-pink-500',
-  'from-blue-400 to-indigo-500',
-  'from-amber-400 to-orange-500',
-  'from-rose-400 to-red-500',
+  'from-brand-400 to-orange-500', 'from-emerald-400 to-teal-500',
+  'from-purple-400 to-pink-500', 'from-blue-400 to-indigo-500',
+  'from-amber-400 to-orange-500', 'from-rose-400 to-red-500',
 ];
 
 export default function ProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'portfolio' | 'about'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'portfolio' | 'reviews' | 'about'>('posts');
+
+  // Posts state
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsPage, setPostsPage] = useState(1);
+  const [postsHasMore, setPostsHasMore] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
+
+  // Portfolio state
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [portfolioPage, setPortfolioPage] = useState(1);
+  const [portfolioHasMore, setPortfolioHasMore] = useState(true);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
+  const [portfolioCategory, setPortfolioCategory] = useState('');
+
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewStats, setReviewStats] = useState<{ average: number | null; count: number }>({ average: null, count: 0 });
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsHasMore, setReviewsHasMore] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,52 +136,153 @@ export default function ProfilePage() {
         if (!res.ok) { setProfile(null); return; }
         const data = await res.json();
         setProfile(data);
+        if (data.reviewStats) setReviewStats(data.reviewStats);
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         setProfile(null);
-      }
-      finally { setLoading(false); }
+      } finally { setLoading(false); }
     };
     fetchProfile();
     return () => controller.abort();
   }, [params.userId]);
 
+  // Fetch posts
+  const fetchPosts = useCallback(async (page: number, append: boolean, signal?: AbortSignal) => {
+    if (!profile) return;
+    setPostsLoading(true);
+    try {
+      const res = await fetch(`/api/feed?authorId=${profile.user.id}&page=${page}&limit=10`, { signal });
+      if (!res.ok) return;
+      const data = await res.json();
+      const items = data.items || data.posts || [];
+      setPosts(prev => append ? [...prev, ...items] : items);
+      setPostsHasMore(page < (data.pagination?.totalPages || 1));
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+    } finally { setPostsLoading(false); }
+  }, [profile]);
+
+  useEffect(() => {
+    if (activeTab === 'posts' && posts.length === 0 && profile) {
+      const c = new AbortController();
+      fetchPosts(1, false, c.signal);
+      return () => c.abort();
+    }
+  }, [activeTab, profile, fetchPosts, posts.length]);
+
+  // Fetch portfolio
+  const fetchPortfolio = useCallback(async (page: number, append: boolean, signal?: AbortSignal) => {
+    if (!profile) return;
+    setPortfolioLoading(true);
+    try {
+      const cat = portfolioCategory ? `&category=${portfolioCategory}` : '';
+      const res = await fetch(`/api/portfolio/user/${profile.user.id}?page=${page}&limit=12${cat}`, { signal });
+      if (!res.ok) return;
+      const data = await res.json();
+      const items = data.items || [];
+      setPortfolioItems(prev => append ? [...prev, ...items] : items);
+      setPortfolioHasMore(page < (data.pagination?.totalPages || 1));
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+    } finally { setPortfolioLoading(false); }
+  }, [profile, portfolioCategory]);
+
+  useEffect(() => {
+    if (activeTab === 'portfolio' && profile) {
+      setPortfolioPage(1);
+      setPortfolioHasMore(true);
+      const c = new AbortController();
+      fetchPortfolio(1, false, c.signal);
+      return () => c.abort();
+    }
+  }, [activeTab, profile, portfolioCategory, fetchPortfolio]);
+
+  // Fetch reviews
+  const fetchReviews = useCallback(async (page: number, append: boolean, signal?: AbortSignal) => {
+    if (!profile) return;
+    setReviewsLoading(true);
+    try {
+      const res = await fetch(`/api/users/${profile.user.id}/reviews?page=${page}&limit=10`, { signal });
+      if (!res.ok) return;
+      const data = await res.json();
+      setReviews(prev => append ? [...prev, ...data.items] : data.items);
+      setReviewStats(data.stats);
+      setReviewsHasMore(page < (data.pagination?.totalPages || 1));
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+    } finally { setReviewsLoading(false); }
+  }, [profile]);
+
+  useEffect(() => {
+    if (activeTab === 'reviews' && reviews.length === 0 && profile) {
+      const c = new AbortController();
+      fetchReviews(1, false, c.signal);
+      return () => c.abort();
+    }
+  }, [activeTab, profile, fetchReviews, reviews.length]);
+
+  const loadMorePosts = useCallback(() => {
+    const next = postsPage + 1;
+    setPostsPage(next);
+    fetchPosts(next, true);
+  }, [postsPage, fetchPosts]);
+
+  const loadMorePortfolio = useCallback(() => {
+    const next = portfolioPage + 1;
+    setPortfolioPage(next);
+    fetchPortfolio(next, true);
+  }, [portfolioPage, fetchPortfolio]);
+
+  const loadMoreReviews = useCallback(() => {
+    const next = reviewsPage + 1;
+    setReviewsPage(next);
+    fetchReviews(next, true);
+  }, [reviewsPage, fetchReviews]);
+
+  const handleReviewSuccess = () => {
+    setReviews([]);
+    setReviewsPage(1);
+    const c = new AbortController();
+    fetchReviews(1, false, c.signal);
+  };
+
   if (loading) return <div className="min-h-screen bg-gray-50/50"><div className="max-w-4xl mx-auto px-4 py-12"><SkeletonProfile /></div></div>;
   if (!profile) return <div className="text-center py-20 text-gray-500">Пользователь не найден</div>;
 
-  const { user, specialist, company, supplier, manufacturer, recentPosts, recentPortfolio } = profile;
+  const { user, specialist, company, supplier, manufacturer } = profile;
   const roleInfo = roleLabels[user.role] || roleLabels.USER;
   const gradientIdx = (user.name?.charCodeAt(0) || 0) % avatarGradients.length;
   const socialLinks: Record<string, string> = (() => { try { return JSON.parse(user.socialLinks); } catch { return {}; } })();
+  const interests: string[] = (() => { try { return JSON.parse(user.interests); } catch { return []; } })();
   const isOwnProfile = currentUserId === user.id;
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-gray-50/50 pb-20 md:pb-0">
       {/* Cover + Avatar */}
       <div className="relative">
-        <div className="h-48 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
+        <div className="h-40 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
           {user.cover && <Image src={user.cover} alt="" fill className="object-cover" sizes="100vw" unoptimized />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-10">
-          <div className="flex flex-col sm:flex-row items-end sm:items-end gap-4">
+        <div className="max-w-4xl mx-auto px-4 -mt-14 md:-mt-16 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-4">
             <div className="relative flex-shrink-0">
               {user.avatar ? (
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
                   <Image src={user.avatar} alt="" fill className="object-cover" sizes="128px" unoptimized />
                 </div>
               ) : (
-                <div className={`w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg`}>
+                <div className={`w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold border-4 border-white shadow-lg`}>
                   {getDisplayInitial(user.name, user.role)}
                 </div>
               )}
               <RoleBadge role={user.role} size="lg" />
             </div>
-            <div className="flex-1 pb-2">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-bold text-gray-900">{getDisplayName(user.name, user.role)}</h1>
+            <div className="flex-1 pb-2 text-center sm:text-left">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center sm:justify-start">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{getDisplayName(user.name, user.role)}</h1>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${roleInfo.color}`}>
                   {roleInfo.icon} {roleInfo.label}
                 </span>
@@ -157,7 +294,7 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-              {user.bio && <p className="text-gray-600 mt-2 text-sm max-w-xl">{user.bio}</p>}
+              {user.bio && <p className="text-gray-600 mt-1.5 text-sm max-w-xl">{user.bio}</p>}
             </div>
             <div className="flex items-center gap-2 pb-2">
               {!isOwnProfile && currentUserId && (
@@ -177,40 +314,21 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
           {/* Left sidebar */}
-          <div className="space-y-5">
-            {/* Info card */}
-            <div className="card-base p-5 space-y-3">
-              <h3 className="font-bold text-gray-900 text-sm">Информация</h3>
-              {user.location && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  {user.location}
-                </div>
-              )}
-              {user.website && (
-                <div className="flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                  <a href={user.website.startsWith('http') ? user.website : `https://${user.website}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 truncate">{user.website}</a>
-                </div>
-              )}
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                Регистрация: {joinDate}
-              </div>
-              {user.inn && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                  ИНН: {user.inn}
-                </div>
-              )}
-            </div>
+          <div className="space-y-4 md:space-y-5">
+            {/* Contacts */}
+            <ContactInfo
+              phone={currentUserId ? user.phone : null}
+              website={user.website}
+              location={user.location}
+              socialLinks={socialLinks}
+            />
 
             {/* Quick actions */}
             {!isOwnProfile && currentUserId && (
-              <div className="card-base p-5 space-y-2">
+              <div className="card-base p-4 md:p-5 space-y-2">
                 <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
                 <FollowButton userId={user.id} />
                 <Link href={`/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
@@ -225,7 +343,7 @@ export default function ProfilePage() {
             )}
 
             {isOwnProfile && (
-              <div className="card-base p-5 space-y-2">
+              <div className="card-base p-4 md:p-5 space-y-2">
                 <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
                 <Link href="/dashboard/profile" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -242,47 +360,40 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Social links */}
-            {Object.keys(socialLinks).length > 0 && (
-              <div className="card-base p-5 space-y-3">
-                <h3 className="font-bold text-gray-900 text-sm">Соцсети</h3>
-                <div className="space-y-2">
-                  {Object.entries(socialLinks).map(([key, url]) => url && (
-                    <a key={key} href={url.startsWith('http') ? url : `https://${url}`} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
-                      <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm group-hover:bg-brand-50 transition-colors">{socialIcons[key] || '🔗'}</span>
-                      <span className="text-sm text-gray-700 group-hover:text-brand-600 transition-colors capitalize">{key}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Stats */}
-            <div className="card-base p-5">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <div className="text-xl font-bold text-gray-900">{user._count.posts}</div>
-                  <div className="text-xs text-gray-500">Постов</div>
+            <div className="card-base p-4 md:p-5">
+              <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.posts}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500">Постов</div>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <div className="text-xl font-bold text-gray-900">{user._count.portfolio}</div>
-                  <div className="text-xs text-gray-500">Портфолио</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.portfolio}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500">Портфолио</div>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <div className="text-xl font-bold text-gray-900">{user._count.followers}</div>
-                  <div className="text-xs text-gray-500">Подписчиков</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.followers}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500">Подписчиков</div>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <div className="text-xl font-bold text-gray-900">{user._count.following}</div>
-                  <div className="text-xs text-gray-500">Подписок</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.following}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500">Подписок</div>
                 </div>
+                {reviewStats.count > 0 && (
+                  <div className="col-span-2 text-center p-2.5 md:p-3 rounded-xl bg-amber-50">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-lg md:text-xl font-bold text-amber-600">{reviewStats.average?.toFixed(1) || '—'}</span>
+                      <StarRating rating={reviewStats.average || 0} readonly size="sm" />
+                    </div>
+                    <div className="text-[11px] md:text-xs text-amber-500 mt-0.5">{reviewStats.count} отзывов</div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Business info */}
             {company && (
-              <div className="card-base p-5 space-y-3">
+              <div className="card-base p-4 md:p-5 space-y-3">
                 <h3 className="font-bold text-gray-900 text-sm">Компания</h3>
                 <Link href={`/companies/${company.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {company.logo ? (
@@ -300,7 +411,7 @@ export default function ProfilePage() {
             )}
 
             {supplier && (
-              <div className="card-base p-5 space-y-3">
+              <div className="card-base p-4 md:p-5 space-y-3">
                 <h3 className="font-bold text-gray-900 text-sm">Поставщик</h3>
                 <Link href={`/suppliers/${supplier.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {supplier.logo ? (
@@ -318,7 +429,7 @@ export default function ProfilePage() {
             )}
 
             {manufacturer && (
-              <div className="card-base p-5 space-y-3">
+              <div className="card-base p-4 md:p-5 space-y-3">
                 <h3 className="font-bold text-gray-900 text-sm">Производство</h3>
                 <Link href={`/manufacturers/${manufacturer.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {manufacturer.logo ? (
@@ -337,38 +448,39 @@ export default function ProfilePage() {
           </div>
 
           {/* Main content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Tabs */}
-            <div className="card-base p-1 flex gap-1">
+            <div className="card-base p-1 flex gap-1 overflow-x-auto">
               {[
-                { key: 'posts' as const, label: 'Публикации', count: recentPosts.length },
-                { key: 'portfolio' as const, label: 'Портфолио', count: recentPortfolio.length },
+                { key: 'posts' as const, label: 'Публикации', count: user._count.posts },
+                { key: 'portfolio' as const, label: 'Портфолио', count: user._count.portfolio },
+                { key: 'reviews' as const, label: 'Отзывы', count: reviewStats.count },
                 { key: 'about' as const, label: 'О себе', count: null },
               ].map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex-1 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === tab.key
                       ? 'bg-brand-500 text-white shadow-sm'
                       : 'text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   {tab.label}
-                  {tab.count !== null && <span className={`ml-1.5 text-xs ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400'}`}>({tab.count})</span>}
+                  {tab.count !== null && tab.count > 0 && <span className={`ml-1 text-[11px] ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400'}`}>({tab.count})</span>}
                 </button>
               ))}
             </div>
 
             {/* Tab: Posts */}
             {activeTab === 'posts' && (
-              <>
-                {recentPosts.length > 0 ? (
+              <InfiniteScroll hasMore={postsHasMore} loading={postsLoading} onLoadMore={loadMorePosts}>
+                {posts.length > 0 ? (
                   <div className="space-y-3">
-                    {recentPosts.map(post => (
-                      <Link key={post.id} href={`/feed/${post.id}`} className="card-base block p-5 hover:shadow-md transition-shadow">
-                        <h4 className="font-bold text-gray-900 mb-2">{post.title}</h4>
-                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                    {posts.map(post => (
+                      <Link key={post.id} href={`/feed/${post.id}`} className="card-base block p-4 sm:p-5 hover:shadow-md transition-shadow">
+                        <h4 className="font-bold text-gray-900 mb-2 text-sm sm:text-base">{post.title}</h4>
+                        <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 flex-wrap">
                           <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${categoryLabels[post.category]?.color || 'text-gray-500'}`}>
                             {categoryLabels[post.category]?.label || post.category}
                           </span>
@@ -379,94 +491,142 @@ export default function ProfilePage() {
                         </div>
                       </Link>
                     ))}
-                    <Link href={`/feed?authorId=${user.id}`} className="block text-center py-3 text-sm text-brand-600 hover:text-brand-700 font-medium">
-                      Все публикации →
-                    </Link>
                   </div>
                 ) : (
-                  <div className="card-base p-10 text-center">
-                    <p className="text-gray-400">Пока нет публикаций</p>
-                  </div>
+                  !postsLoading && <div className="card-base p-10 text-center"><p className="text-gray-400">Пока нет публикаций</p></div>
                 )}
-              </>
+              </InfiniteScroll>
             )}
 
             {/* Tab: Portfolio */}
             {activeTab === 'portfolio' && (
               <>
-                {recentPortfolio.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {recentPortfolio.map(item => {
-                      const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
-                      return (
-                        <Link key={item.id} href={`/portfolio/${user.id}`} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-                          {imgs[0] ? (
-                            <img src={imgs[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-300">
-                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                {/* Category filter */}
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                  {portfolioCategories.map(cat => (
+                    <button
+                      key={cat.key}
+                      onClick={() => { setPortfolioCategory(cat.key); setPortfolioItems([]); }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                        portfolioCategory === cat.key
+                          ? 'bg-brand-500 text-white'
+                          : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                <InfiniteScroll hasMore={portfolioHasMore} loading={portfolioLoading} onLoadMore={loadMorePortfolio}>
+                  {portfolioItems.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {portfolioItems.map(item => {
+                        const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
+                        return (
+                          <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                            {imgs[0] ? (
+                              <img src={imgs[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                              <span className="text-white text-sm font-bold">{item.title}</span>
+                              {item.category && <span className="text-white/70 text-xs">{item.category}</span>}
                             </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                            <span className="text-white text-sm font-bold">{item.title}</span>
-                            {item.category && <span className="text-white/70 text-xs">{item.category}</span>}
                           </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="card-base p-10 text-center">
-                    <p className="text-gray-400">Пока нет работ в портфолио</p>
-                  </div>
-                )}
-                {recentPortfolio.length > 0 && (
-                  <Link href={`/portfolio/${user.id}`} className="block text-center py-3 text-sm text-brand-600 hover:text-brand-700 font-medium">
-                    Все работы →
-                  </Link>
-                )}
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    !portfolioLoading && <div className="card-base p-10 text-center"><p className="text-gray-400">Пока нет работ в портфолио</p></div>
+                  )}
+                </InfiniteScroll>
               </>
+            )}
+
+            {/* Tab: Reviews */}
+            {activeTab === 'reviews' && (
+              <div className="space-y-4">
+                {/* Review form */}
+                {currentUserId && !isOwnProfile && (
+                  <ReviewForm targetUserId={user.id} onSuccess={handleReviewSuccess} />
+                )}
+
+                {/* Reviews list */}
+                <InfiniteScroll hasMore={reviewsHasMore} loading={reviewsLoading} onLoadMore={loadMoreReviews}>
+                  {reviews.length > 0 ? (
+                    <div className="space-y-3">
+                      {reviews.map(review => (
+                        <ReviewCard key={review.id} review={review} />
+                      ))}
+                    </div>
+                  ) : (
+                    !reviewsLoading && (
+                      <div className="card-base p-10 text-center">
+                        <p className="text-gray-400">Пока нет отзывов</p>
+                        {currentUserId && !isOwnProfile && <p className="text-gray-400 text-sm mt-1">Будьте первым!</p>}
+                      </div>
+                    )
+                  )}
+                </InfiniteScroll>
+              </div>
             )}
 
             {/* Tab: About */}
             {activeTab === 'about' && (
-              <div className="space-y-5">
+              <div className="space-y-4 md:space-y-5">
                 {user.bio && (
-                  <div className="card-base p-5">
+                  <div className="card-base p-4 md:p-5">
                     <h3 className="font-bold text-gray-900 mb-2">О себе</h3>
                     <p className="text-sm text-gray-600 leading-relaxed">{user.bio}</p>
                   </div>
                 )}
 
                 {specialist && (
-                  <div className="card-base p-5">
+                  <div className="card-base p-4 md:p-5">
                     <h3 className="font-bold text-gray-900 mb-3">Опыт работы</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 md:gap-4">
                       <div className="p-3 rounded-xl bg-purple-50 text-center">
-                        <div className="text-2xl font-bold text-purple-600">{specialistTypes[specialist.type]}</div>
-                        <div className="text-xs text-purple-500 mt-1">Специализация</div>
+                        <div className="text-lg md:text-2xl font-bold text-purple-600">{specialistTypes[specialist.type]}</div>
+                        <div className="text-[11px] md:text-xs text-purple-500 mt-1">Специализация</div>
                       </div>
                       {specialist.experience != null && (
                         <div className="p-3 rounded-xl bg-blue-50 text-center">
-                          <div className="text-2xl font-bold text-blue-600">{specialist.experience}+</div>
-                          <div className="text-xs text-blue-500 mt-1">Лет опыта</div>
+                          <div className="text-lg md:text-2xl font-bold text-blue-600">{specialist.experience}+</div>
+                          <div className="text-[11px] md:text-xs text-blue-500 mt-1">Лет опыта</div>
                         </div>
                       )}
                       <div className="p-3 rounded-xl bg-amber-50 text-center">
-                        <div className="text-2xl font-bold text-amber-600">{specialist.rating.toFixed(1)}</div>
-                        <div className="text-xs text-amber-500 mt-1">Рейтинг</div>
+                        <div className="text-lg md:text-2xl font-bold text-amber-600">{specialist.rating.toFixed(1)}</div>
+                        <div className="text-[11px] md:text-xs text-amber-500 mt-1">Рейтинг</div>
                       </div>
                       <div className="p-3 rounded-xl bg-emerald-50 text-center">
-                        <div className="text-2xl font-bold text-emerald-600">{user._count.followers}</div>
-                        <div className="text-xs text-emerald-500 mt-1">Подписчиков</div>
+                        <div className="text-lg md:text-2xl font-bold text-emerald-600">{user._count.followers}</div>
+                        <div className="text-[11px] md:text-xs text-emerald-500 mt-1">Подписчиков</div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="card-base p-5">
+                {interests.length > 0 && (
+                  <div className="card-base p-4 md:p-5">
+                    <h3 className="font-bold text-gray-900 mb-3">Интересы</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {interests.map(interest => (
+                        <span key={interest} className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-600 text-xs font-medium">
+                          {interestLabels[interest] || interest}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="card-base p-4 md:p-5">
                   <h3 className="font-bold text-gray-900 mb-3">Деятельность</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
                       <span className="text-sm text-gray-600">Публикаций</span>
                       <span className="font-bold text-gray-900">{user._count.posts}</span>
@@ -479,6 +639,12 @@ export default function ProfilePage() {
                       <span className="text-sm text-gray-600">На портале с</span>
                       <span className="font-bold text-gray-900">{joinDate}</span>
                     </div>
+                    {user.inn && (
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                        <span className="text-sm text-gray-600">ИНН</span>
+                        <span className="font-bold text-gray-900">{user.inn}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

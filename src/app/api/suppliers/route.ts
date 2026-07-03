@@ -33,14 +33,23 @@ export async function GET(request: Request) {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        include: { _count: { select: { products: true } } },
+        include: {
+          _count: { select: { products: true } },
+          users: { select: { id: true, name: true, avatar: true } },
+        },
         orderBy,
       }),
       prisma.supplier.count({ where }),
     ]);
 
+    const parsed = suppliers.map((s) => ({
+      ...s,
+      avatar: s.users?.[0]?.avatar || null,
+      displayName: s.users?.[0]?.name || s.companyName,
+    }));
+
     const res = NextResponse.json({
-      suppliers,
+      suppliers: parsed,
       pagination: {
         page,
         limit,

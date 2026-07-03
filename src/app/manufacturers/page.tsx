@@ -9,6 +9,8 @@ interface ManufacturerData {
   name: string;
   description: string | null;
   logo: string | null;
+  avatar: string | null;
+  displayName: string;
   address: string | null;
   phone: string | null;
   capabilities: string[];
@@ -71,9 +73,9 @@ export default function ManufacturersPage() {
             {manufacturers.map(m => (
               <a key={m.id} href={`/manufacturers/${m.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-3">
-                  {m.logo ? (
+                  {(m.logo || m.avatar) ? (
                     <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
-                      <Image src={m.logo} alt={m.name} fill className="object-contain" sizes="56px" unoptimized />
+                      <Image src={m.logo || m.avatar || ''} alt={m.name} fill className="object-cover" sizes="56px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-14 h-14 bg-gradient-to-br from-brand-50 to-orange-50 rounded-xl flex items-center justify-center text-brand-500 font-bold text-xl flex-shrink-0">
@@ -82,7 +84,7 @@ export default function ManufacturersPage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{m.name}</h3>
+                      <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{m.displayName || m.name}</h3>
                       {m.isVerified && <span className="badge-success shrink-0">Проверено</span>}
                     </div>
                     {m.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{m.description}</p>}

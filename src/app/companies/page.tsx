@@ -9,6 +9,8 @@ interface CompanyData {
   name: string;
   description: string | null;
   logo: string | null;
+  avatar: string | null;
+  displayName: string;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -83,8 +85,8 @@ export default function CompaniesPage() {
             {companies.map(company => (
               <a key={company.id} href={`/companies/${company.id}`} className="card-base overflow-hidden hover-lift group">
                 <div className="h-40 relative overflow-hidden">
-                  {company.logo ? (
-                    <Image src={company.logo} alt={company.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
+                  {(company.logo || company.avatar) ? (
+                    <Image src={company.logo || company.avatar || ''} alt={company.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
                       <div className="w-16 h-16 bg-white rounded-2xl shadow-card flex items-center justify-center text-brand-500 font-bold text-2xl group-hover:scale-110 transition-transform duration-300">
@@ -95,7 +97,7 @@ export default function CompaniesPage() {
                 </div>
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors">{company.name}</h3>
+                    <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors">{company.displayName || company.name}</h3>
                     {company.isVerified && <span className="badge-success">ИП</span>}
                   </div>
                   {company.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{company.description}</p>}

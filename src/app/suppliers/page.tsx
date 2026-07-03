@@ -9,6 +9,8 @@ interface SupplierData {
   companyName: string;
   description: string | null;
   logo: string | null;
+  avatar: string | null;
+  displayName: string;
   categories: string;
   isVerified: boolean;
   phone: string | null;
@@ -95,9 +97,9 @@ export default function SuppliersPage() {
               return (
                 <a key={supplier.id} href={`/suppliers/${supplier.id}`} className="card-base p-6 hover-lift group">
                   <div className="flex items-start gap-4 mb-3">
-                    {supplier.logo ? (
+                    {(supplier.logo || supplier.avatar) ? (
                       <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
-                        <Image src={supplier.logo} alt={supplier.companyName} fill className="object-contain" sizes="56px" unoptimized />
+                        <Image src={supplier.logo || supplier.avatar || ''} alt={supplier.companyName} fill className="object-cover" sizes="56px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-14 h-14 bg-gradient-to-br from-brand-50 to-orange-50 rounded-xl flex items-center justify-center text-brand-500 font-bold text-xl flex-shrink-0">
@@ -106,7 +108,7 @@ export default function SuppliersPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{supplier.companyName}</h3>
+                        <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{supplier.displayName || supplier.companyName}</h3>
                         {supplier.isVerified && <span className="badge-success shrink-0">Проверен</span>}
                       </div>
                       {supplier.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{supplier.description}</p>}

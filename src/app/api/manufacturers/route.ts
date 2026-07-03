@@ -24,6 +24,9 @@ export async function GET(request: Request) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          users: { select: { id: true, name: true, avatar: true } },
+        },
       }),
       prisma.manufacturer.count({ where }),
     ]);
@@ -31,6 +34,8 @@ export async function GET(request: Request) {
     const parsed = manufacturers.map((m) => ({
       ...m,
       capabilities: JSON.parse(m.capabilities as string),
+      avatar: m.users?.[0]?.avatar || null,
+      displayName: m.users?.[0]?.name || m.name,
     }));
 
     const res = NextResponse.json({

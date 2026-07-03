@@ -11,6 +11,7 @@ interface CompanyData {
   logo: string | null;
   avatar: string | null;
   displayName: string;
+  userId: string | null;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -83,7 +84,7 @@ export default function CompaniesPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {companies.map(company => (
-              <a key={company.id} href={`/companies/${company.id}`} className="card-base overflow-hidden hover-lift group">
+              <a key={company.id} href={company.userId ? `/profile/${company.userId}` : `/companies/${company.id}`} className="card-base overflow-hidden hover-lift group">
                 <div className="h-40 relative overflow-hidden">
                   {(company.logo || company.avatar) ? (
                     <Image src={company.logo || company.avatar || ''} alt={company.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />

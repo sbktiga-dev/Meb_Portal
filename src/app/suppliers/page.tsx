@@ -11,6 +11,7 @@ interface SupplierData {
   logo: string | null;
   avatar: string | null;
   displayName: string;
+  userId: string | null;
   categories: string;
   isVerified: boolean;
   phone: string | null;
@@ -95,7 +96,7 @@ export default function SuppliersPage() {
             {suppliers.map(supplier => {
               const cats: string[] = (() => { try { return JSON.parse(supplier.categories); } catch { return []; } })();
               return (
-                <a key={supplier.id} href={`/suppliers/${supplier.id}`} className="card-base p-6 hover-lift group">
+                <a key={supplier.id} href={supplier.userId ? `/profile/${supplier.userId}` : `/suppliers/${supplier.id}`} className="card-base p-6 hover-lift group">
                   <div className="flex items-start gap-4 mb-3">
                     {(supplier.logo || supplier.avatar) ? (
                       <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">

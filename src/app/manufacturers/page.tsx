@@ -11,6 +11,7 @@ interface ManufacturerData {
   logo: string | null;
   avatar: string | null;
   displayName: string;
+  userId: string | null;
   address: string | null;
   phone: string | null;
   capabilities: string[];
@@ -71,7 +72,7 @@ export default function ManufacturersPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {manufacturers.map(m => (
-              <a key={m.id} href={`/manufacturers/${m.id}`} className="card-base p-6 hover-lift group">
+              <a key={m.id} href={m.userId ? `/profile/${m.userId}` : `/manufacturers/${m.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-3">
                   {(m.logo || m.avatar) ? (
                     <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">

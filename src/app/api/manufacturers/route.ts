@@ -36,6 +36,7 @@ export async function GET(request: Request) {
       capabilities: JSON.parse(m.capabilities as string),
       avatar: m.users?.[0]?.avatar || null,
       displayName: m.users?.[0]?.name || m.name,
+      userId: m.users?.[0]?.id || null,
     }));
 
     const res = NextResponse.json({

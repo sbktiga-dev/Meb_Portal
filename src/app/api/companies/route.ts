@@ -45,6 +45,7 @@ export async function GET(request: Request) {
       ...c,
       avatar: c.users?.[0]?.avatar || null,
       displayName: c.users?.[0]?.name || c.name,
+      userId: c.users?.[0]?.id || null,
     }));
 
     const res = NextResponse.json({

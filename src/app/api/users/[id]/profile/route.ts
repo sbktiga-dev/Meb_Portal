@@ -64,6 +64,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         id: true,
         title: true,
         category: true,
+        images: true,
         likes: true,
         views: true,
         createdAt: true,

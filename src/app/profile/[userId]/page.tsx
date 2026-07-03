@@ -35,12 +35,12 @@ interface ProfileData {
   company: { id: string; name: string; description: string | null; logo: string | null; website: string | null; isVerified: boolean } | null;
   supplier: { id: string; companyName: string; description: string | null; logo: string | null; website: string | null; categories: string; isVerified: boolean } | null;
   manufacturer: { id: string; name: string; description: string | null; logo: string | null; website: string | null; isVerified: boolean } | null;
-  recentPosts: { id: string; title: string; category: string; likes: number; views: number; createdAt: string; _count: { comments: number } }[];
+  recentPosts: { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }[];
   recentPortfolio: { id: string; title: string; images: string; category: string | null; createdAt: string }[];
   reviewStats: { average: number | null; count: number };
 }
 
-interface Post { id: string; title: string; category: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
+interface Post { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
 interface PortfolioItem { id: string; title: string; images: string; category: string | null; createdAt: string }
 interface Review { id: string; score: number; comment: string | null; createdAt: string; reviewer: { id: string; name: string | null; avatar: string | null; role: string } }
 
@@ -477,20 +477,30 @@ export default function ProfilePage() {
               <InfiniteScroll hasMore={postsHasMore} loading={postsLoading} onLoadMore={loadMorePosts}>
                 {posts.length > 0 ? (
                   <div className="space-y-3">
-                    {posts.map(post => (
-                      <Link key={post.id} href={`/feed/${post.id}`} className="card-base block p-4 sm:p-5 hover:shadow-md transition-shadow">
-                        <h4 className="font-bold text-gray-900 mb-2 text-sm sm:text-base">{post.title}</h4>
-                        <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 flex-wrap">
-                          <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${categoryLabels[post.category]?.color || 'text-gray-500'}`}>
-                            {categoryLabels[post.category]?.label || post.category}
-                          </span>
-                          <span className="flex items-center gap-1">♥ {post.likes}</span>
-                          <span className="flex items-center gap-1">👁 {post.views}</span>
-                          <span className="flex items-center gap-1">💬 {post._count.comments}</span>
-                          <span className="ml-auto text-xs">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
-                        </div>
-                      </Link>
-                    ))}
+                    {posts.map(post => {
+                      const postImages: string[] = (() => { try { return JSON.parse(post.images); } catch { return []; } })();
+                      return (
+                        <Link key={post.id} href={`/feed/${post.id}`} className="card-base block overflow-hidden hover:shadow-md transition-shadow">
+                          <div className="p-4 sm:p-5">
+                            <h4 className="font-bold text-gray-900 mb-2 text-sm sm:text-base">{post.title}</h4>
+                            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 flex-wrap">
+                              <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${categoryLabels[post.category]?.color || 'text-gray-500'}`}>
+                                {categoryLabels[post.category]?.label || post.category}
+                              </span>
+                              <span className="flex items-center gap-1">♥ {post.likes}</span>
+                              <span className="flex items-center gap-1">👁 {post.views}</span>
+                              <span className="flex items-center gap-1">💬 {post._count.comments}</span>
+                              <span className="ml-auto text-xs">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
+                            </div>
+                          </div>
+                          {postImages.length > 0 && (
+                            <div className="relative w-full" style={{ paddingBottom: '50%' }}>
+                              <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                            </div>
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
                 ) : (
                   !postsLoading && <div className="card-base p-10 text-center"><p className="text-gray-400">Пока нет публикаций</p></div>

@@ -73,10 +73,11 @@ export default function MobileBottomNav() {
     <>
       {/* More menu overlay */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/40 z-[59]" onClick={() => setMenuOpen(false)}>
+        <div className="md:hidden fixed inset-0 z-[59] pointer-events-none" onClick={() => setMenuOpen(false)}>
+          <div className="absolute inset-0 bg-black/40 pointer-events-auto" />
           <div
             ref={menuRef}
-            className="absolute bottom-16 left-2 right-2 bg-white rounded-2xl shadow-2xl p-3 max-h-[60vh] overflow-y-auto animate-fade-in-down"
+            className="absolute bottom-16 left-2 right-2 bg-white rounded-2xl shadow-2xl p-3 max-h-[60vh] overflow-y-auto animate-fade-in-down pointer-events-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 px-3 py-2.5 mb-2 border-b border-gray-100">

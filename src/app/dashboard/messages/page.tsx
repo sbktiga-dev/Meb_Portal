@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from '@/components/Loading';
@@ -13,7 +13,7 @@ interface Conversation {
   unread: number;
 }
 
-export default function MessagesPage() {
+function MessagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -25,7 +25,6 @@ export default function MessagesPage() {
 
     const targetUserId = searchParams.get('user');
     if (targetUserId) {
-      // Create or find conversation and redirect
       fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -80,9 +79,12 @@ export default function MessagesPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {conversations.map((conv, i) => (
-              <Link key={conv.id} href={`/dashboard/messages/${conv.id}`}
-                className={`card-base flex items-center gap-4 p-4 hover-lift animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
+            {conversations.map(conv => (
+              <Link
+                key={conv.id}
+                href={`/dashboard/messages/${conv.id}`}
+                className="flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors"
+              >
                 {conv.otherUser?.avatar ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                     <img src={conv.otherUser.avatar} alt="" className="w-full h-full object-cover" />
@@ -94,21 +96,19 @@ export default function MessagesPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 truncate">{conv.otherUser?.name || 'Пользователь'}</h3>
+                    <span className="font-semibold text-gray-900 text-sm">{conv.otherUser?.name || 'Чат'}</span>
                     {conv.lastMessage && (
-                      <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{getTimeAgo(conv.lastMessage.createdAt)}</span>
+                      <span className="text-xs text-gray-400">{getTimeAgo(conv.lastMessage.createdAt)}</span>
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-sm text-gray-500 truncate mt-0.5">
-                      {conv.lastMessage.author.name || 'Пользователь'}: {conv.lastMessage.content}
-                    </p>
+                    <p className="text-sm text-gray-500 truncate mt-0.5">{conv.lastMessage.content}</p>
                   )}
                 </div>
                 {conv.unread > 0 && (
-                  <span className="w-5 h-5 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-5 h-5 bg-brand-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                     {conv.unread}
-                  </span>
+                  </div>
                 )}
               </Link>
             ))}
@@ -116,5 +116,13 @@ export default function MessagesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loading text="Загрузка..." /></div>}>
+      <MessagesContent />
+    </Suspense>
   );
 }

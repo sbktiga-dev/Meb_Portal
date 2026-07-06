@@ -37,6 +37,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ваш аккаунт заблокирован' }, { status: 403 });
     }
 
+    if (!user.emailVerified) {
+      return NextResponse.json({ error: 'Подтвердите email. Проверьте почту.', needVerify: true }, { status: 403 });
+    }
+
     const token = generateToken({
       userId: user.id,
       email: user.email,

@@ -12,6 +12,7 @@ interface CompanyData {
   avatar: string | null;
   displayName: string;
   userId: string | null;
+  isPro: boolean;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -99,7 +100,10 @@ export default function CompaniesPage() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors">{company.displayName || company.name}</h3>
-                    {company.isVerified && <span className="badge-success">ИП</span>}
+                    <div className="flex items-center gap-1.5">
+                      {company.isPro && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
+                      {company.isVerified && <span className="badge-success">ИП</span>}
+                    </div>
                   </div>
                   {company.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{company.description}</p>}
                   <div className="space-y-2 text-sm text-gray-500">

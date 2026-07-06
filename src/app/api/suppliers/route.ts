@@ -42,12 +42,24 @@ export async function GET(request: Request) {
       prisma.supplier.count({ where }),
     ]);
 
+    // Get Pro user IDs for priority sorting
+    const userIds = suppliers.flatMap(s => s.users.map(u => u.id));
+    const proSubscriptions = await prisma.subscription.findMany({
+      where: { userId: { in: userIds }, status: 'active', plan: 'pro' },
+      select: { userId: true },
+    });
+    const proUserIds = new Set(proSubscriptions.map(s => s.userId));
+
     const parsed = suppliers.map((s) => ({
       ...s,
       avatar: s.users?.[0]?.avatar || null,
       displayName: s.users?.[0]?.name || s.companyName,
       userId: s.users?.[0]?.id || null,
+      isPro: s.users?.[0]?.id ? proUserIds.has(s.users[0].id) : false,
     }));
+
+    // Sort: Pro first
+    parsed.sort((a, b) => (b.isPro ? 1 : 0) - (a.isPro ? 1 : 0));
 
     const res = NextResponse.json({
       suppliers: parsed,

@@ -12,6 +12,7 @@ interface SupplierData {
   avatar: string | null;
   displayName: string;
   userId: string | null;
+  isPro: boolean;
   categories: string;
   isVerified: boolean;
   phone: string | null;
@@ -110,7 +111,10 @@ export default function SuppliersPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{supplier.displayName || supplier.companyName}</h3>
-                        {supplier.isVerified && <span className="badge-success shrink-0">Проверен</span>}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {supplier.isPro && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
+                          {supplier.isVerified && <span className="badge-success">Проверен</span>}
+                        </div>
                       </div>
                       {supplier.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{supplier.description}</p>}
                       <div className="flex flex-wrap gap-1.5 mb-5">

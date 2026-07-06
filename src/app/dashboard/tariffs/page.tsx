@@ -23,7 +23,7 @@ const PLANS = {
   },
   pro: {
     name: 'Pro',
-    features: ['Продвижение постов в ленте', 'До 2 баннеров в неделю', 'Метка «Рекомендовано»', 'Приоритет в результатах поиска'],
+    features: ['Продвижение постов в ленте', 'До 2 баннеров в неделю', 'Метка «Рекомендовано»', 'Приоритет в каталогах', 'Значок PRO на профиле'],
     monthly: 4000,
     yearly: 40000,
   },
@@ -206,7 +206,8 @@ export default function TariffsPage() {
                     { feature: 'Продвижение постов', lite: true, pro: true },
                     { feature: 'Баннеры', lite: '1 шт.', pro: '2 шт./нед.' },
                     { feature: 'Метка «Рекомендовано»', lite: true, pro: true },
-                    { feature: 'Приоритет в поиске', lite: false, pro: true },
+                    { feature: 'Приоритет в каталогах', lite: false, pro: true },
+                    { feature: 'Значок PRO', lite: false, pro: true },
                   ].map((row, i) => (
                     <tr key={i}>
                       <td className="py-3 text-gray-700">{row.feature}</td>

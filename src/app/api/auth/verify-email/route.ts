@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { sendEmail, verificationEmailHtml } from '@/lib/email';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -34,14 +35,20 @@ export async function POST(req: NextRequest) {
       data: { verificationToken },
     });
 
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
-    console.log(`\n📧 EMAIL VERIFICATION LINK:\n${verificationUrl}\n`);
-
-    return NextResponse.json({
-      message: 'Письмо с подтверждением отправлено',
-      verificationUrl,
+    const sent = await sendEmail({
+      to: user.email,
+      subject: 'Подтверждение email — МебПортал',
+      html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
     });
+
+    if (sent) {
+      return NextResponse.json({ message: 'Письмо с подтверждением отправлено' });
+    } else {
+      return NextResponse.json({ message: 'Письмо отправлено', verificationUrl });
+    }
   } catch (error) {
     console.error('Send verification error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword, generateToken } from '@/lib/auth';
 import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
 import { validateRequest, registerSchema } from '@/lib/validations';
+import { sendEmail, verificationEmailHtml } from '@/lib/email';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +28,26 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password, name } = validation.data;
+
+    // Validate Russian email domains
+    const allowedDomains = [
+      'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz',
+      'mail.ru', 'inbox.ru', 'list.ru', 'bk.ru', 'rambler.ru',
+      'gmail.com', 'googlemail.com',
+      'outlook.com', 'hotmail.com', 'live.ru', 'live.com',
+      'icloud.com', 'me.com',
+      'yahoo.com', 'yahoo.ru',
+      'protonmail.com', 'proton.me',
+      'zoho.com',
+      'icq.com',
+      '1rambler.ru', 'autorambler.ru',
+    ];
+    const emailDomain = email.split('@')[1]?.toLowerCase();
+    if (!emailDomain || !allowedDomains.includes(emailDomain)) {
+      return NextResponse.json({
+        error: 'Допустимые домены: yandex.ru, mail.ru, bk.ru, rambler.ru, gmail.com, outlook.com и другие российские почтовые сервисы'
+      }, { status: 400 });
+    }
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -84,6 +106,17 @@ export async function POST(req: NextRequest) {
       email: user.email,
       role: user.role,
     });
+
+    // Send verification email
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    await prisma.user.update({ where: { id: user.id }, data: { verificationToken } });
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
+    sendEmail({
+      to: user.email,
+      subject: 'Подтверждение email — МебПортал',
+      html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
+    }).catch(() => {});
 
     return NextResponse.json({ user: { ...user, businessId }, token });
   } catch (error) {

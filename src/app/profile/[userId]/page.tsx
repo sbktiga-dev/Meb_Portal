@@ -494,9 +494,15 @@ export default function ProfilePage() {
                             </div>
                           </div>
                           {postImages.length > 0 && (
-                            <div className="relative w-full" style={{ paddingBottom: '50%' }}>
-                              <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
-                            </div>
+                            isVideoUrl(postImages[0]) ? (
+                              <div className="relative w-full">
+                                <video src={postImages[0]} controls className="w-full rounded-b-xl" playsInline />
+                              </div>
+                            ) : (
+                              <div className="relative w-full" style={{ paddingBottom: '50%' }}>
+                                <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                              </div>
+                            )
                           )}
                         </Link>
                       );
@@ -657,11 +663,15 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-              </div>
+               </div>
             )}
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 }

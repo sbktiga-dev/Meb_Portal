@@ -373,17 +373,17 @@ export default function FeedPage() {
                     <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">{post.content}</p>
                   </div>
                   {postImages.length > 0 && (
-                    <div className="block cursor-pointer" onClick={() => setLightbox({ images: postImages, index: 0 })}>
+                    <div className="block cursor-pointer" onClick={() => !isVideoUrl(postImages[0]) && setLightbox({ images: postImages, index: 0 })}>
                       <div className="relative bg-gray-50">
                         {postImages.length === 1 ? (
-                          <div className="relative w-full" style={{ paddingBottom: '75%' }}>
-                            <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" unoptimized />
+                          <div className="relative w-full" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '75%' }}>
+                            <MediaItem src={postImages[0]} />
                           </div>
                         ) : (
                           <div className="grid grid-cols-2 gap-0.5">
                             {postImages.slice(0, 4).map((img, idx) => (
-                              <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                                <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                              <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                <MediaItem src={img} />
                               </div>
                             ))}
                           </div>
@@ -470,36 +470,36 @@ export default function FeedPage() {
 
                   {/* Images — vertical stack */}
                   {postImages.length > 0 && (
-                    <div className="block cursor-pointer" onClick={() => setLightbox({ images: postImages, index: 0 })}>
+                    <div className="block cursor-pointer" onClick={() => !isVideoUrl(postImages[0]) && setLightbox({ images: postImages, index: 0 })}>
                       <div className="relative bg-gray-50">
                         {postImages.length === 1 ? (
-                          <div className="relative w-full" style={{ paddingBottom: '75%' }}>
-                            <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" unoptimized />
+                          <div className="relative w-full" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '75%' }}>
+                            <MediaItem src={postImages[0]} />
                           </div>
                         ) : postImages.length === 2 ? (
                           <div className="grid grid-cols-2 gap-0.5">
                             {postImages.slice(0, 2).map((img, idx) => (
-                              <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                                <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                              <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                <MediaItem src={img} />
                               </div>
                             ))}
                           </div>
                         ) : postImages.length === 3 ? (
                           <div className="grid grid-cols-2 gap-0.5">
-                            <div className="relative row-span-2" style={{ paddingBottom: '200%' }}>
-                              <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                            <div className="relative row-span-2" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '200%' }}>
+                              <MediaItem src={postImages[0]} />
                             </div>
                             {postImages.slice(1, 3).map((img, idx) => (
-                              <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                                <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                              <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                <MediaItem src={img} />
                               </div>
                             ))}
                           </div>
                         ) : (
                           <div className="grid grid-cols-2 gap-0.5">
                             {postImages.slice(0, 4).map((img, idx) => (
-                              <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                                <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 320px" unoptimized />
+                              <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                <MediaItem src={img} />
                                 {idx === 3 && postImages.length > 4 && (
                                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                     <span className="text-white text-xl font-bold">+{postImages.length - 4}</span>
@@ -598,4 +598,15 @@ function getTimeAgo(dateStr: string): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)} ч. назад`;
   if (diff < 604800) return `${Math.floor(diff / 86400)} дн. назад`;
   return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
+
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
+}
+
+function MediaItem({ src, className }: { src: string; className?: string }) {
+  if (isVideoUrl(src)) {
+    return <video src={src} controls className={className || 'w-full'} playsInline />;
+  }
+  return <Image src={src} alt="" fill className={`object-cover ${className || ''}`} sizes="(max-width: 768px) 100vw, 640px" unoptimized />;
 }

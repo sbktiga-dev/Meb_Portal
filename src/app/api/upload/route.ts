@@ -34,13 +34,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Файл не выбран' }, { status: 400 });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Файл слишком большой (макс. 10MB)' }, { status: 400 });
-    }
-
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json({ error: 'Недопустимый формат файла' }, { status: 400 });
+    }
+
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: isVideo ? 'Видео слишком большое (макс. 50MB)' : 'Файл слишком большой (макс. 10MB)' }, { status: 400 });
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';

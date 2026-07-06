@@ -155,8 +155,8 @@ export default function NewPostPage() {
                   )}
                 </button>
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-              <p className="text-xs text-gray-400 mt-2">Макс. 10 фото. JPG, PNG, GIF.</p>
+              <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple onChange={handleImageUpload} className="hidden" />
+              <p className="text-xs text-gray-400 mt-2">Макс. 10 файлов. JPG, PNG, GIF, MP4, WebM.</p>
             </div>
 
             <div>

@@ -23,7 +23,7 @@ const PLANS = {
   },
   pro: {
     name: 'Pro',
-    features: ['Продвижение постов в ленте', 'Безлимитные баннеры', 'Метка «Рекомендовано»', 'Приоритет в результатах поиска'],
+    features: ['Продвижение постов в ленте', 'До 2 баннеров в неделю', 'Метка «Рекомендовано»', 'Приоритет в результатах поиска'],
     monthly: 4000,
     yearly: 40000,
   },
@@ -204,7 +204,7 @@ export default function TariffsPage() {
                 <tbody className="divide-y divide-gray-50">
                   {[
                     { feature: 'Продвижение постов', lite: true, pro: true },
-                    { feature: 'Баннеры', lite: '1 шт.', pro: 'Безлимит' },
+                    { feature: 'Баннеры', lite: '1 шт.', pro: '2 шт./нед.' },
                     { feature: 'Метка «Рекомендовано»', lite: true, pro: true },
                     { feature: 'Приоритет в поиске', lite: false, pro: true },
                   ].map((row, i) => (

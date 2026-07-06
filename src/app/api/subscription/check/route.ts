@@ -30,11 +30,23 @@ export async function GET(request: Request) {
       where: { userId: user.id, status: { in: ['pending', 'active'] } },
     });
 
+    let canCreateBanner: boolean;
+    if (isPro) {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const recentBanners = await prisma.banner.count({
+        where: { userId: user.id, createdAt: { gte: weekAgo } },
+      });
+      canCreateBanner = recentBanners < 2;
+    } else {
+      canCreateBanner = bannerCount < 1;
+    }
+
     return NextResponse.json({
       canPromote: true,
-      canCreateBanner: isPro || bannerCount < 1,
+      canCreateBanner,
       bannerCount,
-      maxBanners: isPro ? -1 : 1,
+      maxBanners: isPro ? 2 : 1,
       plan: subscription.plan,
       period: subscription.period,
       endDate: subscription.endDate,

@@ -55,13 +55,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Необходима подписка Lite или Pro' }, { status: 403 });
     }
 
-    // Check banner limit for Lite plan
+    // Check banner limit
+    const maxBanners = subscription.plan === 'lite' ? 1 : 2;
+    const limitLabel = subscription.plan === 'lite' ? '1 баннер (Lite)' : '2 баннера в неделю (Pro)';
+
     if (subscription.plan === 'lite') {
       const activeBanners = await prisma.banner.count({
         where: { userId: user.id, status: { in: ['pending', 'active'] } },
       });
-      if (activeBanners >= 1) {
-        return NextResponse.json({ error: 'Лимит баннеров для плана Lite — 1 баннер. Обновите подписку до Pro' }, { status: 403 });
+      if (activeBanners >= maxBanners) {
+        return NextResponse.json({ error: `Лимит: ${limitLabel}. Обновите подписку до Pro` }, { status: 403 });
+      }
+    } else {
+      // Pro: 2 per week
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const recentBanners = await prisma.banner.count({
+        where: { userId: user.id, createdAt: { gte: weekAgo } },
+      });
+      if (recentBanners >= maxBanners) {
+        return NextResponse.json({ error: `Лимит: ${limitLabel}. Попробуйте через неделю` }, { status: 403 });
       }
     }
 

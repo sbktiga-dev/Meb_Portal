@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from '@/components/Loading';
 
 interface Conversation {
@@ -15,18 +15,38 @@ interface Conversation {
 
 export default function MessagesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
+
+    const targetUserId = searchParams.get('user');
+    if (targetUserId) {
+      // Create or find conversation and redirect
+      fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ userId: targetUserId }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.conversation?.id) {
+            router.replace(`/dashboard/messages/${data.conversation.id}`);
+          }
+        })
+        .catch(() => {});
+      return;
+    }
+
     fetch('/api/conversations', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(d => setConversations(d.conversations || []))
       .catch(() => setConversations([]))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, searchParams]);
 
   const getTimeAgo = (dateStr: string) => {
     const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);

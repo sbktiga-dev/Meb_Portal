@@ -20,6 +20,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         phone: true,
         socialLinks: true,
         interests: true,
+        profileViews: true,
         createdAt: true,
         _count: {
           select: {
@@ -35,6 +36,9 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     if (!user) {
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
+
+    // Increment profile views (fire and forget)
+    prisma.user.update({ where: { id: params.id }, data: { profileViews: { increment: 1 } } }).catch(() => {});
 
     const specialist = user.role === 'USER' ? await prisma.specialist.findFirst({
       where: { user: { id: params.id } },
@@ -57,7 +61,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     }) : null;
 
     const recentPosts = await prisma.post.findMany({
-      where: { authorId: params.id, isPublished: true },
+      where: { authorId: params.id, isPublished: true, isProfilePromo: false },
       take: 5,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -69,6 +73,20 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         views: true,
         createdAt: true,
         _count: { select: { comments: true } },
+      },
+    });
+
+    // Promo posts for Premium users
+    const promoPosts = await prisma.post.findMany({
+      where: { authorId: params.id, isPublished: true, isProfilePromo: true },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        images: true,
+        createdAt: true,
       },
     });
 
@@ -91,6 +109,17 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       _count: true,
     });
 
+    // Check Premium subscription for analytics
+    const subscription = await prisma.subscription.findFirst({
+      where: { userId: params.id, status: 'active', plan: 'premium' },
+    });
+
+    const postStats = await prisma.post.aggregate({
+      where: { authorId: params.id, isPublished: true },
+      _sum: { views: true, likes: true },
+      _count: true,
+    });
+
     return NextResponse.json({
       user,
       specialist,
@@ -98,8 +127,15 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       supplier,
       manufacturer,
       recentPosts,
+      promoPosts,
       recentPortfolio,
       reviewStats: { average: reviewStats._avg.score, count: reviewStats._count },
+      analytics: subscription ? {
+        profileViews: user.profileViews,
+        totalViews: postStats._sum.views || 0,
+        totalLikes: postStats._sum.likes || 0,
+        totalPosts: postStats._count,
+      } : null,
     });
   } catch (e) {
     console.error('Profile error:', e);

@@ -36,8 +36,10 @@ interface ProfileData {
   supplier: { id: string; companyName: string; description: string | null; logo: string | null; website: string | null; categories: string; isVerified: boolean } | null;
   manufacturer: { id: string; name: string; description: string | null; logo: string | null; website: string | null; isVerified: boolean } | null;
   recentPosts: { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }[];
+  promoPosts: { id: string; title: string; content: string; images: string; createdAt: string }[];
   recentPortfolio: { id: string; title: string; images: string; category: string | null; createdAt: string }[];
   reviewStats: { average: number | null; count: number };
+  analytics: { profileViews: number; totalViews: number; totalLikes: number; totalPosts: number } | null;
 }
 
 interface Post { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }

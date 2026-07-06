@@ -183,8 +183,34 @@ export default function PromotionPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">URL изображения</label>
-                    <input type="url" value={bannerForm.imageUrl} onChange={e => setBannerForm({ ...bannerForm, imageUrl: e.target.value })} className="w-full border border-gray-200 rounded-lg px-4 py-2.5" placeholder="https://example.com/banner.jpg" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Изображение баннера</label>
+                    {bannerForm.imageUrl ? (
+                      <div className="relative">
+                        <img src={bannerForm.imageUrl} alt="Превью" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
+                        <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 transition">
+                        <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                        <span className="text-sm text-gray-500">Нажмите или перетащите</span>
+                        <span className="text-xs text-gray-400">JPG, PNG, WebP до 10 МБ</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const token = localStorage.getItem('token');
+                          if (!token) return;
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          try {
+                            const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                            if (res.ok) { const data = await res.json(); setBannerForm({ ...bannerForm, imageUrl: data.url }); }
+                            else { toast.error('Ошибка загрузки'); }
+                          } catch { toast.error('Ошибка сети'); }
+                        }} />
+                      </label>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">Или вставьте URL:</p>
+                    <input type="url" value={bannerForm.imageUrl} onChange={e => setBannerForm({ ...bannerForm, imageUrl: e.target.value })} className="w-full border border-gray-200 rounded-lg px-4 py-2 mt-1 text-sm" placeholder="https://example.com/banner.jpg" />
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
                     <div>

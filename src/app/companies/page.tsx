@@ -13,6 +13,7 @@ interface CompanyData {
   displayName: string;
   userId: string | null;
   isPro: boolean;
+  isPremium: boolean;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -101,7 +102,8 @@ export default function CompaniesPage() {
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors">{company.displayName || company.name}</h3>
                     <div className="flex items-center gap-1.5">
-                      {company.isPro && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
+                      {company.isPremium && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PREMIUM</span>}
+                      {company.isPro && !company.isPremium && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
                       {company.isVerified && <span className="badge-success">ИП</span>}
                     </div>
                   </div>

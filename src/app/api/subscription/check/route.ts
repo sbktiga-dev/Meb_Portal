@@ -24,29 +24,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ canPromote: false, canCreateBanner: false, plan: null });
     }
 
-    const isPro = subscription.plan === 'pro';
+    const bannerLimits: Record<string, number> = { lite: 1, pro: 2, premium: 4 };
+    const maxBanners = bannerLimits[subscription.plan] || 1;
 
     const bannerCount = await prisma.banner.count({
       where: { userId: user.id, status: { in: ['pending', 'active'] } },
     });
 
     let canCreateBanner: boolean;
-    if (isPro) {
+    if (subscription.plan === 'lite') {
+      canCreateBanner = bannerCount < 1;
+    } else {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const recentBanners = await prisma.banner.count({
         where: { userId: user.id, createdAt: { gte: weekAgo } },
       });
-      canCreateBanner = recentBanners < 2;
-    } else {
-      canCreateBanner = bannerCount < 1;
+      canCreateBanner = recentBanners < maxBanners;
     }
 
     return NextResponse.json({
       canPromote: true,
       canCreateBanner,
       bannerCount,
-      maxBanners: isPro ? 2 : 1,
+      maxBanners,
       plan: subscription.plan,
       period: subscription.period,
       endDate: subscription.endDate,

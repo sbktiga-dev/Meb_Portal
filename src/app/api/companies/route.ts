@@ -41,13 +41,14 @@ export async function GET(request: Request) {
       prisma.company.count({ where }),
     ]);
 
-    // Get Pro user IDs for priority sorting
+    // Get Pro/Premium user IDs for priority sorting
     const userIds = companies.flatMap(c => c.users.map(u => u.id));
     const proSubscriptions = await prisma.subscription.findMany({
-      where: { userId: { in: userIds }, status: 'active', plan: 'pro' },
-      select: { userId: true },
+      where: { userId: { in: userIds }, status: 'active', plan: { in: ['pro', 'premium'] } },
+      select: { userId: true, plan: true },
     });
     const proUserIds = new Set(proSubscriptions.map(s => s.userId));
+    const premiumUserIds = new Set(proSubscriptions.filter(s => s.plan === 'premium').map(s => s.userId));
 
     const parsed = companies.map((c) => ({
       ...c,
@@ -55,10 +56,11 @@ export async function GET(request: Request) {
       displayName: c.users?.[0]?.name || c.name,
       userId: c.users?.[0]?.id || null,
       isPro: c.users?.[0]?.id ? proUserIds.has(c.users[0].id) : false,
+      isPremium: c.users?.[0]?.id ? premiumUserIds.has(c.users[0].id) : false,
     }));
 
-    // Sort: Pro first
-    parsed.sort((a, b) => (b.isPro ? 1 : 0) - (a.isPro ? 1 : 0));
+    // Sort: Premium first, then Pro, then others
+    parsed.sort((a, b) => (b.isPremium ? 2 : b.isPro ? 1 : 0) - (a.isPremium ? 2 : a.isPro ? 1 : 0));
 
     const res = NextResponse.json({
       companies: parsed,

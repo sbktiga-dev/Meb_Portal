@@ -50,8 +50,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { plan, period } = body;
 
-    if (!plan || !['lite', 'pro'].includes(plan)) {
-      return NextResponse.json({ error: 'Неверный план. Допустимые: lite, pro' }, { status: 400 });
+    if (!plan || !['lite', 'pro', 'premium'].includes(plan)) {
+      return NextResponse.json({ error: 'Неверный план. Допустимые: lite, pro, premium' }, { status: 400 });
     }
     if (!period || !['monthly', 'yearly'].includes(period)) {
       return NextResponse.json({ error: 'Неверный период. Допустимые: monthly, yearly' }, { status: 400 });

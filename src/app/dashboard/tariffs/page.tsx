@@ -27,6 +27,12 @@ const PLANS = {
     monthly: 4000,
     yearly: 40000,
   },
+  premium: {
+    name: 'Premium',
+    features: ['Продвижение постов в ленте', 'До 4 баннеров в неделю', 'Метка «Рекомендовано»', 'Максимальный приоритет в каталогах', 'Значок PREMIUM', 'Рекламные посты (акции) на профиле', 'Аналитика профиля'],
+    monthly: 8000,
+    yearly: 80000,
+  },
 };
 
 function formatPrice(n: number) { return n.toLocaleString('ru-RU') + ' ₽'; }
@@ -154,14 +160,16 @@ export default function TariffsPage() {
 
           {/* Карточки планов */}
           {!subscription && (
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="grid md:grid-cols-3 gap-5 mb-8">
               {(Object.entries(PLANS) as [string, typeof PLANS.lite][]).map(([key, plan]) => {
                 const price = billingPeriod === 'monthly' ? plan.monthly : plan.yearly;
                 const perMonth = billingPeriod === 'yearly' ? Math.round(plan.yearly / 12) : plan.monthly;
-                const isLite = key === 'lite';
+                const isPro = key === 'pro';
+                const isPremium = key === 'premium';
                 return (
-                  <div key={key} className={`rounded-2xl border-2 p-6 ${!isLite ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200'}`}>
-                    {!isLite && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Популярный</div>}
+                  <div key={key} className={`rounded-2xl border-2 p-5 ${isPremium ? 'relative border-amber-400 shadow-lg shadow-amber-100' : isPro ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200'}`}>
+                    {isPro && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Популярный</div>}
+                    {isPremium && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Лучший</div>}
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
                     <div className="mb-5">
                       <span className="text-3xl font-bold text-gray-900">{formatPrice(price)}</span>
@@ -179,7 +187,7 @@ export default function TariffsPage() {
                     <button
                       onClick={() => handleSubscribe(key)}
                       disabled={subscribing}
-                      className={`w-full py-3 rounded-xl font-medium transition ${isLite ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-brand-500 text-white hover:bg-brand-600'}`}
+                      className={`w-full py-3 rounded-xl font-medium transition ${isPremium ? 'bg-amber-500 text-white hover:bg-amber-600' : isPro ? 'bg-brand-500 text-white hover:bg-brand-600' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
                     >
                       {subscribing ? 'Отправка...' : 'Оформить'}
                     </button>
@@ -199,15 +207,18 @@ export default function TariffsPage() {
                     <th className="text-left py-3 text-gray-500 font-medium">Возможность</th>
                     <th className="text-center py-3 font-medium">Lite</th>
                     <th className="text-center py-3 font-medium text-brand-600">Pro</th>
+                    <th className="text-center py-3 font-medium text-amber-600">Premium</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {[
-                    { feature: 'Продвижение постов', lite: true, pro: true },
-                    { feature: 'Баннеры', lite: '1 шт.', pro: '2 шт./нед.' },
-                    { feature: 'Метка «Рекомендовано»', lite: true, pro: true },
-                    { feature: 'Приоритет в каталогах', lite: false, pro: true },
-                    { feature: 'Значок PRO', lite: false, pro: true },
+                    { feature: 'Продвижение постов', lite: true, pro: true, premium: true },
+                    { feature: 'Баннеры', lite: '1 шт.', pro: '2 шт./нед.', premium: '4 шт./нед.' },
+                    { feature: 'Метка «Рекомендовано»', lite: true, pro: true, premium: true },
+                    { feature: 'Приоритет в каталогах', lite: false, pro: true, premium: true },
+                    { feature: 'Значок', lite: false, pro: 'PRO', premium: 'PREMIUM' },
+                    { feature: 'Рекламные посты на профиле', lite: false, pro: false, premium: true },
+                    { feature: 'Аналитика профиля', lite: false, pro: false, premium: true },
                   ].map((row, i) => (
                     <tr key={i}>
                       <td className="py-3 text-gray-700">{row.feature}</td>
@@ -222,6 +233,12 @@ export default function TariffsPage() {
                           row.pro ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
                             : <span className="text-gray-300">—</span>
                         ) : <span className="text-brand-600 font-medium">{row.pro}</span>}
+                      </td>
+                      <td className="py-3 text-center">
+                        {typeof row.premium === 'boolean' ? (
+                          row.premium ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            : <span className="text-gray-300">—</span>
+                        ) : <span className="text-amber-600 font-medium">{row.premium}</span>}
                       </td>
                     </tr>
                   ))}

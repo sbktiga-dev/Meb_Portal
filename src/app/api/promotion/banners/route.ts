@@ -56,18 +56,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Check banner limit
-    const maxBanners = subscription.plan === 'lite' ? 1 : 2;
-    const limitLabel = subscription.plan === 'lite' ? '1 баннер (Lite)' : '2 баннера в неделю (Pro)';
+    const bannerLimits: Record<string, number> = { lite: 1, pro: 2, premium: 4 };
+    const maxBanners = bannerLimits[subscription.plan] || 2;
+    const limitLabel = subscription.plan === 'lite' ? '1 баннер (Lite)' :
+      subscription.plan === 'premium' ? '4 баннера в неделю (Premium)' : '2 баннера в неделю (Pro)';
 
     if (subscription.plan === 'lite') {
       const activeBanners = await prisma.banner.count({
         where: { userId: user.id, status: { in: ['pending', 'active'] } },
       });
       if (activeBanners >= maxBanners) {
-        return NextResponse.json({ error: `Лимит: ${limitLabel}. Обновите подписку до Pro` }, { status: 403 });
+        return NextResponse.json({ error: `Лимит: ${limitLabel}. Обновите подписку` }, { status: 403 });
       }
     } else {
-      // Pro: 2 per week
+      // Pro/Premium: per week
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const recentBanners = await prisma.banner.count({

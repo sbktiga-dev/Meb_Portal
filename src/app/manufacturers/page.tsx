@@ -13,6 +13,7 @@ interface ManufacturerData {
   displayName: string;
   userId: string | null;
   isPro: boolean;
+  isPremium: boolean;
   address: string | null;
   phone: string | null;
   capabilities: string[];
@@ -88,7 +89,8 @@ export default function ManufacturersPage() {
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors line-clamp-1">{m.displayName || m.name}</h3>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        {m.isPro && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
+                        {m.isPremium && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PREMIUM</span>}
+                        {m.isPro && !m.isPremium && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
                         {m.isVerified && <span className="badge-success">Проверено</span>}
                       </div>
                     </div>

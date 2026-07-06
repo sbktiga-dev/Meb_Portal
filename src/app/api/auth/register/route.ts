@@ -101,12 +101,6 @@ export async function POST(req: NextRequest) {
       businessId = specialist.id;
     }
 
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
     // Send verification email
     const verificationToken = crypto.randomBytes(32).toString('hex');
     await prisma.user.update({ where: { id: user.id }, data: { verificationToken } });
@@ -118,7 +112,11 @@ export async function POST(req: NextRequest) {
       html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
     }).catch(() => {});
 
-    return NextResponse.json({ user: { ...user, businessId }, token });
+    return NextResponse.json({
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      needVerify: true,
+      message: 'Письмо с подтверждением отправлено на вашу почту',
+    });
   } catch (error) {
     console.error('Register error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

@@ -7,10 +7,17 @@ import { useSearchParams } from 'next/navigation';
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const pending = searchParams.get('pending');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'pending'>('loading');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    if (pending) {
+      setStatus('pending');
+      setMessage('Письмо с подтверждением отправлено на вашу почту. Проверьте входящие и нажмите ссылку подтверждения.');
+      return;
+    }
+
     if (token) {
       fetch(`/api/auth/verify-email/confirm?token=${token}`)
         .then(res => {
@@ -33,7 +40,7 @@ function VerifyEmailContent() {
       setStatus('error');
       setMessage('Токен не указан');
     }
-  }, [token]);
+  }, [token, pending]);
 
   return (
     <div className="bg-white rounded-2xl shadow-card p-8 text-center">
@@ -42,6 +49,21 @@ function VerifyEmailContent() {
           <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-6" />
           <h1 className="text-xl font-bold text-gray-900 mb-2">Подтверждение email...</h1>
           <p className="text-gray-500">Пожалуйста, подождите</p>
+        </>
+      )}
+
+      {status === 'pending' && (
+        <>
+          <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Проверьте почту</h1>
+          <p className="text-gray-500 mb-6">{message}</p>
+          <Link href="/login" className="btn-primary inline-flex">
+            Перейти к входу
+          </Link>
         </>
       )}
 

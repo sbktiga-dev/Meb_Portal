@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function NewPostPage() {
@@ -14,6 +14,18 @@ export default function NewPostPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [isProfilePromo, setIsProfilePromo] = useState(false);
+  const [canCreatePromo, setCanCreatePromo] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(d => setCanCreatePromo(d.plan === 'premium'))
+        .catch(() => {});
+    }
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -60,7 +72,7 @@ export default function NewPostPage() {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), category, tags, images }),
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), category, tags, images, isProfilePromo }),
       });
       const data = await res.json();
       if (res.ok) { router.push(`/feed/${data.post.id}`); }
@@ -165,6 +177,18 @@ export default function NewPostPage() {
                 placeholder="мебель, кухня, проект"
                 className="input-premium" />
             </div>
+
+            {canCreatePromo && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={isProfilePromo} onChange={e => setIsProfilePromo(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 focus:ring-amber-500" />
+                  <div>
+                    <span className="font-medium text-gray-900">Разместить как акцию на профиле</span>
+                    <p className="text-xs text-gray-500">Пост отобразится в разделе «Акции и спецпредложения» на вашем профиле</p>
+                  </div>
+                </label>
+              </div>
+            )}
 
             <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
               <button type="submit" disabled={submitting} className="btn-primary !px-8 !py-3">

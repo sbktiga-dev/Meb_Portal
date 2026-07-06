@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, content, category, images, tags } = body;
+    const { title, content, category, images, tags, isProfilePromo } = body;
 
     const titleCheck = validatePostTitle(title);
     if (!titleCheck.valid) {
@@ -99,6 +99,15 @@ export async function POST(request: Request) {
       ? tags.filter((t: unknown) => typeof t === 'string' && t.length <= 50).slice(0, 20)
       : [];
 
+    // Check Premium for profile promo
+    let profilePromo = false;
+    if (isProfilePromo) {
+      const subscription = await prisma.subscription.findFirst({
+        where: { userId: user.id, status: 'active', plan: 'premium' },
+      });
+      if (subscription) profilePromo = true;
+    }
+
     const post = await prisma.post.create({
       data: {
         title: sanitizeInput(title),
@@ -107,6 +116,7 @@ export async function POST(request: Request) {
         images: JSON.stringify(validImages),
         tags: JSON.stringify(validTags),
         authorId: user.id,
+        isProfilePromo: profilePromo,
       },
       include: { author: { select: { id: true, name: true } } },
     });

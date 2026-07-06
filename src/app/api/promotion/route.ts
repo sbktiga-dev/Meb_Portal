@@ -48,6 +48,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
+    // Check subscription
+    const subscription = await prisma.subscription.findFirst({
+      where: { userId: user.id, status: 'active' },
+    });
+    if (!subscription) {
+      return NextResponse.json({ error: 'Необходима подписка Lite или Pro' }, { status: 403 });
+    }
+
     const body = await req.json();
     const { postId, duration } = body;
 

@@ -47,6 +47,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
+    // Check subscription
+    const subscription = await prisma.subscription.findFirst({
+      where: { userId: user.id, status: 'active' },
+    });
+    if (!subscription) {
+      return NextResponse.json({ error: 'Необходима подписка Lite или Pro' }, { status: 403 });
+    }
+
+    // Check banner limit for Lite plan
+    if (subscription.plan === 'lite') {
+      const activeBanners = await prisma.banner.count({
+        where: { userId: user.id, status: { in: ['pending', 'active'] } },
+      });
+      if (activeBanners >= 1) {
+        return NextResponse.json({ error: 'Лимит баннеров для плана Lite — 1 баннер. Обновите подписку до Pro' }, { status: 403 });
+      }
+    }
+
     const body = await req.json();
     const { title, imageUrl, linkUrl, position, duration, targetCategory } = body;
 

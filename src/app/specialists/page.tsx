@@ -107,10 +107,10 @@ export default function SpecialistsPage() {
               <a key={s.id} href={`/specialists/${s.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 ${typeColors[s.type] || 'bg-gray-100 text-gray-600'}`}>
-                    {typeIcons[s.type] || s.user.name?.charAt(0) || '?'}
+                    {typeIcons[s.type] || s.user?.name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors truncate">{s.user.name}</h3>
+                    <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors truncate">{s.user?.name || 'Без имени'}</h3>
                     <span className="badge-brand text-[10px] mt-1">
                       {typeLabels[s.type] || s.type}
                     </span>

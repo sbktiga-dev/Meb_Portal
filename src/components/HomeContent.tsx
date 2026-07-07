@@ -93,7 +93,7 @@ export default function HomeContent({
 }) {
   return (
     <div>
-      <section className="relative overflow-hidden gradient-hero text-white">
+      <section className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(160deg, #111827 0%, #1f2937 50%, #374151 100%)' }}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-400/8 rounded-full blur-3xl animate-float-slow" />
@@ -396,7 +396,7 @@ export default function HomeContent({
         </div>
       </section>
 
-      <section className="relative overflow-hidden gradient-hero py-20">
+      <section className="relative overflow-hidden py-20" style={{ background: 'linear-gradient(160deg, #111827 0%, #1f2937 50%, #374151 100%)' }}>
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-80 h-80 bg-brand-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-brand-400/10 rounded-full blur-3xl" />

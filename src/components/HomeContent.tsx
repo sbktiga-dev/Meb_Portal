@@ -168,7 +168,7 @@ export default function HomeContent({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {recentImages.map((img) => (
               <Link key={img.id} href={`/gallery/${img.id}`} className="card-base overflow-hidden group">
-                <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-36 md:h-40 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-300">
+                <div className="relative bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-36 md:h-40 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-300">
                   {img.url ? (
                     <Image src={img.url} alt={img.title} fill unoptimized sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (

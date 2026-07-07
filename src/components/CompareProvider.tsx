@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
@@ -50,8 +50,10 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   const clear = () => setItems([]);
 
+  const value = useMemo(() => ({ items, add, remove, has, clear }), [items, add, remove, has, clear]);
+
   return (
-    <CompareContext.Provider value={{ items, add, remove, has, clear }}>
+    <CompareContext.Provider value={value}>
       {children}
       {items.length > 0 && (
         <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 dark:bg-gray-800 text-white rounded-2xl shadow-float px-5 py-3 flex items-center gap-4 animate-fade-in-up">

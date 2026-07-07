@@ -47,15 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <script dangerouslySetInnerHTML={{ __html: `
-          try {
-            var t = localStorage.getItem('theme');
-            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-              document.documentElement.classList.add('dark');
-            }
-          } catch(e) {}
-        `}} />
+        <link rel="icon" href="/favicon.svg" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>

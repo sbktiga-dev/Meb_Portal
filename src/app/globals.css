@@ -28,8 +28,7 @@
     background-attachment: fixed;
   }
 
-  .dark body,
-  .dark {
+  .dark body {
     color: #d1d5db;
     background-color: #111827;
     background-image: none;

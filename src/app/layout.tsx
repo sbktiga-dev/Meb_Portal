@@ -50,15 +50,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.svg" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider>
-          <HotkeysProvider>
-            <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
-            <Header />
-            <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-            <Footer />
-            <MobileBottomNav />
-          </HotkeysProvider>
-        </ThemeProvider>
+        <HotkeysProvider>
+          <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
+          <Header />
+          <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+          <Footer />
+          <MobileBottomNav />
+        </HotkeysProvider>
       </body>
     </html>
   );

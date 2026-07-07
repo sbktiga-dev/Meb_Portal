@@ -119,6 +119,16 @@ export default function MobileBottomNav() {
                   <span className="text-xs font-medium leading-tight">Админ</span>
                 </Link>
               )}
+              {userId && (
+                <>
+                  <Link href="/dashboard/settings" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 p-3 rounded-xl text-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <span className="text-xs font-medium leading-tight">Настройки</span>
+                  </Link>
+                  <button onClick={() => { localStorage.removeItem('token'); document.cookie = 'token=; path=/; max-age=0'; window.location.href = '/'; }} className="flex flex-col items-center gap-1 p-3 rounded-xl text-center text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
+                    <span className="text-xs font-medium leading-tight">Выйти</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -25,12 +25,10 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Ошибка регистрации'); return; }
 
-      if (data.needVerify) {
-        if (data.verificationUrl) {
-          setVerifyUrl(data.verificationUrl);
-        } else {
-          router.push('/verify-email?pending=true');
-        }
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        router.push('/dashboard');
         return;
       }
     } catch {

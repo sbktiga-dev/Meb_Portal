@@ -24,6 +24,7 @@ model User {
   phone         String?
   emailVerified Boolean        @default(false)
   verificationToken String?
+  emailChangeCode String?
   socialLinks   String         @default("{}")
   interests     String         @default("[]") // JSON array: ["kitchens", "wardrobes", "minimalism"]
   profileViews  Int            @default(0)

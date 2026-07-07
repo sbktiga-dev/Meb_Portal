@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
 import PushNotificationManager from '@/components/PushNotificationManager';
@@ -10,7 +11,7 @@ import toast from 'react-hot-toast';
 
 export default function DashboardSettingsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; phone: string | null; inn: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; phone: string | null; inn: string | null; emailVerified: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -21,6 +22,9 @@ export default function DashboardSettingsPage() {
   const [notifyNewsletter, setNotifyNewsletter] = useState(false);
   const [savingPrefs, setSavingPrefs] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailChangeCode, setEmailChangeCode] = useState('');
+  const [emailChangeCodeSent, setEmailChangeCodeSent] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -101,6 +105,78 @@ export default function DashboardSettingsPage() {
     router.push('/');
   };
 
+  const handleSendVerification = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Письмо отправлено');
+      } else {
+        toast.error(data.error || 'Ошибка');
+      }
+    } catch {
+      toast.error('Ошибка сети');
+    }
+  };
+
+  const handleChangeEmailSend = async () => {
+    if (!newEmail || !newEmail.includes('@')) {
+      toast.error('Введите корректный email');
+      return;
+    }
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/auth/change-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEmailChangeCodeSent(true);
+        toast.success('Код отправлен на новый email');
+      } else {
+        toast.error(data.error || 'Ошибка');
+      }
+    } catch {
+      toast.error('Ошибка сети');
+    }
+  };
+
+  const handleChangeEmailConfirm = async () => {
+    if (!emailChangeCode || emailChangeCode.length !== 6) {
+      toast.error('Введите 6-значный код');
+      return;
+    }
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/auth/change-email', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code: emailChangeCode }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(prev => prev ? { ...prev, email: newEmail } : prev);
+        setEmailChangeCodeSent(false);
+        setNewEmail('');
+        setEmailChangeCode('');
+        toast.success('Email изменён');
+      } else {
+        toast.error(data.error || 'Ошибка');
+      }
+    } catch {
+      toast.error('Ошибка сети');
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!confirm('Вы уверены? Это действие необратимо.')) return;
     toast.error('Функция удаления аккаунта будет доступна позже');
@@ -147,9 +223,9 @@ export default function DashboardSettingsPage() {
                 : `Заполните профиль на ${100 - profileCompletion}% для полного доступа ко всем функциям`}
             </p>
             <div className="flex gap-3">
-              <a href="/dashboard/profile" className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition">
+              <Link href="/dashboard/profile" className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition">
                 Редактировать профиль
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -218,6 +294,48 @@ export default function DashboardSettingsPage() {
             <button onClick={handleSaveNotifications} disabled={savingPrefs} className="mt-4 btn-secondary text-sm">
               {savingPrefs ? 'Сохранение...' : 'Сохранить настройки'}
             </button>
+          </div>
+
+          {/* Подтверждение email */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Подтверждение email</h2>
+            <p className="text-gray-500 text-sm mb-4">
+              {user?.emailVerified ? 'Ваш email подтверждён' : 'Подтвердите email для доступа к подпискам и продвижению'}
+            </p>
+            {user?.emailVerified ? (
+              <div className="flex items-center gap-2 text-emerald-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
+                <span className="text-sm font-medium">Email подтверждён</span>
+              </div>
+            ) : (
+              <button onClick={handleSendVerification} className="btn-primary text-sm">
+                Отправить письмо для подтверждения
+              </button>
+            )}
+          </div>
+
+          {/* Смена email */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Смена email</h2>
+            <p className="text-gray-500 text-sm mb-4">Введите новый email и получите код подтверждения</p>
+            {!emailChangeCodeSent ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Новый email</label>
+                  <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="input-premium" placeholder="new@email.com" />
+                </div>
+                <button onClick={handleChangeEmailSend} className="btn-primary text-sm">Отправить код</button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-500">Код отправлен на {newEmail}</p>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Код подтверждения</label>
+                  <input type="text" value={emailChangeCode} onChange={e => setEmailChangeCode(e.target.value)} className="input-premium" placeholder="123456" maxLength={6} />
+                </div>
+                <button onClick={handleChangeEmailConfirm} className="btn-primary text-sm">Подтвердить смену</button>
+              </div>
+            )}
           </div>
 
           {/* Обратная связь */}

@@ -102,12 +102,12 @@ export async function POST(req: NextRequest) {
       businessId = specialist.id;
     }
 
-    // Send verification email
+    // Send verification email (optional - user can verify later from profile)
     const verificationToken = crypto.randomBytes(32).toString('hex');
     await prisma.user.update({ where: { id: user.id }, data: { verificationToken } });
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
-    const sent = await sendEmail({
+    await sendEmail({
       to: user.email,
       subject: 'Подтверждение email — МебПортал',
       html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
@@ -115,11 +115,16 @@ export async function POST(req: NextRequest) {
 
     logActivity({ action: 'register', userId: user.id, details: `Регистрация: ${user.email} (${userRole})` });
 
+    const token = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
     return NextResponse.json({
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
-      needVerify: true,
-      message: sent ? 'Письмо отправлено на вашу почту' : 'Подтвердите email по ссылке',
-      verificationUrl: sent ? undefined : verificationUrl,
+      token,
+      message: 'Регистрация успешна',
     });
   } catch (error) {
     console.error('Register error:', error);

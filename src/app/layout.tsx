@@ -51,8 +51,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <CompareProvider>
-          <PushRegistration />
           <HotkeysProvider>
             <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
             <Header />
@@ -60,7 +58,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
             <MobileBottomNav />
           </HotkeysProvider>
-          </CompareProvider>
         </ThemeProvider>
       </body>
     </html>

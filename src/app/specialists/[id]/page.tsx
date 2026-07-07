@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SkeletonPage } from '@/components/Loading';
 import StarRating from '@/components/StarRating';
 import toast from 'react-hot-toast';
+import PageSEO from '@/components/PageSEO';
 
 interface SpecialistData {
   id: string;
@@ -63,6 +65,7 @@ export default function SpecialistDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={specialist.user.name || 'Специалист'} description={specialist.description?.slice(0, 160) || `Специалист на МебПортал: ${specialist.user.name}`} />
       <div className="section-container py-10 max-w-4xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -75,7 +78,7 @@ export default function SpecialistDetailPage() {
             <div className="relative flex items-center gap-4 sm:gap-6">
               {specialist.user.avatar ? (
                 <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in flex-shrink-0">
-                  <img src={specialist.user.avatar} alt="" className="w-full h-full object-cover" />
+                  <Image src={specialist.user.avatar} alt="" fill className="object-cover" sizes="96px" unoptimized />
                 </div>
               ) : (
                 <div className="w-16 h-16 sm:w-24 sm:h-24 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl sm:text-4xl font-bold border border-white/20 shadow-glass animate-scale-in flex-shrink-0">

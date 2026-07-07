@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SkeletonPage } from '@/components/Loading';
 import Link from 'next/link';
+import Image from 'next/image';
 import FavoriteButton from '@/components/FavoriteButton';
+import PageSEO from '@/components/PageSEO';
 
 interface ImageData {
   id: string;
@@ -91,6 +93,7 @@ export default function ImageDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={image.title || 'Изображение'} description={image.description || `Изображение на МебПортал: ${image.title}`} />
       <div className="section-container py-10 max-w-5xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -101,7 +104,7 @@ export default function ImageDetailPage() {
           <div className="lg:col-span-2">
             <div className="card-base overflow-hidden">
               {image.url ? (
-                <img src={image.url} alt={image.title} className="w-full h-auto object-contain bg-gray-50" />
+                <Image src={image.url} alt={image.title} width={800} height={500} className="w-full h-auto object-contain bg-gray-50" unoptimized />
               ) : (
                 <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 aspect-[16/10] flex items-center justify-center">
                   <svg className="w-24 h-24 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>

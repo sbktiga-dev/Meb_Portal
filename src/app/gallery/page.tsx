@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
+import PageSEO from '@/components/PageSEO';
 
 interface ImageData {
   id: string;
@@ -115,6 +116,7 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Каталог изображений" description="Каталог изображений мебельных интерьеров и проектов на МебПортал. Вдохновляйтесь идеями дизайна мебели и интерьеров." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Каталог изображений</h1>

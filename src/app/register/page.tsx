@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [verifyUrl, setVerifyUrl] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +26,11 @@ export default function RegisterPage() {
       if (!res.ok) { setError(data.error || 'Ошибка регистрации'); return; }
 
       if (data.needVerify) {
-        router.push('/verify-email?pending=true');
+        if (data.verificationUrl) {
+          setVerifyUrl(data.verificationUrl);
+        } else {
+          router.push('/verify-email?pending=true');
+        }
         return;
       }
     } catch {
@@ -49,15 +54,15 @@ export default function RegisterPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold text-gray-900">Меб<span className="text-gradient">Портал</span></span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Меб<span className="text-gradient">Портал</span></span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Создать аккаунт</h1>
-          <p className="text-gray-500 mt-2">Присоединяйтесь к мебельному сообществу</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Создать аккаунт</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Присоединяйтесь к мебельному сообществу</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8">
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
+            <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
               {error}
             </div>
@@ -65,15 +70,15 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Имя</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Имя</label>
               <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="input-premium" placeholder="Ваше имя" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email *</label>
               <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-premium" placeholder="you@example.com" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Пароль *</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Пароль *</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} required minLength={6} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="input-premium !pr-11" placeholder="Минимум 6 символов" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
@@ -86,11 +91,11 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">ИНН <span className="font-normal text-gray-400">(для ИП/компаний)</span></label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ИНН <span className="font-normal text-gray-400">(для ИП/компаний)</span></label>
               <input type="text" value={form.inn} onChange={e => setForm({ ...form, inn: e.target.value })} className="input-premium" placeholder="Необязательно" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Вы</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Вы</label>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="input-premium">
                 <option value="CLIENT">Клиент — хочу заказать мебель</option>
                 <option value="USER">Специалист — дизайнер, технолог</option>
@@ -104,8 +109,16 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-500">
+          {verifyUrl && (
+            <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-sm font-medium text-amber-800 mb-2">📧 Письмо не отправилось. Подтвердите email по ссылке:</p>
+              <a href={verifyUrl} className="text-brand-600 hover:text-brand-700 text-sm font-medium break-all">{verifyUrl}</a>
+              <p className="text-xs text-gray-500 mt-2">Нажмите на ссылку для подтверждения</p>
+            </div>
+          )}
+
+          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Уже есть аккаунт?{' '}
               <Link href="/login" className="text-brand-600 hover:text-brand-700 font-semibold">Войти</Link>
             </p>

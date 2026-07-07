@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 
 interface CompanyData {
   id: string;
@@ -55,6 +56,7 @@ export default function CompaniesPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Компании" description="Каталог мебельных компаний на МебПортал: производители, дизайнерские студии и мебельные фабрики. Найдите надёжного партнёра." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Компании</h1>

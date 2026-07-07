@@ -109,16 +109,28 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       _count: true,
     });
 
-    // Check Premium subscription for analytics
-    const subscription = await prisma.subscription.findFirst({
-      where: { userId: params.id, status: 'active', plan: 'premium' },
-    });
-
     const postStats = await prisma.post.aggregate({
       where: { authorId: params.id, isPublished: true },
       _sum: { views: true, likes: true },
       _count: true,
     });
+
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [weekPosts, monthPosts] = await Promise.all([
+      prisma.post.aggregate({
+        where: { authorId: params.id, isPublished: true, createdAt: { gte: weekAgo } },
+        _sum: { views: true, likes: true },
+        _count: true,
+      }),
+      prisma.post.aggregate({
+        where: { authorId: params.id, isPublished: true, createdAt: { gte: monthAgo } },
+        _sum: { views: true, likes: true },
+        _count: true,
+      }),
+    ]);
 
     return NextResponse.json({
       user,
@@ -130,12 +142,18 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       promoPosts,
       recentPortfolio,
       reviewStats: { average: reviewStats._avg.score, count: reviewStats._count },
-      analytics: subscription ? {
+      analytics: {
         profileViews: user.profileViews,
         totalViews: postStats._sum.views || 0,
         totalLikes: postStats._sum.likes || 0,
         totalPosts: postStats._count,
-      } : null,
+        weekViews: weekPosts._sum.views || 0,
+        weekLikes: weekPosts._sum.likes || 0,
+        weekPosts: weekPosts._count,
+        monthViews: monthPosts._sum.views || 0,
+        monthLikes: monthPosts._sum.likes || 0,
+        monthPosts: monthPosts._count,
+      },
     });
   } catch (e) {
     console.error('Profile error:', e);

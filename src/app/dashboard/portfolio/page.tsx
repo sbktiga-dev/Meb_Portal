@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
+import Image from 'next/image';
 import Lightbox from '@/components/Lightbox';
 
 interface PortfolioData {
@@ -94,7 +95,7 @@ export default function PortfolioPage() {
                 <div key={item.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
                   <div className="h-48 relative group cursor-pointer" onClick={() => images.length > 0 && setLightbox({ images, index: 0 })}>
                     {images.length > 0 ? (
-                      <img src={images[0]} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
+                      <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
                         <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>

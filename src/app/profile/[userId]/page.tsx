@@ -13,6 +13,7 @@ import ReviewCard from '@/components/ReviewCard';
 import ReviewForm from '@/components/ReviewForm';
 import StarRating from '@/components/StarRating';
 import InfiniteScroll from '@/components/InfiniteScroll';
+import PageSEO from '@/components/PageSEO';
 
 interface ProfileData {
   user: {
@@ -39,7 +40,7 @@ interface ProfileData {
   promoPosts: { id: string; title: string; content: string; images: string; createdAt: string }[];
   recentPortfolio: { id: string; title: string; images: string; category: string | null; createdAt: string }[];
   reviewStats: { average: number | null; count: number };
-  analytics: { profileViews: number; totalViews: number; totalLikes: number; totalPosts: number } | null;
+  analytics: { profileViews: number; totalViews: number; totalLikes: number; totalPosts: number; weekViews: number; weekLikes: number; weekPosts: number; monthViews: number; monthLikes: number; monthPosts: number } | null;
 }
 
 interface Post { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
@@ -261,6 +262,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 md:pb-0">
+      <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
       {/* Cover + Avatar */}
       <div className="relative">
         <div className="h-40 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
@@ -317,13 +319,12 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
-        {/* Аналитика (только для Premium владельца профиля) */}
+        {/* Аналитика профиля */}
         {analytics && isOwnProfile && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5 mb-6">
             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
               <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
               Аналитика профиля
-              <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PREMIUM</span>
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white/70 rounded-lg p-3 text-center">
@@ -343,6 +344,32 @@ export default function ProfilePage() {
                 <div className="text-xs text-gray-500">Постов</div>
               </div>
             </div>
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mt-3 pt-3 border-t border-amber-200/50">
+              <div className="text-center">
+                <div className="text-lg font-bold text-brand-600">{analytics.weekViews}</div>
+                <div className="text-[10px] text-gray-500">Постов за неделю</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-brand-600">{analytics.weekLikes}</div>
+                <div className="text-[10px] text-gray-500">Лайков за неделю</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-brand-600">{analytics.weekPosts}</div>
+                <div className="text-[10px] text-gray-500">Новых постов</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-600">{analytics.monthViews}</div>
+                <div className="text-[10px] text-gray-500">Просмотров за месяц</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-600">{analytics.monthLikes}</div>
+                <div className="text-[10px] text-gray-500">Лайков за месяц</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-600">{analytics.monthPosts}</div>
+                <div className="text-[10px] text-gray-500">Постов за месяц</div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -360,7 +387,7 @@ export default function ProfilePage() {
                   <Link key={promo.id} href={`/feed/${promo.id}`} className="card-base overflow-hidden hover:shadow-md transition-shadow border-amber-200">
                     {imgs.length > 0 && (
                       <div className="relative h-36">
-                        <img src={imgs[0]} alt="" className="w-full h-full object-cover" />
+                        <Image src={imgs[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
                         <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Акция</div>
                       </div>
                     )}
@@ -457,7 +484,9 @@ export default function ProfilePage() {
                 <h3 className="font-bold text-gray-900 text-sm">Компания</h3>
                 <Link href={`/companies/${company.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {company.logo ? (
-                    <img src={company.logo} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                      <Image src={company.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">К</div>
                   )}
@@ -475,7 +504,9 @@ export default function ProfilePage() {
                 <h3 className="font-bold text-gray-900 text-sm">Поставщик</h3>
                 <Link href={`/suppliers/${supplier.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {supplier.logo ? (
-                    <img src={supplier.logo} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                      <Image src={supplier.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">П</div>
                   )}
@@ -493,7 +524,9 @@ export default function ProfilePage() {
                 <h3 className="font-bold text-gray-900 text-sm">Производство</h3>
                 <Link href={`/manufacturers/${manufacturer.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   {manufacturer.logo ? (
-                    <img src={manufacturer.logo} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                      <Image src={manufacturer.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-bold">М</div>
                   )}
@@ -602,7 +635,7 @@ export default function ProfilePage() {
                         return (
                           <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
                             {imgs[0] ? (
-                              <img src={imgs[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                              <Image src={imgs[0]} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" unoptimized />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-300">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>

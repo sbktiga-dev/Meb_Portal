@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { sendPushToUsers } from '@/lib/push';
 
 export async function GET(
   request: Request,
@@ -119,6 +120,17 @@ export async function POST(
       where: { id: params.id },
       data: { updatedAt: new Date() },
     });
+
+    const otherParticipants = await prisma.conversationParticipant.findMany({
+      where: { conversationId: params.id, userId: { not: user.id } },
+      select: { userId: true },
+    });
+    if (otherParticipants.length > 0) {
+      sendPushToUsers(
+        otherParticipants.map(p => p.userId),
+        { title: 'Новое сообщение', body: `${user.name || 'Пользователь'} написал вам`, url: `/dashboard/messages/${params.id}` }
+      ).catch(() => {});
+    }
 
     return NextResponse.json({ message }, { status: 201 });
   } catch {

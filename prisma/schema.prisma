@@ -64,6 +64,9 @@ model User {
   subscriptions  Subscription[]
   reviewsWritten  UserProfileReview[] @relation("ReviewsWritten")
   reviewsReceived UserProfileReview[] @relation("ReviewsReceived")
+  pushSubscriptions PushSubscription[]
+  feedback        Feedback[]
+  activityLogs    ActivityLog[]
 }
 
 model Specialist {
@@ -576,4 +579,47 @@ model Subscription {
 
   @@index([userId])
   @@index([status])
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid())
+  endpoint     String
+  p256dh       String
+  auth         String
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+
+  @@unique([endpoint])
+  @@index([userId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  type      String   // "bug" | "feature"
+  message   String
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // "login" | "register" | "post_create" | "comment" | "follow" | "ban" | "role_change" | "feedback" | etc.
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }

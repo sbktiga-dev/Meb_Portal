@@ -6,6 +6,7 @@ import { hashPassword, generateToken } from '@/lib/auth';
 import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
 import { validateRequest, registerSchema } from '@/lib/validations';
 import { sendEmail, verificationEmailHtml } from '@/lib/email';
+import { logActivity } from '@/lib/activity';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -106,16 +107,19 @@ export async function POST(req: NextRequest) {
     await prisma.user.update({ where: { id: user.id }, data: { verificationToken } });
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
-    sendEmail({
+    const sent = await sendEmail({
       to: user.email,
       subject: 'Подтверждение email — МебПортал',
       html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
-    }).catch(() => {});
+    }).catch(() => false);
+
+    logActivity({ action: 'register', userId: user.id, details: `Регистрация: ${user.email} (${userRole})` });
 
     return NextResponse.json({
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       needVerify: true,
-      message: 'Письмо с подтверждением отправлено на вашу почту',
+      message: sent ? 'Письмо отправлено на вашу почту' : 'Подтвердите email по ссылке',
+      verificationUrl: sent ? undefined : verificationUrl,
     });
   } catch (error) {
     console.error('Register error:', error);

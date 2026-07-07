@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonPage } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 
 interface CompanyData {
   id: string;
@@ -88,6 +89,7 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={company.name || 'Компания'} description={company.description?.slice(0, 160) || `Компания на МебПортал: ${company.name}`} />
       <div className="section-container py-10 max-w-4xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>

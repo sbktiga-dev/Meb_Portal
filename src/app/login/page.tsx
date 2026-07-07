@@ -30,7 +30,14 @@ function LoginForm() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Ошибка входа'); return; }
+      if (!res.ok) {
+        if (data.needVerify) {
+          router.push('/verify-email?pending=true');
+          return;
+        }
+        setError(data.error || 'Ошибка входа');
+        return;
+      }
       localStorage.setItem('token', data.token);
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
       window.location.href = '/dashboard';
@@ -42,7 +49,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-card p-8">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8">
       {success && (
         <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
@@ -58,12 +65,12 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email</label>
           <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-premium" placeholder="you@example.com" />
         </div>
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-gray-700">Пароль</label>
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Пароль</label>
             <Link href="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700 font-medium">Забыли пароль?</Link>
           </div>
           <div className="relative">
@@ -82,8 +89,8 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Нет аккаунта?{' '}
           <Link href="/register" className="text-brand-600 hover:text-brand-700 font-semibold">Зарегистрироваться</Link>
         </p>
@@ -107,10 +114,10 @@ export default function LoginPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold text-gray-900">Меб<span className="text-gradient">Портал</span></span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Меб<span className="text-gradient">Портал</span></span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Добро пожаловать</h1>
-          <p className="text-gray-500 mt-2">Войдите в свой аккаунт</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Добро пожаловать</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Войдите в свой аккаунт</p>
         </div>
         <Suspense fallback={<div className="bg-white rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
           <LoginForm />

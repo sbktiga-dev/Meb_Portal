@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, generateToken } from '@/lib/auth';
 import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,6 +47,8 @@ export async function POST(req: NextRequest) {
       email: user.email,
       role: user.role,
     });
+
+    logActivity({ action: 'login', userId: user.id, ip, details: `Вход: ${user.email}` });
 
     return NextResponse.json({
       user: {

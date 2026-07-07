@@ -23,6 +23,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
       return true;
     }
 
+    await transporter.verify();
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to,

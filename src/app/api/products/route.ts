@@ -13,6 +13,9 @@ export async function GET(request: Request) {
     const brand = searchParams.get('brand');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
+    const minRating = searchParams.get('minRating');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
     const sort = searchParams.get('sort') || 'newest';
     const companyId = searchParams.get('companyId');
     const supplierId = searchParams.get('supplierId');
@@ -33,6 +36,20 @@ export async function GET(request: Request) {
       where.price = {};
       if (minPrice) (where.price as Record<string, number>).gte = parseFloat(minPrice);
       if (maxPrice) (where.price as Record<string, number>).lte = parseFloat(maxPrice);
+    }
+    if (minRating) {
+      const productIds = await prisma.productReview.groupBy({
+        by: ['productId'],
+        where: { score: { gte: parseFloat(minRating) } },
+        _avg: { score: true },
+        having: { score: { _avg: { gte: parseFloat(minRating) } } },
+      });
+      where.id = { in: productIds.map(p => p.productId) };
+    }
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) (where.createdAt as Record<string, Date>).gte = new Date(dateFrom);
+      if (dateTo) (where.createdAt as Record<string, Date>).lte = new Date(dateTo + 'T23:59:59.999Z');
     }
 
     const orderBy = sort === 'popular'

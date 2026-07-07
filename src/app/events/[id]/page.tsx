@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SkeletonPage } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
+import Image from 'next/image';
 
 interface EventData {
   id: string;
@@ -91,6 +93,7 @@ export default function EventDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={event.title || 'Событие'} description={event.description?.slice(0, 160) || `Событие на МебПортал: ${event.title}`} />
       <div className="section-container py-10">
         <Link href="/events" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -99,7 +102,7 @@ export default function EventDetailPage() {
 
         <div className="card-base overflow-hidden mb-8 animate-fade-in">
           <div className="h-64 bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 relative">
-            {event.coverImage && <img src={event.coverImage} alt="" className="w-full h-full object-cover" />}
+            {event.coverImage && <Image src={event.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white">
               <div className="flex items-center gap-2 mb-2">
@@ -134,8 +137,8 @@ export default function EventDetailPage() {
                       return (
                         <div key={p.id} className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
                           {p.user.avatar ? (
-                            <div className="w-8 h-8 rounded-full overflow-hidden">
-                              <img src={p.user.avatar} alt="" className="w-full h-full object-cover" />
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                              <Image src={p.user.avatar} alt="" fill className="object-cover" sizes="32px" unoptimized />
                             </div>
                           ) : (
                             <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
@@ -194,8 +197,8 @@ export default function EventDetailPage() {
                 <div className="card-base p-5">
                   <div className="flex items-center gap-3">
                     {event.organizer.avatar ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
-                        <img src={event.organizer.avatar} alt="" className="w-full h-full object-cover" />
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                        <Image src={event.organizer.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">

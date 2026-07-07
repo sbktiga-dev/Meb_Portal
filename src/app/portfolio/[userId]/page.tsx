@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import SendMessageButton from '@/components/SendMessageButton';
@@ -166,7 +167,7 @@ export default function PublicPortfolioPage() {
                   <div key={item.id} className="card-base overflow-hidden hover-lift animate-fade-in-up">
                     <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-48 flex items-center justify-center relative group">
                       {images.length > 0 ? (
-                        <img src={images[0]} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
+                        <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
                       ) : (
                         <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                       )}

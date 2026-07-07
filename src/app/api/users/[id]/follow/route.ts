@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
+import { sendPushToUser } from '@/lib/push';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(
   request: Request,
@@ -72,6 +74,12 @@ export async function POST(
         link: `/portfolio/${user.id}`,
       },
     });
+    sendPushToUser(targetUserId, {
+      title: 'Новая подписка',
+      body: `${userName} подписался на вас`,
+      url: `/profile/${user.id}`,
+    }).catch(() => {});
+    logActivity({ action: 'follow', userId: user.id, details: `Подписка на ${targetUserId}` });
 
     return NextResponse.json({ followed: true });
   } catch (e) {

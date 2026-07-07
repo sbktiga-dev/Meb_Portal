@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SkeletonPage } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
@@ -150,6 +152,7 @@ export default function PostDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={post.title || 'Публикация'} description={post.content?.slice(0, 160) || 'Публикация на МебПортал'} />
       <div className="section-container py-10 max-w-3xl">
         <button onClick={() => { if (window.history.length > 1) router.back(); else router.push('/feed'); }} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -161,14 +164,14 @@ export default function PostDetailPage() {
             <div className="relative bg-gray-100">
               {postImages.length === 1 ? (
                 <div className="h-72 md:h-96 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 relative overflow-hidden">
-                  <img src={postImages[0]} alt="" className="w-full h-full object-cover" />
+                  <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-0.5">
                   {postImages.slice(0, 4).map((img, idx) => (
                     <div key={idx} className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-40 md:h-52 relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => setSelectedImage(idx)}>
-                      <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" unoptimized />
                     </div>
                   ))}
                 </div>
@@ -189,7 +192,7 @@ export default function PostDetailPage() {
               <div className="relative flex-shrink-0">
                 {post.author.avatar ? (
                   <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
-                    <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
+                    <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="56px" unoptimized />
                   </div>
                 ) : (
                   <div className={`w-14 h-14 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md`}>

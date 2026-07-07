@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface BannerAdProps {
   title: string;
@@ -13,10 +14,13 @@ export default function BannerAd({ title, imageUrl, linkUrl }: BannerAdProps) {
         <div className="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
           Реклама
         </div>
-        <img
+        <Image
           src={imageUrl}
           alt={title}
-          className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          unoptimized
         />
         <div className="p-3">
           <p className="text-sm font-medium text-gray-900 group-hover:text-brand-600 transition-colors">{title}</p>

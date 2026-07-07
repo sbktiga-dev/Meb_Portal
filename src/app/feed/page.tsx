@@ -10,6 +10,7 @@ import RoleBadge from '@/components/RoleBadge';
 import PromotionBadge from '@/components/PromotionBadge';
 import BannerAd from '@/components/BannerAd';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
+import PageSEO from '@/components/PageSEO';
 
 interface PostData {
   id: string;
@@ -223,6 +224,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Лента новостей" description="Новости и публикации от участников мебельного сообщества МебПортал. Будьте в курсе последних тенденций мебельной индустрии." />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>

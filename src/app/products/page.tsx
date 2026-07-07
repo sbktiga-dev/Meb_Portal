@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
+import PageSEO from '@/components/PageSEO';
+import { useCompare } from '@/components/CompareProvider';
 
 interface ProductData {
   id: string;
@@ -40,7 +42,11 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
-  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const { items: compareIds, add: compareAdd, remove: compareRemove, has: compareHas } = useCompare();
 
   const fetchProducts = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) setLoadingMore(true);
@@ -49,6 +55,9 @@ export default function ProductsPage() {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       if (category !== 'Все') params.set('category', category);
+      if (minPrice) params.set('minPrice', minPrice);
+      if (maxPrice) params.set('maxPrice', maxPrice);
+      if (minRating) params.set('minRating', minRating);
       params.set('sort', sortBy);
       params.set('page', String(pageNum));
       params.set('limit', '20');
@@ -66,7 +75,7 @@ export default function ProductsPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [search, category, sortBy]);
+  }, [search, category, sortBy, minPrice, maxPrice, minRating]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -83,11 +92,8 @@ export default function ProductsPage() {
   }, [page, fetchProducts]);
 
   const toggleCompare = (id: string) => {
-    setCompareIds(prev => {
-      if (prev.includes(id)) return prev.filter(i => i !== id);
-      if (prev.length >= 4) return prev;
-      return [...prev, id];
-    });
+    if (compareHas(id)) compareRemove(id);
+    else compareAdd(id);
   };
 
   const formatPrice = (price: number | null) => {
@@ -97,6 +103,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Каталог товаров" description="Каталог мебельных товаров на МебПортал: кухни, шкафы, столы, стеллажи, диваны, кровати, фурнитура и материалы от лучших производителей." />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
@@ -135,7 +142,36 @@ export default function ProductsPage() {
                 {c}
               </button>
             ))}
+            <button onClick={() => setShowAdvanced(!showAdvanced)} className="filter-chip-inactive flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+              Фильтры
+            </button>
           </div>
+          {showAdvanced && (
+            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Цена, ₽</label>
+                <div className="flex gap-2">
+                  <input type="number" placeholder="От" value={minPrice} onChange={e => setMinPrice(e.target.value)} className="input-premium text-sm !py-2" />
+                  <input type="number" placeholder="До" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className="input-premium text-sm !py-2" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Минимальный рейтинг</label>
+                <select value={minRating} onChange={e => setMinRating(e.target.value)} className="input-premium text-sm !py-2">
+                  <option value="">Любой</option>
+                  <option value="4">4+</option>
+                  <option value="3">3+</option>
+                  <option value="2">2+</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button onClick={() => { setMinPrice(''); setMaxPrice(''); setMinRating(''); setPage(1); }} className="btn-ghost text-sm w-full">
+                  Сбросить фильтры
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -152,7 +188,7 @@ export default function ProductsPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product, i) => {
               const productImages: string[] = (() => { try { return JSON.parse(product.images); } catch { return []; } })();
-              const isCompared = compareIds.includes(product.id);
+              const isCompared = compareHas(product.id);
               return (
                 <div key={product.id} className={`card-base overflow-hidden hover-lift animate-fade-in-up stagger-${Math.min((i % 6) + 1, 6)} ${isCompared ? 'ring-2 ring-brand-500' : ''}`}>
                   <Link href={`/products/${product.id}`} className="block">

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 
 export default function DashboardProfilePage() {
@@ -173,8 +174,8 @@ export default function DashboardProfilePage() {
                 disabled={uploading}
               >
                 {avatar ? (
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden border-3 border-brand-200 shadow-lg">
-                    <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-3 border-brand-200 shadow-lg">
+                    <Image src={avatar} alt="Аватар" fill className="object-cover" sizes="96px" unoptimized />
                   </div>
                 ) : (
                   <div className={`w-24 h-24 bg-gradient-to-br ${avatarColors[colorIdx]} rounded-2xl flex items-center justify-center text-white text-3xl font-bold border-3 border-white shadow-lg`}>
@@ -289,7 +290,7 @@ export default function DashboardProfilePage() {
                 </label>
                 {cover && (
                   <div className="relative w-32 h-16 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={cover} alt="Обложка" className="w-full h-full object-cover" />
+                    <Image src={cover} alt="Обложка" fill className="object-cover" sizes="128px" unoptimized />
                     <button onClick={() => setCover(null)} className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/70">×</button>
                   </div>
                 )}

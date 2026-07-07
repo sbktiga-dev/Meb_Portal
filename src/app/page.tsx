@@ -1,9 +1,27 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import HomeContent from '@/components/HomeContent';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: 'МебПортал — платформа для мебельной индустрии',
+  description: 'МебПортал — крупнейшая платформа для специалистов мебельной индустрии. Каталог товаров, поставщиков, производств, специалистов, изображений и документов.',
+  openGraph: {
+    title: 'МебПортал — платформа для мебельной индустрии',
+    description: 'Каталог товаров, поставщиков, производств, специалистов, изображений и документов для мебельной индустрии.',
+    type: 'website',
+    locale: 'ru_RU',
+    siteName: 'МебПортал',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'МебПортал — платформа для мебельной индустрии',
+    description: 'Каталог товаров, поставщиков, производств, специалистов, изображений и документов для мебельной индустрии.',
+  },
+};
 
 export default async function HomePage() {
   const [statsResult, images, documents, feedResult] = await Promise.all([

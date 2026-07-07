@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SkeletonFeed } from '@/components/Loading';
+import Image from 'next/image';
+import PageSEO from '@/components/PageSEO';
 
 interface GroupData {
   id: string;
@@ -126,6 +128,7 @@ export default function GroupDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={group.name || 'Группа'} description={group.description?.slice(0, 160) || `Группа на МебПортал: ${group.name}`} />
       <div className="section-container py-10">
         <Link href="/groups" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -134,7 +137,7 @@ export default function GroupDetailPage() {
 
         <div className="card-base overflow-hidden mb-8 animate-fade-in">
           <div className="h-48 bg-gradient-to-br from-brand-100 via-orange-50 to-amber-50 relative">
-            {group.coverImage && <img src={group.coverImage} alt="" className="w-full h-full object-cover" />}
+            {group.coverImage && <Image src={group.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
           </div>
           <div className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -203,9 +206,9 @@ export default function GroupDetailPage() {
                 <div key={post.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
                     {post.author.avatar ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                        <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-                      </div>
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                          <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                        </div>
                     ) : (
                       <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
                         {post.author.name?.charAt(0) || '?'}
@@ -220,8 +223,8 @@ export default function GroupDetailPage() {
                   {postImages.length > 0 && (
                     <div className="grid grid-cols-2 gap-1 mt-3 rounded-xl overflow-hidden">
                       {postImages.slice(0, 4).map((img, idx) => (
-                        <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                          <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                          <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
+                            <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 640px) 50vw, 300px" unoptimized />
                         </div>
                       ))}
                     </div>

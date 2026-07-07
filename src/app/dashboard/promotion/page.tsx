@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Sidebar from '@/components/Sidebar';
 import toast from 'react-hot-toast';
 
@@ -185,8 +186,8 @@ export default function PromotionPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Изображение баннера</label>
                     {bannerForm.imageUrl ? (
-                      <div className="relative">
-                        <img src={bannerForm.imageUrl} alt="Превью" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
+                      <div className="relative h-40">
+                        <Image src={bannerForm.imageUrl} alt="Превью" fill className="object-cover rounded-lg border border-gray-200" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
                         <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
                       </div>
                     ) : (

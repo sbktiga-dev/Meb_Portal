@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import Image from 'next/image';
 
 interface PostData {
   id: string;
@@ -152,8 +153,8 @@ export default function AdminPostsPage() {
                 <div key={post.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min(i + 1, 6)} ${!post.isPublished ? 'border-l-4 border-l-amber-400' : ''}`}>
                   <div className="flex flex-col sm:flex-row">
                     {postImages.length > 0 && (
-                      <div className="sm:w-48 h-32 sm:h-auto flex-shrink-0 bg-gray-100">
-                        <img src={postImages[0]} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      <div className="relative sm:w-48 h-32 sm:h-auto flex-shrink-0 bg-gray-100">
+                        <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 640px) 100vw, 192px" unoptimized />
                       </div>
                     )}
                     <div className="flex-1 p-5">
@@ -170,8 +171,8 @@ export default function AdminPostsPage() {
                           <div className="flex items-center gap-4 text-xs text-gray-400">
                             <span className="flex items-center gap-1">
                               {post.author.avatar ? (
-                                <div className="w-5 h-5 rounded-full overflow-hidden">
-                                  <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
+                                <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                                  <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="20px" unoptimized />
                                 </div>
                               ) : (
                                 <div className="w-5 h-5 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">

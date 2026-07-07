@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import Image from 'next/image';
 
 interface FavoriteItem {
   id: string;
@@ -123,7 +124,7 @@ export default function FavoritesPage() {
                 <div key={fav.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
                   <div className="h-48 relative group">
                     {fav.itemType === 'image' && fav.item.url ? (
-                      <img src={fav.item.url} alt={fav.item.title} className="w-full h-full object-cover" loading="lazy" />
+                      <Image src={fav.item.url} alt={fav.item.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
                         <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1">

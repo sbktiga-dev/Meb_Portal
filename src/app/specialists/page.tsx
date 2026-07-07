@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { SkeletonList } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 
 interface SpecialistData {
   id: string;
@@ -63,6 +64,7 @@ export default function SpecialistsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Специалисты" description="Каталог мебельных специалистов на МебПортал: дизайнеры, технологи, установщики и менеджеры. Найдите профессионала для вашего проекта." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Специалисты</h1>

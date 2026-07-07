@@ -5,6 +5,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import HotkeysProvider from '@/components/HotkeysProvider';
+import ThemeProvider from '@/components/ThemeProvider';
+import { CompareProvider } from '@/components/CompareProvider';
+import PushRegistration from '@/components/PushRegistration';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -42,18 +45,31 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark');
+            }
+          } catch(e) {}
+        `}} />
       </head>
       <body className={inter.className}>
-        <HotkeysProvider>
-          <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
-          <Header />
-          <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-          <Footer />
-          <MobileBottomNav />
-        </HotkeysProvider>
+        <ThemeProvider>
+          <CompareProvider>
+          <PushRegistration />
+          <HotkeysProvider>
+            <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
+            <Header />
+            <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+            <Footer />
+            <MobileBottomNav />
+          </HotkeysProvider>
+          </CompareProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

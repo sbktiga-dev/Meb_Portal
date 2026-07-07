@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function NewPortfolioPage() {
   const router = useRouter();
@@ -104,7 +105,7 @@ export default function NewPortfolioPage() {
               <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => (
                   <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-brand-100">
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <Image src={img} alt="" fill className="object-cover" sizes="96px" unoptimized />
                     <button type="button" onClick={() => removeImage(idx)}
                       className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>

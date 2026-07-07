@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Notification {
   id: string;
@@ -186,8 +187,8 @@ function NotificationContent({ notification }: { notification: Notification }) {
     <>
       <div className="flex-shrink-0 relative">
         {notification.fromUser?.avatar ? (
-          <div className="w-10 h-10 rounded-full overflow-hidden">
-            <img src={notification.fromUser.avatar} alt="" className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full overflow-hidden relative">
+            <Image src={notification.fromUser.avatar} alt="" fill unoptimized sizes="40px" className="object-cover" />
           </div>
         ) : notification.fromUser ? (
           <div className={`w-10 h-10 bg-gradient-to-br ${avatarColors[colorIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold`}>

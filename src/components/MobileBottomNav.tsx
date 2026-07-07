@@ -77,26 +77,26 @@ export default function MobileBottomNav() {
           <div className="absolute inset-0 bg-black/40 pointer-events-auto" />
           <div
             ref={menuRef}
-            className="absolute bottom-16 left-2 right-2 bg-white rounded-2xl shadow-2xl p-3 max-h-[60vh] overflow-y-auto animate-fade-in-down pointer-events-auto"
+            className="absolute bottom-16 left-2 right-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-3 max-h-[60vh] overflow-y-auto animate-fade-in-down pointer-events-auto"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 px-3 py-2.5 mb-2 border-b border-gray-100">
+            <div className="flex items-center gap-3 px-3 py-2.5 mb-2 border-b border-gray-100 dark:border-gray-700">
               {userId ? (
                 <Link href={`/profile/${userId}`} className="flex items-center gap-3 flex-1" onClick={() => setMenuOpen(false)}>
                   <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                     {getDisplayInitial(userName || undefined, userRole || undefined)}
                   </div>
                   <div>
-                    <p className="font-semibold text-sm text-gray-900">Моя страница</p>
-                    <p className="text-xs text-gray-400">Профиль</p>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">Моя страница</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Профиль</p>
                   </div>
                 </Link>
               ) : (
                 <Link href="/login" className="flex items-center gap-3 flex-1" onClick={() => setMenuOpen(false)}>
                   <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-sm">?</div>
                   <div>
-                    <p className="font-semibold text-sm text-gray-900">Войти</p>
-                    <p className="text-xs text-gray-400">Авторизация</p>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">Войти</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Авторизация</p>
                   </div>
                 </Link>
               )}
@@ -108,14 +108,14 @@ export default function MobileBottomNav() {
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl text-center transition-colors ${
-                    isActive(link.href) ? 'bg-brand-50 text-brand-600' : 'text-gray-600 hover:bg-gray-50'
+                    isActive(link.href) ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <span className="text-xs font-medium leading-tight">{link.label}</span>
                 </Link>
               ))}
               {userRole === 'ADMIN' && (
-                <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 p-3 rounded-xl text-center text-gray-600 hover:bg-gray-50">
+                <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 p-3 rounded-xl text-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <span className="text-xs font-medium leading-tight">Админ</span>
                 </Link>
               )}
@@ -125,7 +125,7 @@ export default function MobileBottomNav() {
       )}
 
       {/* Bottom nav bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-[60] safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-[60] safe-area-bottom">
         <div className="flex items-center justify-around px-1 py-1">
           {navItems.map(item => (
             <Link

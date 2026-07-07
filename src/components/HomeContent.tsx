@@ -170,7 +170,7 @@ export default function HomeContent({
               <Link key={img.id} href={`/gallery/${img.id}`} className="card-base overflow-hidden group">
                 <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-36 md:h-40 overflow-hidden group-hover:from-brand-100 group-hover:to-orange-100 transition-all duration-300">
                   {img.url ? (
-                    <img src={img.url} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <Image src={img.url} alt={img.title} fill unoptimized sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-brand-200">
                       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -222,8 +222,8 @@ export default function HomeContent({
                 <article key={post.id} className="card-base overflow-hidden">
                   <div className="flex items-center gap-3 p-4 pb-0">
                     {post.author.avatar ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-                        <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 relative">
+                        <Image src={post.author.avatar} alt="" fill unoptimized sizes="40px" className="object-cover" />
                       </div>
                     ) : (
                       <div className={`w-10 h-10 bg-gradient-to-br ${avatarColor} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0`}>
@@ -248,7 +248,7 @@ export default function HomeContent({
                   {postImages.length > 0 && (
                     <Link href={`/feed/${post.id}`} className="block">
                       <div className="relative mx-4 mt-2 rounded-xl overflow-hidden bg-gray-50" style={{ paddingBottom: '60%' }}>
-                        <img src={postImages[0]} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                        <Image src={postImages[0]} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                         {postImages.length > 1 && (
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-lg backdrop-blur-sm">
                             1/{postImages.length}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface StatsData {
   users: number;
@@ -111,6 +112,7 @@ export default function AdminPage() {
     { href: '/admin/promotion', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M11 5.882V19.24a1.75 1.75 0 01-3.5.243M14 5.882V19.24a1.75 1.75 0 003.5.243M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>, label: 'Продвижение' },
     { href: '/admin/subscriptions', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>, label: 'Подписки' },
     { href: '/admin/companies', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>, label: 'Компании', count: (stats?.companies || 0) + (stats?.suppliers || 0) + (stats?.manufacturers || 0) },
+    { href: '/admin/feedback', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>, label: 'Обратная связь' },
   ];
 
   return (
@@ -212,7 +214,9 @@ export default function AdminPage() {
                     recentUsers.map(u => (
                       <div key={u.id} className="flex items-center gap-3 py-2">
                         {u.avatar ? (
-                          <img src={u.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                            <Image src={u.avatar} alt="" fill className="object-cover" sizes="32px" unoptimized />
+                          </div>
                         ) : (
                           <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {(u.name || '?').charAt(0).toUpperCase()}

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
 import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
+import { sendPushToUser } from '@/lib/push';
 
 const MAX_COMMENT_LENGTH = 2000;
 
@@ -65,6 +66,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
           link: `/feed/${params.id}`,
         },
       });
+      sendPushToUser(post.authorId, {
+        title: 'Новый комментарий',
+        body: `${userName} прокомментировал ваш пост`,
+        url: `/feed/${params.id}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ comment }, { status: 201 });

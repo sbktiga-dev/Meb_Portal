@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
+import PushNotificationManager from '@/components/PushNotificationManager';
+import FeedbackModal from '@/components/FeedbackModal';
 import toast from 'react-hot-toast';
 
 export default function DashboardSettingsPage() {
@@ -18,6 +20,7 @@ export default function DashboardSettingsPage() {
   const [notifyImages, setNotifyImages] = useState(true);
   const [notifyNewsletter, setNotifyNewsletter] = useState(false);
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -198,6 +201,7 @@ export default function DashboardSettingsPage() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Уведомления</h2>
             <div className="space-y-3">
+              <PushNotificationManager />
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-gray-700">Email-уведомления о новых документах</span>
                 <input type="checkbox" checked={notifyDocs} onChange={e => setNotifyDocs(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
@@ -213,6 +217,16 @@ export default function DashboardSettingsPage() {
             </div>
             <button onClick={handleSaveNotifications} disabled={savingPrefs} className="mt-4 btn-secondary text-sm">
               {savingPrefs ? 'Сохранение...' : 'Сохранить настройки'}
+            </button>
+          </div>
+
+          {/* Обратная связь */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Обратная связь</h2>
+            <p className="text-gray-500 text-sm mb-4">Сообщите об ошибке или предложите улучшение</p>
+            <button onClick={() => setFeedbackOpen(true)} className="btn-primary">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              Написать нам
             </button>
           </div>
 
@@ -237,6 +251,7 @@ export default function DashboardSettingsPage() {
           </div>
         </div>
       </div>
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { SkeletonList } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 
 interface SupplierData {
   id: string;
@@ -58,6 +59,7 @@ export default function SuppliersPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Поставщики" description="Каталог поставщиков мебельных материалов и комплектующих на МебПортал: фурнитура, ЛДСП, техника, краски, стекло." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Поставщики</h1>

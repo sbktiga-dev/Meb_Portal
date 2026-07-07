@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SkeletonPage } from '@/components/Loading';
 import FavoriteButton from '@/components/FavoriteButton';
+import PageSEO from '@/components/PageSEO';
+import { downloadPdf } from '@/lib/pdf';
 
 interface DocumentData {
   id: string;
@@ -61,6 +63,7 @@ export default function DocumentDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={doc.title || 'Документ'} description={doc.description?.slice(0, 160) || `Документ на МебПортал: ${doc.title}`} />
       <div className="section-container py-10 max-w-4xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -85,6 +88,10 @@ export default function DocumentDetailPage() {
           <div className="p-6 bg-gray-50/50 flex gap-3">
             <button onClick={handleDownload} disabled={downloading} className="btn-primary">
               {downloading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Скачать файл</>}
+            </button>
+            <button onClick={() => downloadPdf(doc.title, [{ heading: doc.category, content: doc.description || doc.title }])} className="btn-secondary">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Скачать PDF
             </button>
             <FavoriteButton itemType="document" itemId={doc.id} />
           </div>

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonPage } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
 
 interface SupplierData {
   id: string;
@@ -91,6 +92,7 @@ export default function SupplierDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={supplier.companyName || 'Поставщик'} description={supplier.description?.slice(0, 160) || `Поставщик на МебПортал: ${supplier.companyName}`} />
       <div className="section-container py-10 max-w-4xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>

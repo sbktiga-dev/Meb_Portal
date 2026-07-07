@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SkeletonPage } from '@/components/Loading';
+import Image from 'next/image';
 import StarRating from '@/components/StarRating';
+import PageSEO from '@/components/PageSEO';
 
 interface ProductData {
   id: string;
@@ -90,6 +92,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
+      <PageSEO title={product.name || 'Товар'} description={product.description?.slice(0, 160) || `Товар на МебПортал: ${product.name}`} />
       <div className="section-container py-10">
         <Link href="/products" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -100,7 +103,7 @@ export default function ProductDetailPage() {
           <div>
             <div className="relative bg-white rounded-2xl shadow-card overflow-hidden aspect-square">
               {productImages.length > 0 ? (
-                <img src={productImages[selectedImage]} alt={product.name} className="w-full h-full object-contain p-4" />
+                <Image src={productImages[selectedImage]} alt={product.name} width={600} height={600} className="w-full h-full object-contain p-4" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <svg className="w-24 h-24 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
@@ -113,9 +116,12 @@ export default function ProductDetailPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-colors ${selectedImage === i ? 'border-brand-500' : 'border-transparent hover:border-gray-200'}`}
+                    className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 border-transparent hover:border-gray-200 transition-colors"
+                    style={{ borderColor: selectedImage === i ? 'var(--color-brand-500, #6366f1)' : 'transparent' }}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <div className="relative w-full h-full">
+                      <Image src={img} alt="" fill className="object-cover" sizes="64px" unoptimized />
+                    </div>
                   </button>
                 ))}
               </div>
@@ -166,7 +172,9 @@ export default function ProductDetailPage() {
                 {product.company && (
                   <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors">
                     {product.company.logo ? (
-                      <img src={product.company.logo} alt="" className="w-12 h-12 rounded-xl object-contain" />
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden">
+                        <Image src={product.company.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
+                      </div>
                     ) : (
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.company.name.charAt(0)}</div>
                     )}
@@ -179,7 +187,9 @@ export default function ProductDetailPage() {
                 {product.supplier && (
                   <Link href={`/suppliers/${product.supplier.id}`} className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors mt-2">
                     {product.supplier.logo ? (
-                      <img src={product.supplier.logo} alt="" className="w-12 h-12 rounded-xl object-contain" />
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden">
+                        <Image src={product.supplier.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
+                      </div>
                     ) : (
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.supplier.companyName.charAt(0)}</div>
                     )}
@@ -222,7 +232,9 @@ export default function ProductDetailPage() {
                 <div key={review.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
                     {review.user.avatar ? (
-                      <img src={review.user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                        <Image src={review.user.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                      </div>
                     ) : (
                       <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">{review.user.name?.charAt(0) || '?'}</div>
                     )}

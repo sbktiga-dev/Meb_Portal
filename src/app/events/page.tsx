@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SkeletonGrid } from '@/components/Loading';
+import Image from 'next/image';
+import PageSEO from '@/components/PageSEO';
 
 interface EventData {
   id: string;
@@ -108,6 +110,7 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="События" description="Мебельные выставки, семинары и мероприятия на МебПортал. Будьте в курсе главных событий мебельной индустрии." />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
@@ -158,7 +161,7 @@ export default function EventsPage() {
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Обложка</label>
                   {newEvent.coverImage ? (
                     <div className="relative rounded-xl overflow-hidden h-40">
-                      <img src={newEvent.coverImage} alt="" className="w-full h-full object-cover" />
+                      <Image src={newEvent.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
                       <button onClick={() => setNewEvent(p => ({ ...p, coverImage: '' }))}
                         className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
@@ -240,7 +243,7 @@ export default function EventsPage() {
                   className={`card-base overflow-hidden hover-lift animate-fade-in-up stagger-${Math.min((i % 6) + 1, 6)} ${isPast ? 'opacity-70' : ''}`}
                 >
                   <div className="h-40 bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 relative">
-                    {event.coverImage && <img src={event.coverImage} alt="" className="w-full h-full object-cover" />}
+                    {event.coverImage && <Image src={event.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" unoptimized />}
                     <div className="absolute top-3 left-3 flex gap-2">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                         event.type === 'online' ? 'bg-blue-100 text-blue-700' :

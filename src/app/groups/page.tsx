@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { SkeletonGrid } from '@/components/Loading';
+import Image from 'next/image';
+import PageSEO from '@/components/PageSEO';
 
 interface GroupData {
   id: string;
@@ -78,6 +80,7 @@ export default function GroupsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Группы" description="Группы мебельного сообщества на МебПортал: обсуждайте тренды, делитесь опытом и находите единомышленников в мебельной индустрии." />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
@@ -176,7 +179,7 @@ export default function GroupsPage() {
               >
                 <div className="h-32 bg-gradient-to-br from-brand-100 via-orange-50 to-amber-50 relative">
                   {group.coverImage && (
-                    <img src={group.coverImage} alt="" className="w-full h-full object-cover" />
+                    <Image src={group.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" unoptimized />
                   )}
                   <div className="absolute top-3 right-3">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${group.type === 'public' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>

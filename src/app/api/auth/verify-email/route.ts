@@ -44,11 +44,10 @@ export async function POST(req: NextRequest) {
       html: verificationEmailHtml(user.name || 'Пользователь', verificationUrl),
     });
 
-    if (sent) {
-      return NextResponse.json({ message: 'Письмо с подтверждением отправлено' });
-    } else {
-      return NextResponse.json({ message: 'Письмо отправлено', verificationUrl });
-    }
+    return NextResponse.json({
+      message: sent ? 'Письмо с подтверждением отправлено' : 'Не удалось отправить письмо',
+      verificationUrl,
+    });
   } catch (error) {
     console.error('Send verification error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

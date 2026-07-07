@@ -44,11 +44,11 @@ export default function Sidebar() {
     : menuItems;
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-100 hidden md:block shrink-0">
+    <aside className="w-64 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 hidden md:block shrink-0">
       <nav className="p-4 space-y-1">
         {allMenuItems.map((item, i) => {
           if ('divider' in item) {
-            return <hr key={i} className="my-3 border-gray-100" />;
+            return <hr key={i} className="my-3 border-gray-100 dark:border-gray-800" />;
           }
           const href = (item as MenuItem).href;
           const label = (item as MenuItem).label;
@@ -62,11 +62,11 @@ export default function Sidebar() {
                 href={href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-brand-50 text-brand-600 shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
-                <span className={isActive ? 'text-brand-500' : 'text-gray-400'}>{icon}</span>
+                <span className={isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500'}>{icon}</span>
                 <span>{label}</span>
                 {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-500" />}
             </Link>

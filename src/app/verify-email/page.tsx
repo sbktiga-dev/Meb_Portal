@@ -10,6 +10,8 @@ function VerifyEmailContent() {
   const pending = searchParams.get('pending');
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'pending'>('loading');
   const [message, setMessage] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   useEffect(() => {
     if (pending) {
@@ -42,6 +44,32 @@ function VerifyEmailContent() {
     }
   }, [token, pending]);
 
+  const handleResend = async () => {
+    setResending(true);
+    setResendMessage('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setResendMessage('Необходимо войти в аккаунт');
+        setResending(false);
+        return;
+      }
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResendMessage('Письмо отправлено повторно! Проверьте почту.');
+      } else {
+        setResendMessage(data.error || 'Ошибка отправки');
+      }
+    } catch {
+      setResendMessage('Ошибка сети');
+    }
+    setResending(false);
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-card p-8 text-center">
       {status === 'loading' && (
@@ -61,9 +89,23 @@ function VerifyEmailContent() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Проверьте почту</h1>
           <p className="text-gray-500 mb-6">{message}</p>
-          <Link href="/login" className="btn-primary inline-flex">
-            Перейти к входу
-          </Link>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={handleResend}
+              disabled={resending}
+              className="btn-secondary inline-flex justify-center disabled:opacity-50"
+            >
+              {resending ? 'Отправка...' : 'Отправить письмо повторно'}
+            </button>
+            {resendMessage && (
+              <p className={`text-sm ${resendMessage.includes('отправлено') ? 'text-emerald-600' : 'text-red-600'}`}>
+                {resendMessage}
+              </p>
+            )}
+            <Link href="/login" className="btn-primary inline-flex justify-center">
+              Перейти к входу
+            </Link>
+          </div>
         </>
       )}
 

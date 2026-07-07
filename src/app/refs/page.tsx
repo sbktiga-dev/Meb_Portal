@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { SkeletonList } from '@/components/Loading';
+import PageSEO from '@/components/PageSEO';
+import { downloadPdf } from '@/lib/pdf';
 
 interface RefData {
   id: string;
@@ -44,6 +46,7 @@ export default function RefsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Справочники" description="Справочники мебельной индустрии на МебПортал: размеры, нормы, фурнитура, материалы. Полезная информация для специалистов." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Справочники</h1>
@@ -79,6 +82,21 @@ export default function RefsPage() {
 
               {expandedId === ref.id && (
                 <div className="border-t border-gray-100 p-5 animate-fade-in">
+                  <div className="flex justify-end mb-3">
+                    <button
+                      onClick={() => {
+                        const sections = Object.entries(ref.content).map(([key, values]) => ({
+                          heading: key,
+                          content: Array.isArray(values) ? values.join(' / ') : String(values),
+                        }));
+                        downloadPdf(ref.title, sections);
+                      }}
+                      className="btn-secondary text-xs !px-3 !py-1.5"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      PDF
+                    </button>
+                  </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>

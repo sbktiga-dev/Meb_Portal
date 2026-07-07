@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { SkeletonDocument } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import { useRouter } from 'next/navigation';
+import PageSEO from '@/components/PageSEO';
 
 interface DocumentData {
   id: string;
@@ -121,6 +122,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen">
+      <PageSEO title="Документы" description="Библиотека мебельных документов на МебПортал: договоры, акты, спецификации, счета и технические задания." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Документы</h1>

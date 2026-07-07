@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from '@/components/Loading';
 
@@ -86,8 +87,8 @@ function MessagesContent() {
                 className="flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 {conv.otherUser?.avatar ? (
-                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                    <img src={conv.otherUser.avatar} alt="" className="w-full h-full object-cover" />
+                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 relative">
+                    <Image src={conv.otherUser.avatar} alt="" fill unoptimized sizes="48px" className="object-cover" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">

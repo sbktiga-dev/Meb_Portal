@@ -83,16 +83,16 @@ export async function POST(request: Request) {
 
     // Проверка квоты пользователя
     const userFileCount = await prisma.download.count({
-      where: { userId: user.id },
+      where: { userId: user.userId },
     }).catch(() => 0);
 
     // Подсчёт загруженных файлов пользователя (через post images + portfolio images)
     const userPosts = await prisma.post.findMany({
-      where: { authorId: user.id },
+      where: { authorId: user.userId },
       select: { images: true },
     });
     const userPortfolio = await prisma.portfolioItem.findMany({
-      where: { userId: user.id },
+      where: { userId: user.userId },
       select: { images: true },
     });
 

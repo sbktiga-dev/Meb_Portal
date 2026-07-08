@@ -116,7 +116,22 @@ export default function TariffsPage() {
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
         <div className="max-w-3xl">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Тарифы</h1>
-          <p className="text-gray-500 mb-8">Выберите план для продвижения вашего контента</p>
+          <p className="text-gray-500 mb-4">Выберите план для продвижения вашего контента</p>
+
+          {/* Баннер бесплатного периода */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-5 mb-8 text-white">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 rounded-full p-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Бесплатно до 30 сентября 2026 года</h2>
+                <p className="text-green-100 text-sm mt-0.5">Все функции продвижения доступны бесплатно до окончания бесплатного периода</p>
+              </div>
+            </div>
+          </div>
 
           {/* Текущая подписка */}
           {subscription && (
@@ -172,9 +187,14 @@ export default function TariffsPage() {
                     {isPremium && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Лучший</div>}
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
                     <div className="mb-5">
-                      <span className="text-3xl font-bold text-gray-900">{formatPrice(price)}</span>
-                      <span className="text-gray-500 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
-                      {billingPeriod === 'yearly' && <p className="text-sm text-green-600 mt-1">{formatPrice(perMonth)}/мес</p>}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-green-600">Бесплатно</span>
+                      </div>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="text-sm text-gray-400 line-through">{formatPrice(price)}</span>
+                        <span className="text-gray-400 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
+                      </div>
+                      {billingPeriod === 'yearly' && <p className="text-sm text-gray-400 line-through mt-0.5">{formatPrice(perMonth)}/мес</p>}
                     </div>
                     <ul className="space-y-3 mb-6">
                       {plan.features.map((f, i) => (
@@ -250,7 +270,9 @@ export default function TariffsPage() {
           {/* Оплата */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-2">Оплата</h2>
-            <p className="text-gray-500 text-sm mb-4">Для оплаты подписки свяжитесь с нами по телефону. Администратор активирует подписку в течение 24 часов.</p>
+            <p className="text-gray-500 text-sm mb-4">
+              Сейчас все функции доступны <span className="text-green-600 font-medium">бесплатно</span>. После 30 сентября 2026 года для оплаты подписки свяжитесь с нами по телефону.
+            </p>
             <a href="tel:+79001234567" className="inline-flex items-center gap-2 bg-brand-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-600 transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />

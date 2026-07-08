@@ -48,17 +48,32 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, images, category, tags } = body;
+    const { title, description, images, documents, category, tags } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Название обязательно' }, { status: 400 });
     }
+
+    // Валидация документов
+    const validDocs = Array.isArray(documents)
+      ? documents.filter((doc: Record<string, unknown>) => {
+          if (!doc.url || !doc.name) return false;
+          const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          ];
+          if (doc.type && !allowedTypes.includes(doc.type as string)) return false;
+          return true;
+        }).slice(0, 10) // Макс 10 документов на портфолио
+      : [];
 
     const item = await prisma.portfolioItem.create({
       data: {
         title,
         description: description || null,
         images: JSON.stringify(images || []),
+        documents: JSON.stringify(validDocs),
         category: category || null,
         tags: JSON.stringify(tags || []),
         userId: user.id,

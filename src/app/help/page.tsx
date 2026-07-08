@@ -246,6 +246,12 @@ function SubscriptionHelp() {
   return (
     <div className="space-y-6">
       <SectionTitle>Подписки и тарифы</SectionTitle>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <p className="text-green-800 font-medium">Бесплатно до 30 сентября 2026 года</p>
+        <p className="text-green-600 text-sm mt-1">Все функции продвижения доступны бесплатно до окончания бесплатного периода.</p>
+      </div>
+
       <p className="text-gray-600 text-sm">Подписка открывает дополнительные возможности для продвижения.</p>
 
       <div className="overflow-x-auto">
@@ -259,7 +265,7 @@ function SubscriptionHelp() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            <tr><td className="p-3">Цена/мес</td><td className="text-center p-3">1 500 ₽</td><td className="text-center p-3">4 000 ₽</td><td className="text-center p-3">8 000 ₽</td></tr>
+            <tr><td className="p-3">Цена/мес</td><td className="text-center p-3"><span className="text-green-600 font-medium">Бесплатно</span><br/><span className="text-gray-400 line-through text-xs">1 500 ₽</span></td><td className="text-center p-3"><span className="text-green-600 font-medium">Бесплатно</span><br/><span className="text-gray-400 line-through text-xs">4 000 ₽</span></td><td className="text-center p-3"><span className="text-green-600 font-medium">Бесплатно</span><br/><span className="text-gray-400 line-through text-xs">8 000 ₽</span></td></tr>
             <tr><td className="p-3">Продвижение постов</td><td className="text-center p-3">✅</td><td className="text-center p-3">✅</td><td className="text-center p-3">✅</td></tr>
             <tr><td className="p-3">Баннеры</td><td className="text-center p-3">1 шт.</td><td className="text-center p-3">2/нед.</td><td className="text-center p-3">4/нед.</td></tr>
             <tr><td className="p-3">Приоритет в каталогах</td><td className="text-center p-3">—</td><td className="text-center p-3">✅</td><td className="text-center p-3">✅ макс.</td></tr>
@@ -277,7 +283,7 @@ function SubscriptionHelp() {
           <p>Выберите план и период (месяц/год). Нажмите «Оформить»</p>
         </Step>
         <Step num={3} title="Оплатите">
-          <p>Позвоните по телефону для оплаты. Администратор активирует подписку в течение 24 часов.</p>
+          <p>Сейчас всё бесплатно! После 30 сентября 2026 — позвоните по телефону для оплаты. Администратор активирует подписку в течение 24 часов.</p>
         </Step>
       </div>
     </div>

@@ -139,11 +139,11 @@ export default function PromotionPage() {
           <p className="text-gray-500 mb-6">Создавайте продвижение постов и баннеры</p>
 
           {!hasSubscription && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
-              <h2 className="font-bold text-gray-900 mb-1">Требуется подписка</h2>
-              <p className="text-sm text-gray-600 mb-3">Для продвижения необходимо оформить подписку Lite или Pro.</p>
-              <Link href="/dashboard/tariffs" className="inline-block bg-brand-500 text-white px-5 py-2 rounded-lg font-medium hover:bg-brand-600 transition text-sm">
-                Выбрать тариф
+            <div className="bg-green-50 border border-green-200 rounded-xl p-5 mb-6">
+              <h2 className="font-bold text-green-800 mb-1">Продвижение бесплатно до 30 сентября 2026</h2>
+              <p className="text-sm text-green-700 mb-3">Сейчас все функции продвижения доступны бесплатно. Оформите заявку и начните продвижение.</p>
+              <Link href="/dashboard/tariffs" className="inline-block bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-700 transition text-sm">
+                Оформить бесплатно
               </Link>
             </div>
           )}

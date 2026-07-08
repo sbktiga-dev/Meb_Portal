@@ -34,6 +34,14 @@ export const RATE_LIMITS = {
   follow: { windowMs: 60_000, maxRequests: 20 },
 } as const;
 
+// Квоты на пользователя (файлов всего)
+export const USER_QUOTAS = {
+  maxFilesPerUser: 200,        // Максимум файлов на аккаунт (изображения + документы)
+  maxImagesPerUser: 150,       // Максимум изображений
+  maxDocumentsPerUser: 50,     // Максимум документов
+  maxPortfolioItems: 100,      // Максимум элементов портфолио
+} as const;
+
 export function getClientIp(req: NextRequest | Request): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || req.headers.get('x-real-ip')

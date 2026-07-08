@@ -13,6 +13,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
     if (admin?.role !== 'ADMIN') return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
 
+    if (params.id === payload.userId) {
+      return NextResponse.json({ error: 'Нельзя забанить себя' }, { status: 400 });
+    }
+
     const { banned } = await req.json();
     await prisma.user.update({ where: { id: params.id }, data: { banned: !!banned } });
     logActivity({ action: 'ban', userId: payload.userId, details: `${banned ? 'Забанен' : 'Разбанен'} пользователь ${params.id}` });

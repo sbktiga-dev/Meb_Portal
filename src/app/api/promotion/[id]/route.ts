@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function GET(
   req: NextRequest,
@@ -65,6 +66,8 @@ export async function DELETE(
     }
 
     await prisma.promotion.delete({ where: { id: params.id } });
+
+    logActivity({ action: 'promotion_delete', userId: user.id, details: `Продвижение ${params.id} удалено` });
 
     return NextResponse.json({ success: true });
   } catch (error) {

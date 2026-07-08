@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function GET(request: Request) {
   try {
@@ -13,14 +14,18 @@ export async function GET(request: Request) {
 
     const token = authHeader.split(' ')[1];
     const payload = verifyToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
+    if (!payload) {
+      return NextResponse.json({ error: 'Невалидный токен' }, { status: 401 });
+    }
+    const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
+    if (admin?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'all';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
     const where: Record<string, unknown> = {};
     if (filter === 'published') where.isPublished = true;
@@ -58,7 +63,11 @@ export async function PATCH(request: Request) {
 
     const token = authHeader.split(' ')[1];
     const payload = verifyToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
+    if (!payload) {
+      return NextResponse.json({ error: 'Невалидный токен' }, { status: 401 });
+    }
+    const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
+    if (admin?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
@@ -83,6 +92,8 @@ export async function PATCH(request: Request) {
       data: { isPublished },
     });
 
+    logActivity({ action: 'post_moderate', userId: payload.userId, details: `Пост ${postId}: ${isPublished ? 'опубликован' : 'скрыт'}` });
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
@@ -98,7 +109,11 @@ export async function DELETE(request: Request) {
 
     const token = authHeader.split(' ')[1];
     const payload = verifyToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
+    if (!payload) {
+      return NextResponse.json({ error: 'Невалидный токен' }, { status: 401 });
+    }
+    const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
+    if (admin?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
@@ -115,6 +130,8 @@ export async function DELETE(request: Request) {
     }
 
     await prisma.post.delete({ where: { id: postId } });
+
+    logActivity({ action: 'post_delete', userId: payload.userId, details: `Пост ${postId} удалён` });
 
     return NextResponse.json({ success: true });
   } catch {

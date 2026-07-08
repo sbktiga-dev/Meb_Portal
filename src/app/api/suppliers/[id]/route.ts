@@ -77,3 +77,29 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const { getUserFromToken } = await import('@/lib/auth');
+    const token = authHeader.split(' ')[1];
+    const user = await getUserFromToken(token);
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
+    }
+
+    const supplier = await prisma.supplier.findUnique({ where: { id: params.id } });
+    if (!supplier) {
+      return NextResponse.json({ error: 'Поставщик не найден' }, { status: 404 });
+    }
+
+    await prisma.supplier.delete({ where: { id: params.id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  }
+}

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 const DURATION_DAYS: Record<number, number> = { 7: 7, 14: 14, 30: 30 };
 
@@ -44,7 +45,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    if (user.role === 'CLIENT') {
+    const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
+    if (!allowedRoles.includes(user.role)) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
@@ -89,6 +91,8 @@ export async function POST(req: NextRequest) {
       },
       include: { post: { select: { id: true, title: true } } },
     });
+
+    logActivity({ action: 'promotion_create', userId: user.id, details: `Продвижение поста ${postId} на ${duration} дн.` });
 
     return NextResponse.json({ promotion }, { status: 201 });
   } catch (error) {

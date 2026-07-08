@@ -15,12 +15,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
     if (admin?.role !== 'ADMIN') return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
 
+    if (params.id === payload.userId) {
+      return NextResponse.json({ error: 'Нельзя изменить свою роль' }, { status: 400 });
+    }
+
     const { role } = await req.json();
     if (!ALLOWED_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Невалидная роль' }, { status: 400 });
     }
 
     await prisma.user.update({ where: { id: params.id }, data: { role } });
+    logActivity({ action: 'role_change', userId: payload.userId, details: `Роль пользователя ${params.id} изменена на ${role}` });
     return NextResponse.json({ role });
   } catch (error) {
     console.error('Admin role error:', error);

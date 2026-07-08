@@ -13,7 +13,11 @@ export async function GET(request: Request) {
 
     const token = authHeader.split(' ')[1];
     const payload = verifyToken(token);
-    if (!payload || payload.role !== 'ADMIN') {
+    if (!payload) {
+      return NextResponse.json({ error: 'Невалидный токен' }, { status: 401 });
+    }
+    const admin = await prisma.user.findUnique({ where: { id: payload.userId }, select: { role: true } });
+    if (admin?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 

@@ -46,21 +46,22 @@ export default function AnalyticsPage() {
         ]);
 
         const posts = postsData.posts || [];
-        const portfolio = portfolioData.items || [];
+        const portfolio = (portfolioData.items || []).filter((p: { userId: string }) => p.userId === me.user.id);
         const now = new Date();
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const periodMs = period === 'week' ? 7 * 24 * 60 * 60 * 1000 : period === 'month' ? 30 * 24 * 60 * 60 * 1000 : Infinity;
+        const cutoff = periodMs === Infinity ? new Date(0) : new Date(now.getTime() - periodMs);
 
         setData({
           user: me.user,
           posts: {
             total: posts.length,
-            thisWeek: posts.filter((p: { createdAt: string }) => new Date(p.createdAt) > weekAgo).length,
+            thisWeek: posts.filter((p: { createdAt: string }) => new Date(p.createdAt) > cutoff).length,
             totalViews: posts.reduce((sum: number, p: { views: number }) => sum + (p.views || 0), 0),
             totalLikes: posts.reduce((sum: number, p: { likes: number }) => sum + (p.likes || 0), 0),
           },
           portfolio: {
             total: portfolio.length,
-            thisWeek: portfolio.filter((p: { createdAt: string }) => new Date(p.createdAt) > weekAgo).length,
+            thisWeek: portfolio.filter((p: { createdAt: string }) => new Date(p.createdAt) > cutoff).length,
           },
           downloads: {
             total: downloadsData.downloads?.length || 0,
@@ -75,7 +76,7 @@ export default function AnalyticsPage() {
       })
       .catch(() => router.push('/login'))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, period]);
 
   if (loading) return (
     <div className="flex justify-center py-20">

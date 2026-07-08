@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
+import { NextRequest } from 'next/server';
 
 if (!process.env.JWT_SECRET) {
   throw new Error('FATAL: JWT_SECRET environment variable is not set');
@@ -39,8 +40,32 @@ export async function getUserFromToken(token: string) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, interests: true },
+    select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, interests: true, banned: true },
   });
 
+  if (!user || user.banned) return null;
+
   return user;
+}
+
+export async function requireAuth(request: NextRequest) {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { user: null, error: 'Не авторизован' as const, status: 401 as const };
+  }
+  const token = authHeader.split(' ')[1];
+  const user = await getUserFromToken(token);
+  if (!user) {
+    return { user: null, error: 'Не авторизован' as const, status: 401 as const };
+  }
+  return { user, error: null, status: 200 as const };
+}
+
+export async function requireAdmin(request: NextRequest) {
+  const result = await requireAuth(request);
+  if (result.error) return result;
+  if (result.user!.role !== 'ADMIN') {
+    return { user: null, error: 'Доступ запрещён' as const, status: 403 as const };
+  }
+  return result;
 }

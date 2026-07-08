@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -31,6 +32,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       where: { id: params.id },
       data: { status: 'cancelled' },
     });
+
+    logActivity({ action: 'subscription_cancel', userId: user.id, details: `Подписка ${params.id} отменена` });
 
     return NextResponse.json({ success: true });
   } catch (e) {

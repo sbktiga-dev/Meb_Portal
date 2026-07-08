@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function GET(request: Request) {
   try {
@@ -60,6 +61,8 @@ export async function POST(request: Request) {
     const subscription = await prisma.subscription.create({
       data: { plan, period, userId: user.id },
     });
+
+    logActivity({ action: 'subscription_create', userId: user.id, details: `Подписка: ${plan} (${period})` });
 
     return NextResponse.json({ subscription }, { status: 201 });
   } catch (e) {

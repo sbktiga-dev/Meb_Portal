@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     }
 
     const orderBy = sort === 'popular'
-      ? { name: 'desc' as const }
+      ? { views: 'desc' as const }
       : sort === 'price_asc'
         ? { price: 'asc' as const }
         : sort === 'price_desc'

@@ -24,13 +24,13 @@ export default function DocumentCard({ id, title, category, fileType, downloads,
   const icon = fileTypeIcons[fileType.toLowerCase()] || fileTypeIcons.default;
 
   return (
-    <Link href={`/documents/${id}`} className="block bg-gray-50 rounded-xl shadow-md p-5 hover:shadow-lg transition group">
+    <Link href={`/documents/${id}`} className="block bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition group">
       <div className="flex items-start gap-4">
         <div className="text-4xl flex-shrink-0">{icon}</div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-amber-600 transition">{title}</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 group-hover:text-amber-600 transition">{title}</h3>
           {description && (
-            <p className="text-sm text-gray-500 mb-2 line-clamp-2">{description}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">{description}</p>
           )}
           <div className="flex items-center gap-3 text-sm">
             <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg text-xs uppercase font-medium">{fileType}</span>

@@ -568,7 +568,7 @@ model Banner {
 
 model Subscription {
   id            String    @id @default(cuid())
-  plan          String    // "lite" | "pro"
+  plan          String    // "lite" | "pro" | "premium"
   period        String    // "monthly" | "yearly"
   status        String    @default("pending") // pending | active | expired | cancelled
   startDate     DateTime?

@@ -52,6 +52,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Вы не участник группы' }, { status: 403 });
     }
 
+    const group = await prisma.group.findUnique({ where: { id: params.id } });
+
     const body = await request.json();
     const { content, images } = body;
 
@@ -70,6 +72,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
         author: { select: { id: true, name: true, avatar: true } },
       },
     });
+
+    if (group && user.id !== group.ownerId) {
+      await prisma.notification.create({
+        data: {
+          type: 'group_post',
+          message: `${user.name || 'Пользователь'} опубликовал пост в группе`,
+          link: `/groups/${params.id}`,
+          userId: group.ownerId,
+          fromUserId: user.id,
+        },
+      });
+    }
 
     return NextResponse.json({ post }, { status: 201 });
   } catch {

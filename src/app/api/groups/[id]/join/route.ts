@@ -36,6 +36,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
       data: { userId: user.id, groupId: params.id, role: 'member' },
     });
 
+    if (user.id !== group.ownerId) {
+      await prisma.notification.create({
+        data: {
+          type: 'group_join',
+          message: `${user.name || 'Пользователь'} вступил в группу`,
+          link: `/groups/${params.id}`,
+          userId: group.ownerId,
+          fromUserId: user.id,
+        },
+      });
+    }
+
     return NextResponse.json({ joined: true });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

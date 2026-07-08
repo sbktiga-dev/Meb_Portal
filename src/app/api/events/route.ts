@@ -7,8 +7,8 @@ import { getUserFromToken } from '@/lib/auth';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
     const type = searchParams.get('type');
 
     const where: Record<string, unknown> = {};
@@ -19,7 +19,10 @@ export async function GET(request: Request) {
 
     await prisma.event.deleteMany({
       where: {
-        endDate: { not: null, lt: cutoff },
+        OR: [
+          { endDate: { not: null, lt: cutoff } },
+          { AND: [{ endDate: null }, { startDate: { lt: cutoff } }] },
+        ],
       },
     });
 
@@ -89,7 +92,7 @@ export async function POST(request: Request) {
         location: location?.trim() || null,
         startDate: new Date(startDate),
         endDate: endDate ? new Date(endDate) : null,
-        type: type || 'offline',
+        type: (type && ['offline', 'online', 'webinar'].includes(type)) ? type : 'offline',
         maxParticipants: maxParticipants || null,
         organizerId: user.id,
         participants: {

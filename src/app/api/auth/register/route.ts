@@ -60,47 +60,45 @@ export async function POST(req: NextRequest) {
     const allowedRoles = ['CLIENT', 'USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
     const userRole = (body.role && allowedRoles.includes(body.role)) ? body.role : 'USER';
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name: name || null,
-        role: userRole,
-        inn: body.inn || null,
-      },
-      select: { id: true, email: true, name: true, role: true, inn: true },
+    const user = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name: name || null,
+          role: userRole,
+          inn: body.inn || null,
+        },
+        select: { id: true, email: true, name: true, role: true, inn: true },
+      });
+
+      if (userRole === 'COMPANY') {
+        const company = await tx.company.create({
+          data: { name: name || email.split('@')[0] },
+        });
+        await tx.user.update({ where: { id: u.id }, data: { companyId: company.id } });
+      } else if (userRole === 'SUPPLIER') {
+        const supplier = await tx.supplier.create({
+          data: { companyName: name || email.split('@')[0] },
+        });
+        await tx.user.update({ where: { id: u.id }, data: { supplierId: supplier.id } });
+      } else if (userRole === 'MANUFACTURER') {
+        const manufacturer = await tx.manufacturer.create({
+          data: { name: name || email.split('@')[0] },
+        });
+        await tx.user.update({ where: { id: u.id }, data: { manufacturerId: manufacturer.id } });
+      } else if (userRole === 'USER') {
+        const specialistType = body.specialistType || 'DESIGNER';
+        const allowedTypes = ['DESIGNER', 'TECHNOLOGIST', 'INSTALLER', 'MANAGER'];
+        const specType = allowedTypes.includes(specialistType) ? specialistType : 'DESIGNER';
+        const specialist = await tx.specialist.create({
+          data: { type: specType },
+        });
+        await tx.user.update({ where: { id: u.id }, data: { specialistId: specialist.id } });
+      }
+
+      return u;
     });
-
-    let businessId: string | null = null;
-
-    if (userRole === 'COMPANY') {
-      const company = await prisma.company.create({
-        data: { name: name || email.split('@')[0] },
-      });
-      await prisma.user.update({ where: { id: user.id }, data: { companyId: company.id } });
-      businessId = company.id;
-    } else if (userRole === 'SUPPLIER') {
-      const supplier = await prisma.supplier.create({
-        data: { companyName: name || email.split('@')[0] },
-      });
-      await prisma.user.update({ where: { id: user.id }, data: { supplierId: supplier.id } });
-      businessId = supplier.id;
-    } else if (userRole === 'MANUFACTURER') {
-      const manufacturer = await prisma.manufacturer.create({
-        data: { name: name || email.split('@')[0] },
-      });
-      await prisma.user.update({ where: { id: user.id }, data: { manufacturerId: manufacturer.id } });
-      businessId = manufacturer.id;
-    } else if (userRole === 'USER') {
-      const specialistType = body.specialistType || 'DESIGNER';
-      const allowedTypes = ['DESIGNER', 'TECHNOLOGIST', 'INSTALLER', 'MANAGER'];
-      const specType = allowedTypes.includes(specialistType) ? specialistType : 'DESIGNER';
-      const specialist = await prisma.specialist.create({
-        data: { type: specType },
-      });
-      await prisma.user.update({ where: { id: user.id }, data: { specialistId: specialist.id } });
-      businessId = specialist.id;
-    }
 
     // Send verification email (optional - user can verify later from profile)
     const verificationToken = crypto.randomBytes(32).toString('hex');

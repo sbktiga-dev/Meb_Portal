@@ -32,6 +32,11 @@ export async function PUT(
     const body = await req.json();
     const { title, imageUrl, linkUrl, position } = body;
 
+    const validPositions = ['feed', 'gallery', 'both'];
+    if (position !== undefined && !validPositions.includes(position)) {
+      return NextResponse.json({ error: 'Невалидная позиция. Допустимые: feed, gallery, both' }, { status: 400 });
+    }
+
     const updated = await prisma.banner.update({
       where: { id: params.id },
       data: {

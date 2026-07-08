@@ -6,6 +6,10 @@ import { getUserFromToken } from '@/lib/auth';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+    const currentUser = token ? await getUserFromToken(token) : null;
+
     const group = await prisma.group.findUnique({
       where: { id: params.id },
       include: {
@@ -21,6 +25,21 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     if (!group) {
       return NextResponse.json({ error: 'Группа не найдена' }, { status: 404 });
+    }
+
+    if (group.type === 'private') {
+      const isMember = currentUser && group.members.some(m => m.userId === currentUser.id);
+      const isOwner = currentUser && group.ownerId === currentUser.id;
+      const isAdmin = currentUser?.role === 'ADMIN';
+      if (!isMember && !isOwner && !isAdmin) {
+        return NextResponse.json({
+          group: {
+            ...group,
+            members: [],
+            _count: group._count,
+          },
+        });
+      }
     }
 
     return NextResponse.json({ group });

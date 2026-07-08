@@ -18,17 +18,24 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
     const where: Record<string, unknown> = {};
     if (status && status !== 'all') where.status = status;
 
-    const subscriptions = await prisma.subscription.findMany({
-      where,
-      include: { user: { select: { id: true, name: true, email: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
+    const [subscriptions, total] = await Promise.all([
+      prisma.subscription.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: { user: { select: { id: true, name: true, email: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.subscription.count({ where }),
+    ]);
 
-    return NextResponse.json({ subscriptions });
+    return NextResponse.json({ subscriptions, total, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (e) {
     console.error('Admin subscriptions GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

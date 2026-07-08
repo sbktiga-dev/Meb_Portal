@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 const DURATION_DAYS: Record<number, number> = { 7: 7, 14: 14, 30: 30 };
 
@@ -111,6 +112,8 @@ export async function POST(req: NextRequest) {
         status: 'pending',
       },
     });
+
+    logActivity({ action: 'banner_create', userId: user.id, details: `Баннер: ${title || 'без названия'}` });
 
     return NextResponse.json({ banner }, { status: 201 });
   } catch (error) {

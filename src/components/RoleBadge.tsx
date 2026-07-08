@@ -24,7 +24,7 @@ export default function RoleBadge({ role, size = 'sm', className = '' }: RoleBad
 
   return (
     <span
-      className={`absolute -bottom-0.5 -right-0.5 ${sizeClasses[size]} ${config.bgColor} text-white rounded-full flex items-center justify-center font-bold border-2 border-white shadow-sm z-10 ${className}`}
+      className={`absolute -bottom-0.5 -right-0.5 ${sizeClasses[size]} ${config.bgColor} text-white rounded-full flex items-center justify-center font-bold border-2 border-white dark:border-gray-900 shadow-sm z-10 ${className}`}
       title={config.label}
     >
       {config.icon}

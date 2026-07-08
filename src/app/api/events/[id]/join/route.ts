@@ -51,12 +51,35 @@ export async function POST(request: Request, { params }: { params: { id: string 
       if (!result.success) {
         return NextResponse.json({ error: 'Достигнут лимит участников' }, { status: 400 });
       }
+      if (user.id !== event.organizerId) {
+        await prisma.notification.create({
+          data: {
+            type: 'event_join',
+            message: `${user.name || 'Пользователь'} записался на мероприятие`,
+            link: `/events/${params.id}`,
+            userId: event.organizerId,
+            fromUserId: user.id,
+          },
+        });
+      }
       return NextResponse.json({ joined: true, participants: result.newCount });
     }
 
     await prisma.eventParticipant.create({
       data: { userId: user.id, eventId: params.id, status: 'going' },
     });
+
+    if (user.id !== event.organizerId) {
+      await prisma.notification.create({
+        data: {
+          type: 'event_join',
+          message: `${user.name || 'Пользователь'} записался на мероприятие`,
+          link: `/events/${params.id}`,
+          userId: event.organizerId,
+          fromUserId: user.id,
+        },
+      });
+    }
 
     const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
     return NextResponse.json({ joined: true, participants: newCount });

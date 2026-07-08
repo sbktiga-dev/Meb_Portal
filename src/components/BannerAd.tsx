@@ -10,7 +10,7 @@ interface BannerAdProps {
 export default function BannerAd({ title, imageUrl, linkUrl }: BannerAdProps) {
   return (
     <Link href={linkUrl} target="_blank" rel="noopener noreferrer">
-      <div className="relative rounded-xl overflow-hidden bg-gray-100 group cursor-pointer border border-gray-200">
+      <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700">
         <div className="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
           Реклама
         </div>
@@ -23,7 +23,7 @@ export default function BannerAd({ title, imageUrl, linkUrl }: BannerAdProps) {
           unoptimized
         />
         <div className="p-3">
-          <p className="text-sm font-medium text-gray-900 group-hover:text-brand-600 transition-colors">{title}</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{title}</p>
         </div>
       </div>
     </Link>

@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
           },
           downloads: {
             total: downloadsData.downloads?.length || 0,
-            thisWeek: (downloadsData.downloads || []).filter((d: { createdAt: string }) => new Date(d.createdAt) > weekAgo).length,
+            thisWeek: (downloadsData.downloads || []).filter((d: { createdAt: string }) => new Date(d.createdAt) > cutoff).length,
           },
           followers: followersData.followers?.length || 0,
           following: followingData.following?.length || 0,

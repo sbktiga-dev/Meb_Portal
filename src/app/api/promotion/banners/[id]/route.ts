@@ -25,7 +25,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Не найдено' }, { status: 404 });
     }
 
-    if (banner.userId !== user.id) {
+    if (banner.userId !== user.id && user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 

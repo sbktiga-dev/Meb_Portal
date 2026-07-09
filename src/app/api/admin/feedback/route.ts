@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
     if (admin?.role !== 'ADMIN') return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
 
     const { searchParams } = new URL(req.url);
-    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
+    const page = Math.max(parseInt(searchParams.get('page') || '1') || 1, 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20') || 20, 100);
     const type = searchParams.get('type');
 
     const where: Record<string, unknown> = {};

@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
       where: {
         status: 'active',
         endDate: { gt: now },
+        startDate: { lte: now },
       },
       include: {
         post: {
@@ -45,6 +46,7 @@ export async function GET(req: NextRequest) {
     const bannerWhere: Record<string, unknown> = {
       status: 'active',
       endDate: { gt: now },
+      startDate: { lte: now },
       OR: [
         { position: 'both' },
         { position },
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({
-      promotions: promotions.map(p => ({ ...p.post, isPromoted: true, promotionId: p.id })),
+      promotions: promotions.filter(p => p.post).map(p => ({ ...p.post!, isPromoted: true, promotionId: p.id })),
       banners,
     });
   } catch (error) {

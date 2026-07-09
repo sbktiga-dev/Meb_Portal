@@ -14,7 +14,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     if (admin?.role !== 'ADMIN') return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
 
     await prisma.feedback.delete({ where: { id: params.id } });
-    logActivity({ action: 'feedback_delete', userId: payload.userId, details: `Обратная связь ${params.id} удалена` });
+    await logActivity({ action: 'feedback_delete', userId: payload.userId, details: `Обратная связь ${params.id} удалена` });
     return NextResponse.json({ message: 'Удалено' });
   } catch (error) {
     console.error('Admin feedback delete error:', error);

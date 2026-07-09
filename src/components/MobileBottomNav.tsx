@@ -58,6 +58,8 @@ export default function MobileBottomNav() {
 
   const moreLinks = [
     { href: '/dashboard', label: 'Личный кабинет' },
+    { href: '/dashboard/promotion', label: 'Продвижение' },
+    { href: '/dashboard/tariffs', label: 'Тарифы' },
     { href: '/groups', label: 'Группы' },
     { href: '/events', label: 'События' },
     { href: '/products', label: 'Товары' },

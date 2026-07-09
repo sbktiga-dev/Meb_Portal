@@ -29,6 +29,7 @@ export async function GET(
 
     return NextResponse.json({ document });
   } catch (error) {
+    console.error('Document fetch error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

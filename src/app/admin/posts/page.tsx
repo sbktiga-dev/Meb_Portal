@@ -32,6 +32,7 @@ export default function AdminPostsPage() {
   const router = useRouter();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const [filter, setFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -41,12 +42,16 @@ export default function AdminPostsPage() {
     if (!token) { router.push('/login'); return; }
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
-      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .then(d => {
+        if (d.user?.role !== 'ADMIN') { router.push('/dashboard'); return; }
+        setAuthChecked(true);
+      })
       .catch(() => router.push('/login'));
     return () => controller.abort();
   }, [router]);
 
   useEffect(() => {
+    if (!authChecked) return;
     const controller = new AbortController();
     const fetchPosts = async () => {
       setLoading(true);
@@ -66,7 +71,7 @@ export default function AdminPostsPage() {
     };
     fetchPosts();
     return () => controller.abort();
-  }, [filter]);
+  }, [filter, authChecked]);
 
   const handleToggle = async (postId: string, isPublished: boolean) => {
     const token = localStorage.getItem('token');

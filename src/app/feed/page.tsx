@@ -604,16 +604,28 @@ function getTimeAgo(dateStr: string): string {
 }
 
 function isVideoUrl(url: string): boolean {
-  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/');
+  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/')
+    || url.includes('youtube.com/embed') || url.includes('rutube.ru/embed')
+    || url.includes('vk.com/video_ext');
 }
 
-function getVideoMimeType(url: string): string {
-  if (url.includes('.webm') || url.includes('webm')) return 'video/webm';
-  if (url.includes('.mov') || url.includes('quicktime')) return 'video/quicktime';
-  return 'video/mp4';
+function isEmbedUrl(url: string): boolean {
+  return url.includes('youtube.com/embed') || url.includes('rutube.ru/embed') || url.includes('vk.com/video_ext');
 }
 
 function MediaItem({ src, className }: { src: string; className?: string }) {
+  if (isEmbedUrl(src)) {
+    return (
+      <div className={`relative ${className || 'w-full'}`} style={{ paddingBottom: '56.25%' }}>
+        <iframe
+          src={src}
+          className="absolute inset-0 w-full h-full rounded-xl"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
   if (isVideoUrl(src)) {
     return (
       <video

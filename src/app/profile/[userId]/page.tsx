@@ -589,7 +589,13 @@ export default function ProfilePage() {
                           {postImages.length > 0 && (
                             isVideoUrl(postImages[0]) ? (
                               <div className="relative w-full">
-                                <video src={postImages[0]} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
+                                {isEmbedUrl(postImages[0]) ? (
+                                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                                    <iframe src={postImages[0]} className="absolute inset-0 w-full h-full rounded-b-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                                  </div>
+                                ) : (
+                                  <video src={postImages[0]} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
+                                )}
                               </div>
                             ) : (
                               <div className="relative w-full" style={{ paddingBottom: '50%' }}>
@@ -766,11 +772,11 @@ export default function ProfilePage() {
 }
 
 function isVideoUrl(url: string): boolean {
-  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/');
+  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/')
+    || url.includes('youtube.com/embed') || url.includes('rutube.ru/embed')
+    || url.includes('vk.com/video_ext');
 }
 
-function getVideoMimeType(url: string): string {
-  if (url.includes('.webm') || url.includes('webm')) return 'video/webm';
-  if (url.includes('.mov') || url.includes('quicktime')) return 'video/quicktime';
-  return 'video/mp4';
+function isEmbedUrl(url: string): boolean {
+  return url.includes('youtube.com/embed') || url.includes('rutube.ru/embed') || url.includes('vk.com/video_ext');
 }

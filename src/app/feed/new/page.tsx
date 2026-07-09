@@ -14,6 +14,7 @@ export default function NewPostPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
   const [isProfilePromo, setIsProfilePromo] = useState(false);
   const [canCreatePromo, setCanCreatePromo] = useState(false);
 
@@ -57,6 +58,32 @@ export default function NewPostPage() {
 
   const removeImage = (idx: number) => {
     setImages(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const extractVideoEmbed = (url: string): string | null => {
+    const trimmed = url.trim();
+    // Direct video files
+    if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(trimmed)) return trimmed;
+    // YouTube
+    const ytMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    // Rutube
+    const rtMatch = trimmed.match(/rutube\.ru\/video\/([a-zA-Z0-9]+)\//);
+    if (rtMatch) return `https://rutube.ru/embed/${rtMatch[1]}`;
+    // VK Video
+    const vkMatch = trimmed.match(/vk\.com\/video(-?\d+_\d+)/);
+    if (vkMatch) return `https://vk.com/video_ext.php?oid=${vkMatch[1].split('_')[0]}&id=${vkMatch[1].split('_')[1]}&hd=2`;
+    return null;
+  };
+
+  const handleAddVideoUrl = () => {
+    if (!videoUrl.trim()) return;
+    const embed = extractVideoEmbed(videoUrl);
+    if (!embed) { setError('Не удалось распознать ссылку. Поддерживаются: YouTube, Rutube, VK Video, прямые ссылки на MP4'); return; }
+    if (images.length >= 10) { setError('Максимум 10 медиа'); return; }
+    setImages(prev => [...prev, embed]);
+    setVideoUrl('');
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,10 +172,15 @@ export default function NewPostPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">Медиа</label>
               <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => {
-                  const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(img) || img.includes('video/');
+                  const isEmbed = img.includes('youtube.com/embed') || img.includes('rutube.ru/embed') || img.includes('vk.com/video_ext');
+                  const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(img) || img.includes('video/') || isEmbed;
                   return (
                   <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-brand-50 to-orange-50 border-2 border-brand-100">
-                    {isVideo ? (
+                    {isEmbed ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-900">
+                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                      </div>
+                    ) : isVideo ? (
                       <video src={img} preload="metadata" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -176,6 +208,20 @@ export default function NewPostPage() {
               </div>
               <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple onChange={handleImageUpload} className="hidden" />
               <p className="text-xs text-gray-400 mt-2">Макс. 10 файлов. JPG, PNG, GIF, MP4, WebM.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Видео по ссылке</label>
+              <div className="flex gap-2">
+                <input type="url" value={videoUrl} onChange={e => setVideoUrl(e.target.value)}
+                  placeholder="YouTube, Rutube, VK Video или прямая ссылка на MP4"
+                  className="input-premium flex-1" />
+                <button type="button" onClick={handleAddVideoUrl}
+                  className="px-4 py-2 bg-brand-500 text-white rounded-xl text-sm font-medium hover:bg-brand-600 transition-colors whitespace-nowrap">
+                  Добавить
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">Вставьте ссылку на видео с YouTube, Rutube, VK Video или прямую ссылку на MP4-файл</p>
             </div>
 
             <div>

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { logActivity } from '@/lib/activity';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,8 +11,20 @@ export async function POST(req: NextRequest) {
     if (!message?.trim()) {
       return NextResponse.json({ error: 'Сообщение обязательно' }, { status: 400 });
     }
+    if (message.trim().length > 2000) {
+      return NextResponse.json({ error: 'Максимум 2000 символов' }, { status: 400 });
+    }
     if (!['bug', 'feature'].includes(type)) {
       return NextResponse.json({ error: 'Невалидный тип' }, { status: 400 });
+    }
+
+    const ip = getClientIp(req);
+    const { allowed, resetAt } = rateLimit(`feedback:${ip}`, 5, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много обращений. Попробуйте позже.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     let userId: string | null = null;
@@ -21,14 +34,12 @@ export async function POST(req: NextRequest) {
       if (payload) userId = payload.userId;
     }
 
-    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-
     await prisma.feedback.create({
-      data: { type, message: message.trim(), userId, ip },
+      data: { type, message: message.trim().slice(0, 2000), userId, ip },
     });
 
     if (userId) {
-      logActivity({ action: 'feedback_submit', userId, details: `Обратная связь: ${type}` });
+      await logActivity({ action: 'feedback_submit', userId, details: `Обратная связь: ${type}` });
     }
 
     return NextResponse.json({ message: 'Спасибо за обратную связь!' });

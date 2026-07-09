@@ -114,8 +114,8 @@ export default function AdminSubscriptionsPage() {
                         <div className="text-xs text-gray-500">{s.user.email}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${s.plan === 'pro' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'}`}>
-                          {s.plan === 'lite' ? 'Lite' : 'Pro'}
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${s.plan === 'premium' ? 'bg-amber-100 text-amber-700' : s.plan === 'pro' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'}`}>
+                          {s.plan === 'premium' ? 'Premium' : s.plan === 'pro' ? 'Pro' : 'Lite'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{s.period === 'monthly' ? 'Месяц' : 'Год'}</td>

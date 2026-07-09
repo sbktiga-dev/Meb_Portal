@@ -32,6 +32,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Недопустимый тип элемента' }, { status: 400 });
     }
 
+    const itemExists = itemType === 'image'
+      ? await prisma.image.findUnique({ where: { id: itemId }, select: { id: true } })
+      : itemType === 'document'
+        ? await prisma.document.findUnique({ where: { id: itemId }, select: { id: true } })
+        : itemType === 'post'
+          ? await prisma.post.findUnique({ where: { id: itemId }, select: { id: true } })
+          : await prisma.product.findUnique({ where: { id: itemId }, select: { id: true } });
+    if (!itemExists) {
+      return NextResponse.json({ error: 'Элемент не найден' }, { status: 404 });
+    }
+
     const existing = await prisma.bookmarkItem.findUnique({
       where: { bookmarkId_itemType_itemId: { bookmarkId: params.id, itemType, itemId } },
     });

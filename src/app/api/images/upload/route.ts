@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
-import { put } from '@vercel/blob';
+import { uploadToS3 } from '@/lib/s3';
 
 export async function POST(request: Request) {
   try {
@@ -58,16 +58,14 @@ export async function POST(request: Request) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const blob = await put(`gallery/${filename}`, file, {
-      access: 'public',
-    });
+    const url = await uploadToS3(`gallery/${filename}`, file);
 
     const image = await prisma.image.create({
       data: {
         title,
         description: description || null,
-        url: blob.url,
-        thumbnail: blob.url,
+        url,
+        thumbnail: url,
         style: style || null,
         category: category || null,
         tags: tags ? JSON.stringify(tags.split(',').map((t) => t.trim())) : '[]',

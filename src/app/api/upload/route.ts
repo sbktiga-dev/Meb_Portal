@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 import { verifyToken } from '@/lib/auth';
-import { put } from '@vercel/blob';
+import { uploadToS3 } from '@/lib/s3';
 import { rateLimit, getClientIp, USER_QUOTAS } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 
@@ -120,12 +120,10 @@ export async function POST(request: Request) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const blob = await put(`uploads/${filename}`, file, {
-      access: 'public',
-    });
+    const url = await uploadToS3(`uploads/${filename}`, file);
 
     return NextResponse.json({
-      url: blob.url,
+      url,
       category,
       filename: file.name,
       size: file.size,

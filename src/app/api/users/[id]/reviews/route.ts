@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { sanitizeInput } from '@/lib/validation';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -76,6 +77,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Комментарий не может превышать 1000 символов' }, { status: 400 });
     }
 
+    const sanitizedComment = trimmedComment ? sanitizeInput(trimmedComment) : null;
+
     const existing = await prisma.userProfileReview.findUnique({
       where: { reviewerId_targetUserId: { reviewerId: user.id, targetUserId: params.id } },
     });
@@ -84,7 +87,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     if (existing) {
       review = await prisma.userProfileReview.update({
         where: { id: existing.id },
-        data: { score: Math.round(score), comment: trimmedComment },
+        data: { score: Math.round(score), comment: sanitizedComment },
         include: {
           reviewer: { select: { id: true, name: true, avatar: true, role: true } },
         },
@@ -93,7 +96,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       review = await prisma.userProfileReview.create({
         data: {
           score: Math.round(score),
-          comment: trimmedComment,
+          comment: sanitizedComment,
           reviewerId: user.id,
           targetUserId: params.id,
         },

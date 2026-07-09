@@ -32,6 +32,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
     }
 
+    // Hide unpublished posts from non-authors
+    if (!post.isPublished && post.authorId !== userId) {
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+    }
+
     let liked = false;
     if (userId) {
       const existingLike = await prisma.postLike.findUnique({

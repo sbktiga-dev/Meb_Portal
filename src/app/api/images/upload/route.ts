@@ -30,6 +30,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Обязательные поля не заполнены' }, { status: 400 });
     }
 
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Допустимые форматы: JPEG, PNG, GIF, WebP' }, { status: 400 });
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'Файл не должен превышать 10MB' }, { status: 400 });
+    }
+
+    // Validate magic bytes
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer.slice(0, 4));
+    const validMagic: Record<string, number[]> = {
+      'image/jpeg': [0xFF, 0xD8, 0xFF],
+      'image/png': [0x89, 0x50, 0x4E, 0x47],
+      'image/gif': [0x47, 0x49, 0x46],
+      'image/webp': [0x52, 0x49, 0x46, 0x46],
+    };
+    const magic = validMagic[file.type];
+    if (magic && !magic.every((b, i) => bytes[i] === b)) {
+      return NextResponse.json({ error: 'Файл повреждён или не соответствует типу' }, { status: 400 });
+    }
+
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 

@@ -61,7 +61,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Не найдено' }, { status: 404 });
     }
 
-    if (promotion.userId !== user.id) {
+    if (promotion.userId !== user.id && user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 

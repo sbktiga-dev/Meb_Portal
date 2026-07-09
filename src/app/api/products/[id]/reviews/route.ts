@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { sanitizeInput } from '@/lib/validation';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -41,10 +42,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Комментарий не может превышать 2000 символов' }, { status: 400 });
     }
 
+    const sanitizedComment = trimmedComment ? sanitizeInput(trimmedComment) : null;
+
     const review = await prisma.productReview.create({
       data: {
         score: Math.round(score),
-        comment: trimmedComment,
+        comment: sanitizedComment,
         userId: user.id,
         productId: params.id,
       },

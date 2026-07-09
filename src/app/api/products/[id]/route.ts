@@ -5,6 +5,16 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+    let userId: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const { getUserFromToken } = await import('@/lib/auth');
+        const u = await getUserFromToken(authHeader.split(' ')[1]);
+        if (u) userId = u.id;
+      } catch {}
+    }
+
     const product = await prisma.product.findUnique({
       where: { id: params.id },
       include: {
@@ -21,6 +31,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
 
     if (!product) {
+      return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
+    }
+
+    // Hide unpublished products from non-owners
+    if (!product.isPublished && product.authorId !== userId) {
       return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
     }
 

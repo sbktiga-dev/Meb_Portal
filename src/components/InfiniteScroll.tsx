@@ -47,14 +47,14 @@ export default function InfiniteScroll({
         {loading && (
           loader || (
             <div className="flex items-center justify-center gap-3">
-              <div className="w-6 h-6 border-2 border-brand-200 border-t-brand-500 rounded-full animate-spin" />
-              <span className="text-sm text-gray-400">Загрузка ещё...</span>
+              <div className="w-6 h-6 border-2 border-brand-200 dark:border-brand-800 border-t-brand-500 rounded-full animate-spin" />
+              <span className="text-sm text-gray-400 dark:text-gray-500">Загрузка ещё...</span>
             </div>
           )
         )}
         {!hasMore && !loading && (
           endMessage || (
-            <p className="text-center text-sm text-gray-400">Все элементы загружены</p>
+            <p className="text-center text-sm text-gray-400 dark:text-gray-500">Все элементы загружены</p>
           )
         )}
       </div>

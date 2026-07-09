@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getClientIp, checkDualRateLimit } from '@/lib/rateLimit';
+import { sendEmail, passwordResetEmailHtml } from '@/lib/email';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -46,7 +47,12 @@ export async function POST(req: NextRequest) {
 
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
-    console.log(`\n🔑 PASSWORD RESET LINK:\n${resetUrl}\n`);
+    // Send reset email
+    await sendEmail({
+      to: user.email,
+      subject: 'Сброс пароля — МебПортал',
+      html: passwordResetEmailHtml(user.name || 'Пользователь', resetUrl),
+    }).catch(() => false);
 
     return NextResponse.json({
       message: 'Если аккаунт с таким email существует, письмо с инструкциями отправлено',

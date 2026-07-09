@@ -2,9 +2,17 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserFromToken } from '@/lib/auth';
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+    // Check if requester is authenticated (for phone visibility)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+    const currentUser = token ? await getUserFromToken(token) : null;
+    const isOwner = currentUser?.id === params.id;
+    const isAdmin = currentUser?.role === 'ADMIN';
+
     const user = await prisma.user.findUnique({
       where: { id: params.id },
       select: {
@@ -132,8 +140,15 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       }),
     ]);
 
+    // Hide phone for non-owners/non-admins
+    const safeUser = {
+      ...user,
+      phone: (isOwner || isAdmin) ? user.phone : null,
+      inn: (isOwner || isAdmin) ? user.inn : null,
+    };
+
     return NextResponse.json({
-      user,
+      user: safeUser,
       specialist,
       company,
       supplier,

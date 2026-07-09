@@ -39,28 +39,30 @@ export async function GET(request: Request) {
     });
 
     const conversationIds = participations.map(p => p.conversationId);
-    const unreadResults = await prisma.message.groupBy({
-      by: ['conversationId'],
-      where: {
-        conversationId: { in: conversationIds },
-        authorId: { not: user.id },
-      },
-      _count: true,
-    });
-    const unreadMap = new Map(unreadResults.map(r => [r.conversationId, r._count]));
+
+    // Get unread counts per conversation (messages after lastReadAt)
+    const unreadCounts = await Promise.all(
+      participations.map(async (p) => {
+        const where: Record<string, unknown> = {
+          conversationId: p.conversationId,
+          authorId: { not: user.id },
+        };
+        if (p.lastReadAt) {
+          where.createdAt = { gt: p.lastReadAt };
+        }
+        const count = await prisma.message.count({ where });
+        return { conversationId: p.conversationId, count };
+      })
+    );
+    const unreadMap = new Map(unreadCounts.map(r => [r.conversationId, r.count]));
 
     const conversations = participations.map((p) => {
-      const totalUnread = unreadMap.get(p.conversationId) || 0;
-      const unreadCount = p.lastReadAt
-        ? Math.max(0, totalUnread - 0)
-        : totalUnread;
-
       return {
         ...p.conversation,
         otherUser: p.conversation.participants
           .find((pp) => pp.userId !== user.id)?.user,
         lastMessage: p.conversation.messages[0] || null,
-        unread: unreadCount,
+        unread: unreadMap.get(p.conversationId) || 0,
       };
     });
 

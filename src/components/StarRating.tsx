@@ -40,7 +40,7 @@ export default function StarRating({ rating, onChange, readonly = false, size = 
         >
           <svg
             className={`w-full h-full ${
-              star <= (hovered || rating) ? 'text-amber-400' : 'text-gray-200'
+              star <= (hovered || rating) ? 'text-amber-400' : 'text-gray-200 dark:text-gray-700'
             }`}
             fill="currentColor"
             viewBox="0 0 20 20"

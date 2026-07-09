@@ -64,8 +64,8 @@ export default function FavoriteButton({ itemType, itemId, compact = false }: Fa
         disabled={loading}
         className={`p-2 rounded-xl transition-all ${
           isFavorited
-            ? 'text-amber-500 bg-amber-50 hover:bg-amber-100'
-            : 'text-gray-400 hover:text-amber-500 hover:bg-amber-50'
+            ? 'text-amber-500 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/10 dark:hover:bg-amber-500/20'
+            : 'text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:text-gray-500 dark:hover:bg-amber-500/10'
         } disabled:opacity-50`}
         title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
       >
@@ -82,8 +82,8 @@ export default function FavoriteButton({ itemType, itemId, compact = false }: Fa
       disabled={loading}
       className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
         isFavorited
-          ? 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100'
-          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+          ? 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 dark:hover:bg-amber-500/20'
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:border-gray-600'
       } disabled:opacity-50`}
     >
       {loading ? (

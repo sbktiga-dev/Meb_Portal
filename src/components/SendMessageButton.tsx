@@ -34,7 +34,7 @@ export default function SendMessageButton({ userId, compact = false }: SendMessa
   if (compact) {
     return (
       <button onClick={handleClick} disabled={loading}
-        className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all disabled:opacity-50">
+        className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-all disabled:opacity-50">
         {loading ? '...' : 'Написать'}
       </button>
     );
@@ -42,7 +42,7 @@ export default function SendMessageButton({ userId, compact = false }: SendMessa
 
   return (
     <button onClick={handleClick} disabled={loading}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 transition-all disabled:opacity-50">
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:border-gray-600 transition-all disabled:opacity-50">
       {loading ? (
         <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
       ) : (

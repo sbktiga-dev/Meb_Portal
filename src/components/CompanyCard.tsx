@@ -15,9 +15,9 @@ export default function CompanyCard({ id, name, description, address, phone, isV
   return (
     <Link href={`/companies/${id}`} className="block bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition group">
       <div className="flex items-start justify-between mb-3">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 transition">{name}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">{name}</h3>
         {isVerified && (
-          <span className="flex-shrink-0 px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+          <span className="flex-shrink-0 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-medium">
             ✓ Проверено
           </span>
         )}

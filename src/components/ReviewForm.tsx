@@ -45,9 +45,9 @@ export default function ReviewForm({ targetUserId, onSuccess }: ReviewFormProps)
 
   return (
     <div className="card-base p-5 space-y-4">
-      <h3 className="font-bold text-gray-900 text-sm">Оставить отзыв</h3>
+      <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Оставить отзыв</h3>
       <div>
-        <p className="text-xs text-gray-500 mb-2">Ваша оценка</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Ваша оценка</p>
         <StarRating rating={score} onChange={setScore} size="lg" />
       </div>
       <div>
@@ -57,9 +57,9 @@ export default function ReviewForm({ targetUserId, onSuccess }: ReviewFormProps)
           placeholder="Расскажите о вашем опыте (необязательно)"
           maxLength={1000}
           rows={3}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
         />
-        <p className="text-xs text-gray-400 mt-1 text-right">{comment.length}/1000</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">{comment.length}/1000</p>
       </div>
       <button
         onClick={handleSubmit}

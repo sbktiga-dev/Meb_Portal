@@ -4,6 +4,10 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 
+// Run cleanup at most once every 5 minutes
+let lastCleanup = 0;
+const CLEANUP_INTERVAL = 5 * 60 * 1000;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -15,16 +19,20 @@ export async function GET(request: Request) {
     if (type) where.type = type;
 
     const now = new Date();
-    const cutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
-    await prisma.event.deleteMany({
-      where: {
-        OR: [
-          { endDate: { not: null, lt: cutoff } },
-          { AND: [{ endDate: null }, { startDate: { lt: cutoff } }] },
-        ],
-      },
-    });
+    // Periodic cleanup instead of every request
+    if (Date.now() - lastCleanup > CLEANUP_INTERVAL) {
+      lastCleanup = Date.now();
+      const cutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+      await prisma.event.deleteMany({
+        where: {
+          OR: [
+            { endDate: { not: null, lt: cutoff } },
+            { AND: [{ endDate: null }, { startDate: { lt: cutoff } }] },
+          ],
+        },
+      }).catch(() => {});
+    }
 
     const [events, total] = await Promise.all([
       prisma.event.findMany({

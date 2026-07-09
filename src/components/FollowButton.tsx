@@ -57,7 +57,7 @@ export default function FollowButton({ userId, compact = false }: FollowButtonPr
         disabled={loading}
         className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
           isFollowing
-            ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             : 'bg-brand-500 text-white hover:bg-brand-600'
         } disabled:opacity-50`}
       >
@@ -72,7 +72,7 @@ export default function FollowButton({ userId, compact = false }: FollowButtonPr
       disabled={loading}
       className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
         isFollowing
-          ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+          ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:border-gray-600'
           : 'bg-brand-500 text-white hover:bg-brand-600 shadow-card'
       } disabled:opacity-50`}
     >

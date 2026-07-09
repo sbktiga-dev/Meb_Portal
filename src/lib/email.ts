@@ -1,5 +1,14 @@
 import nodemailer from 'nodemailer';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.mail.ru',
   port: parseInt(process.env.SMTP_PORT || '465'),
@@ -49,12 +58,37 @@ export function verificationEmailHtml(userName: string, url: string): string {
           <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 8px 0 0;">Подтверждение регистрации</p>
         </div>
         <div style="padding: 32px;">
-          <p style="color: #333; font-size: 16px; line-height: 1.6;">Привет, ${userName || 'Пользователь'}!</p>
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">Привет, ${escapeHtml(userName || 'Пользователь')}!</p>
           <p style="color: #666; font-size: 14px; line-height: 1.6;">Для завершения регистрации нажмите кнопку ниже:</p>
           <div style="text-align: center; margin: 32px 0;">
             <a href="${url}" style="display: inline-block; background: #F97316; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px;">Подтвердить email</a>
           </div>
           <p style="color: #999; font-size: 12px; line-height: 1.6;">Если вы не регистрировались на МебПортале, просто проигнорируйте это письмо. Ссылка действительна 24 часа.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+export function passwordResetEmailHtml(userName: string, url: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 40px 20px; background: #f8f7f4;">
+      <div style="max-width: 480px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #F97316, #ea580c); padding: 32px; text-align: center;">
+          <h1 style="color: white; font-size: 24px; margin: 0;">МебПортал</h1>
+          <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 8px 0 0;">Сброс пароля</p>
+        </div>
+        <div style="padding: 32px;">
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">Привет, ${escapeHtml(userName || 'Пользователь')}!</p>
+          <p style="color: #666; font-size: 14px; line-height: 1.6;">Мы получили запрос на сброс пароля. Нажмите кнопку ниже, чтобы задать новый пароль:</p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${url}" style="display: inline-block; background: #F97316; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px;">Сбросить пароль</a>
+          </div>
+          <p style="color: #999; font-size: 12px; line-height: 1.6;">Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо. Ссылка действительна 1 час.</p>
         </div>
       </div>
     </body>

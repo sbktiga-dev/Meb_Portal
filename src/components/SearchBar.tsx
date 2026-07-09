@@ -14,7 +14,7 @@ export default function SearchBar({ value, onChange, placeholder = 'Поиск..
   return (
     <div className={`relative transition-all ${focused ? 'ring-2 ring-amber-600/20' : ''}`}>
       <svg
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -33,7 +33,7 @@ export default function SearchBar({ value, onChange, placeholder = 'Поиск..
       {value && (
         <button
           onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
         >
           ✕
         </button>

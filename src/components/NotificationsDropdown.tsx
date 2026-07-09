@@ -21,9 +21,9 @@ const typeIcons: Record<string, string> = {
 };
 
 const typeColors: Record<string, string> = {
-  like: 'bg-red-50 text-red-500',
-  comment: 'bg-blue-50 text-blue-500',
-  follow: 'bg-brand-50 text-brand-500',
+  like: 'bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400',
+  comment: 'bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400',
+  follow: 'bg-brand-50 dark:bg-brand-500/10 text-brand-500 dark:text-brand-400',
 };
 
 export default function NotificationsDropdown() {
@@ -108,7 +108,7 @@ export default function NotificationsDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={handleToggle}
-        className="relative p-2 text-gray-500 hover:text-brand-500 hover:bg-brand-50 rounded-xl transition-all"
+        className="relative p-2 text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -121,27 +121,27 @@ export default function NotificationsDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-float border border-gray-100 overflow-hidden z-50 animate-fade-in-down">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="font-bold text-gray-900">Уведомления</h3>
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-float border border-gray-100 dark:border-gray-700 overflow-hidden z-50 animate-fade-in-down">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">Уведомления</h3>
             {unread > 0 && (
-              <span className="text-xs text-brand-600 font-medium">{unread} новых</span>
+              <span className="text-xs text-brand-600 dark:text-brand-400 font-medium">{unread} новых</span>
             )}
           </div>
 
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="w-8 h-8 border-2 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" />
+                <div className="w-8 h-8 border-2 border-brand-200 dark:border-brand-400 border-t-brand-500 dark:border-t-brand-400 rounded-full animate-spin mx-auto" />
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                     <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-400">Пока нет уведомлений</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Пока нет уведомлений</p>
               </div>
             ) : (
               notifications.map(n => (
@@ -150,14 +150,14 @@ export default function NotificationsDropdown() {
                     <Link
                       href={n.link}
                       onClick={() => handleNotificationClick(n)}
-                      className={`flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-brand-50/30' : ''}`}
+                      className={`flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!n.read ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}
                     >
                       <NotificationContent notification={n} />
                     </Link>
                   ) : (
                     <div
                       onClick={() => handleNotificationClick(n)}
-                      className={`flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!n.read ? 'bg-brand-50/30' : ''}`}
+                      className={`flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer ${!n.read ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}
                     >
                       <NotificationContent notification={n} />
                     </div>
@@ -208,10 +208,10 @@ function NotificationContent({ notification }: { notification: Notification }) {
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm leading-relaxed ${!notification.read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+        <p className={`text-sm leading-relaxed ${!notification.read ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
           {notification.message}
         </p>
-        <span className="text-xs text-gray-400 mt-1 block">{getTimeAgo(notification.createdAt)}</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{getTimeAgo(notification.createdAt)}</span>
       </div>
       {!notification.read && (
         <div className="w-2 h-2 bg-brand-500 rounded-full flex-shrink-0 mt-2" />

@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 function createClient() {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
   const client = new PrismaClient();
-  if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client;
+  globalForPrisma.prisma = client;
   return client;
 }
 

@@ -33,9 +33,9 @@ export default function DocumentCard({ id, title, category, fileType, downloads,
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">{description}</p>
           )}
           <div className="flex items-center gap-3 text-sm">
-            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg text-xs uppercase font-medium">{fileType}</span>
-            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-lg text-xs">{category}</span>
-            <span className="text-gray-400">📥 {downloads}</span>
+            <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg text-xs uppercase font-medium">{fileType}</span>
+            <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg text-xs">{category}</span>
+            <span className="text-gray-400 dark:text-gray-500">📥 {downloads}</span>
           </div>
         </div>
       </div>

@@ -2,10 +2,10 @@ export default function Loading({ text = 'Загрузка...' }: { text?: strin
   return (
     <div className="flex flex-col items-center justify-center py-24">
       <div className="relative mb-5">
-        <div className="w-14 h-14 border-4 border-brand-100 rounded-full" />
+        <div className="w-14 h-14 border-4 border-brand-100 dark:border-brand-800 rounded-full" />
         <div className="absolute inset-0 w-14 h-14 border-4 border-transparent border-t-brand-500 rounded-full animate-spin" />
       </div>
-      <p className="text-gray-400 text-sm font-medium">{text}</p>
+      <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">{text}</p>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function SkeletonFeed({ count = 3 }: { count?: number }) {
             <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-lg w-2/3" />
           </div>
           <div className="bg-gradient-to-r from-gray-200 dark:from-gray-700 via-gray-100 dark:via-gray-800 to-gray-200 dark:to-gray-700 animate-shimmer h-64" />
-          <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 mt-3">
+          <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 dark:border-gray-700 mt-3">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-xl w-20" />
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-xl w-20" />
           </div>

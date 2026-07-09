@@ -24,7 +24,7 @@ export default function ImageCard({ id, title, style, category, thumbnail, downl
             className="object-cover group-hover:scale-105 transition duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-4xl">
             🖼️
           </div>
         )}
@@ -33,15 +33,15 @@ export default function ImageCard({ id, title, style, category, thumbnail, downl
         <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">{title}</h3>
         <div className="flex flex-wrap gap-2 mb-3">
           {style && (
-            <span className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-lg">{style}</span>
+            <span className="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg">{style}</span>
           )}
           {category && (
-            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-lg">{category}</span>
+            <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg">{category}</span>
           )}
         </div>
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>📥 {downloads} загрузок</span>
-          <span className="text-amber-600 group-hover:text-amber-700 font-medium">Подробнее →</span>
+          <span className="text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 font-medium">Подробнее →</span>
         </div>
       </div>
     </Link>

@@ -25,22 +25,22 @@ export default function SpecialistCard({ id, name, type, description, experience
   return (
     <Link href={`/specialists/${id}`} className="block bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition group">
       <div className="flex items-start gap-4">
-        <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold flex-shrink-0">
+        <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
           {initial}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 transition">{name}</h3>
-            <span className="text-sm text-amber-600">★ {rating.toFixed(1)}</span>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">{name}</h3>
+            <span className="text-sm text-amber-600 dark:text-amber-400">★ {rating.toFixed(1)}</span>
           </div>
-          <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg text-xs mt-1">
+          <span className="inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg text-xs mt-1">
             {typeLabels[type] || type}
           </span>
           {description && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{description}</p>
           )}
           {experience !== null && (
-            <p className="text-sm text-gray-400 mt-2">Опыт: {experience} лет</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Опыт: {experience} лет</p>
           )}
         </div>
       </div>

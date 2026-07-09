@@ -35,14 +35,14 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <Link href={`/profile/${reviewer.id}`} className="font-semibold text-sm text-gray-900 hover:text-brand-600 transition-colors">
+            <Link href={`/profile/${reviewer.id}`} className="font-semibold text-sm text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               {getDisplayName(reviewer.name, reviewer.role)}
             </Link>
             <StarRating rating={review.score} readonly size="sm" />
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">{date}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{date}</p>
           {review.comment && (
-            <p className="text-sm text-gray-600 mt-2 leading-relaxed">{review.comment}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{review.comment}</p>
           )}
         </div>
       </div>

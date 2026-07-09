@@ -30,10 +30,15 @@ export async function GET(request: Request) {
       prisma.reference.count({ where }),
     ]);
 
-    const parsed = references.map((r) => ({
-      ...r,
-      content: JSON.parse(r.content as string),
-    }));
+    const parsed = references.map((r) => {
+      let content: unknown;
+      try {
+        content = JSON.parse(r.content as string);
+      } catch {
+        content = r.content;
+      }
+      return { ...r, content };
+    });
 
     const res = NextResponse.json({
       references: parsed,

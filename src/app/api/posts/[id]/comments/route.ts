@@ -6,6 +6,7 @@ import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
 import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rateLimit';
 import { sendPushToUser } from '@/lib/push';
+import { logActivity } from '@/lib/activity';
 
 const MAX_COMMENT_LENGTH = 2000;
 
@@ -52,6 +53,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       data: { content: sanitized, authorId: user.id, postId: params.id },
       include: { author: { select: { id: true, name: true } } },
     });
+
+    logActivity({ action: 'comment_create', userId: user.id, details: `Комментарий к посту ${params.id}` });
 
     const post = await prisma.post.findUnique({ where: { id: params.id }, select: { authorId: true, title: true } });
     if (post && post.authorId !== user.id) {

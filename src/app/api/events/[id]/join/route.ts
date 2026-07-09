@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -31,6 +32,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       await prisma.eventParticipant.delete({
         where: { userId_eventId: { userId: user.id, eventId: params.id } },
       });
+      logActivity({ action: 'event_leave', userId: user.id, details: `Отмена участия в событии ${params.id}` });
       const newCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
       return NextResponse.json({ joined: false, participants: newCount });
     }
@@ -64,6 +66,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       }
       return NextResponse.json({ joined: true, participants: result.newCount });
     }
+
+    logActivity({ action: 'event_join', userId: user.id, details: `Запись на событие ${params.id}` });
 
     await prisma.eventParticipant.create({
       data: { userId: user.id, eventId: params.id, status: 'going' },

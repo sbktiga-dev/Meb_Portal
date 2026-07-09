@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -26,15 +27,20 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     if (existingMember) {
+      if (group.ownerId === user.id) {
+        return NextResponse.json({ error: 'Владелец не может покинуть группу' }, { status: 400 });
+      }
       await prisma.groupMember.delete({
         where: { userId_groupId: { userId: user.id, groupId: params.id } },
       });
+      logActivity({ action: 'group_leave', userId: user.id, details: `Выход из группы ${params.id}` });
       return NextResponse.json({ joined: false });
     }
 
     await prisma.groupMember.create({
       data: { userId: user.id, groupId: params.id, role: 'member' },
     });
+    logActivity({ action: 'group_join', userId: user.id, details: `Вступление в группу ${params.id}` });
 
     if (user.id !== group.ownerId) {
       await prisma.notification.create({

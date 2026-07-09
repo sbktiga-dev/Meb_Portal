@@ -19,8 +19,8 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const itemType = searchParams.get('type');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
     const where: Record<string, unknown> = { userId: user.id };
     if (itemType) where.itemType = itemType;
@@ -84,6 +84,14 @@ export async function POST(request: Request) {
 
     if (!['image', 'document'].includes(itemType)) {
       return NextResponse.json({ error: 'Недопустимый тип элемента' }, { status: 400 });
+    }
+
+    // Check if the item exists
+    const itemExists = itemType === 'image'
+      ? await prisma.image.findUnique({ where: { id: itemId }, select: { id: true } })
+      : await prisma.document.findUnique({ where: { id: itemId }, select: { id: true } });
+    if (!itemExists) {
+      return NextResponse.json({ error: 'Элемент не найден' }, { status: 404 });
     }
 
     const existing = await prisma.favorite.findUnique({

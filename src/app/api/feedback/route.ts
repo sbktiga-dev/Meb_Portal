@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
     await prisma.feedback.create({
       data: { type, message: message.trim(), userId, ip },
     });
+
+    if (userId) {
+      logActivity({ action: 'feedback_submit', userId, details: `Обратная связь: ${type}` });
+    }
 
     return NextResponse.json({ message: 'Спасибо за обратную связь!' });
   } catch (error) {

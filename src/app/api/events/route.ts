@@ -92,6 +92,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Название и дата обязательны' }, { status: 400 });
     }
 
+    if (title.trim().length > 200) {
+      return NextResponse.json({ error: 'Название не может превышать 200 символов' }, { status: 400 });
+    }
+
+    if (description && description.trim().length > 5000) {
+      return NextResponse.json({ error: 'Описание не может превышать 5000 символов' }, { status: 400 });
+    }
+
+    const validEventTypes = ['offline', 'online', 'webinar'];
+    const eventType = validEventTypes.includes(type) ? type : 'offline';
+    const maxP = typeof maxParticipants === 'number' && maxParticipants > 0 ? Math.floor(maxParticipants) : null;
+
     const event = await prisma.event.create({
       data: {
         title: title.trim(),
@@ -100,8 +112,8 @@ export async function POST(request: Request) {
         location: location?.trim() || null,
         startDate: new Date(startDate),
         endDate: endDate ? new Date(endDate) : null,
-        type: (type && ['offline', 'online', 'webinar'].includes(type)) ? type : 'offline',
-        maxParticipants: maxParticipants || null,
+        type: eventType,
+        maxParticipants: maxP,
         organizerId: user.id,
         participants: {
           create: { userId: user.id, status: 'organizer' },

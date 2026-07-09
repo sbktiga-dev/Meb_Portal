@@ -16,16 +16,28 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
     }
 
-    const bookmarks = await prisma.bookmark.findMany({
-      where: { userId: user.id },
-      include: {
-        items: true,
-        _count: { select: { items: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
-    return NextResponse.json({ bookmarks });
+    const [bookmarks, total] = await Promise.all([
+      prisma.bookmark.findMany({
+        where: { userId: user.id },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          items: true,
+          _count: { select: { items: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.bookmark.count({ where: { userId: user.id } }),
+    ]);
+
+    return NextResponse.json({
+      bookmarks,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

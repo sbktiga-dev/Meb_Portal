@@ -51,7 +51,7 @@ export default function ChatPage() {
       })
       .catch(() => {});
 
-    fetchMessages(token);
+    fetchMessages(token, controller.signal);
     const interval = setInterval(() => fetchMessages(token), 5000);
     return () => { controller.abort(); clearInterval(interval); };
   }, [params.id, router]);
@@ -68,10 +68,11 @@ export default function ChatPage() {
     shouldAutoScroll.current = nearBottom;
   };
 
-  const fetchMessages = async (token: string) => {
+  const fetchMessages = async (token: string, signal?: AbortSignal) => {
     try {
       const res = await fetch(`/api/conversations/${params.id}/messages?limit=100`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal,
       });
       const data = await res.json();
       if (data.messages) {

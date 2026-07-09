@@ -65,11 +65,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Название обязательно' }, { status: 400 });
     }
 
+    if (name.trim().length > 100) {
+      return NextResponse.json({ error: 'Название не может превышать 100 символов' }, { status: 400 });
+    }
+
+    if (description && description.trim().length > 2000) {
+      return NextResponse.json({ error: 'Описание не может превышать 2000 символов' }, { status: 400 });
+    }
+
+    const validTypes = ['public', 'private'];
+    const groupType = validTypes.includes(type) ? type : 'public';
+
     const group = await prisma.group.create({
       data: {
         name: name.trim(),
         description: description?.trim() || null,
-        type: type || 'public',
+        type: groupType,
         ownerId: user.id,
         members: {
           create: { userId: user.id, role: 'admin' },

@@ -1,0 +1,19 @@
+#cloud-config
+datasource:
+  Ec2:
+    strict_id: false
+ssh_pwauth: no
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: $6$rounds=4096$abcdefgh$Kz5pQx3v8rFz2mN1wJ4tY6uI9oP0aS2dF4gH6jK8lZ0x3cV5bN7mQ1wE3rT5yU7iO9pA
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIROpXV9oZ7W1hcxUR+o1/GKH1EyUjF57nOqz0znG0D3 Тигран@DESKTOP-8KKQT7R
+bootcmd:
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw allow 3000/tcp
+  - ufw reload

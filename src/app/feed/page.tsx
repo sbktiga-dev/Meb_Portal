@@ -68,6 +68,7 @@ export default function FeedPage() {
   const [promotedPosts, setPromotedPosts] = useState<PostData[]>([]);
   const [feedBanners, setFeedBanners] = useState<BannerData[]>([]);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400);
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function FeedPage() {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
-      const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}${search ? `&search=${encodeURIComponent(search)}` : ''}`, { headers, signal });
+      const res = await fetch(`/api/feed?category=${category}&sort=${sort}&page=${pageNum}&limit=10${authorParam}${filterParam}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ''}`, { headers, signal });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       const newPosts = data.posts || [];
@@ -121,7 +122,7 @@ export default function FeedPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [category, sort, authorId, feedFilter, search]);
+  }, [category, sort, authorId, feedFilter, debouncedSearch]);
 
   useEffect(() => {
     const controller = new AbortController();

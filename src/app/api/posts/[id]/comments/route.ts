@@ -82,3 +82,45 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const user = await getUserFromToken(token);
+    if (!user) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const commentId = searchParams.get('commentId');
+    if (!commentId) {
+      return NextResponse.json({ error: 'commentId обязателен' }, { status: 400 });
+    }
+
+    const comment = await prisma.comment.findUnique({ where: { id: commentId }, select: { authorId: true, postId: true } });
+    if (!comment) {
+      return NextResponse.json({ error: 'Комментарий не найден' }, { status: 404 });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: params.id }, select: { authorId: true } });
+    const isOwner = comment.authorId === user.id;
+    const isPostOwner = post?.authorId === user.id;
+    const isAdmin = user.role === 'ADMIN';
+
+    if (!isOwner && !isPostOwner && !isAdmin) {
+      return NextResponse.json({ error: 'Нет прав на удаление' }, { status: 403 });
+    }
+
+    await prisma.comment.delete({ where: { id: commentId } });
+
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error('Comment delete error:', e);
+    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  }
+}

@@ -17,7 +17,7 @@ export async function GET(
         where: { followerId: params.id },
         include: {
           following: {
-            select: { id: true, name: true, avatar: true, role: true },
+            select: { id: true, name: true, avatar: true },
           },
         },
         orderBy: { createdAt: 'desc' },

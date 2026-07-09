@@ -90,3 +90,43 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
+    }
+    const token = authHeader.split(' ')[1];
+    const user = await getUserFromToken(token);
+    if (!user) {
+      return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get('postId');
+    if (!postId) {
+      return NextResponse.json({ error: 'postId обязателен' }, { status: 400 });
+    }
+
+    const post = await prisma.groupPost.findUnique({ where: { id: postId }, select: { authorId: true, groupId: true } });
+    if (!post) {
+      return NextResponse.json({ error: 'Пост не найден' }, { status: 404 });
+    }
+
+    const group = await prisma.group.findUnique({ where: { id: params.id }, select: { ownerId: true } });
+    const isOwner = post.authorId === user.id;
+    const isGroupOwner = group?.ownerId === user.id;
+    const isAdmin = user.role === 'ADMIN';
+
+    if (!isOwner && !isGroupOwner && !isAdmin) {
+      return NextResponse.json({ error: 'Нет прав на удаление' }, { status: 403 });
+    }
+
+    await prisma.groupPost.delete({ where: { id: postId } });
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  }
+}

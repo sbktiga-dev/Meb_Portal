@@ -18,8 +18,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const product = await prisma.product.findUnique({
       where: { id: params.id },
       include: {
-        company: { select: { id: true, name: true, logo: true, phone: true } },
-        supplier: { select: { id: true, companyName: true, logo: true, phone: true } },
+        company: { select: { id: true, name: true, logo: true, phone: true, users: { select: { id: true } } } },
+        supplier: { select: { id: true, companyName: true, logo: true, phone: true, users: { select: { id: true } } } },
         reviews: {
           include: {
             user: { select: { id: true, name: true, avatar: true } },
@@ -35,8 +35,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     // Hide unpublished products from non-owners
-    if (!product.isPublished && product.authorId !== userId) {
-      return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
+    if (!product.isPublished) {
+      const isOwner = product.company?.users?.some(u => u.id === userId) ||
+                      product.supplier?.users?.some(u => u.id === userId);
+      if (!isOwner) {
+        return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
+      }
     }
 
     const agg = await prisma.productReview.aggregate({

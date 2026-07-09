@@ -618,7 +618,6 @@ function MediaItem({ src, className }: { src: string; className?: string }) {
     return (
       <video
         src={src}
-        type={getVideoMimeType(src)}
         controls
         preload="metadata"
         className={className || 'w-full rounded-xl'}

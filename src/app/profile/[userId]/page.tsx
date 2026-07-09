@@ -589,7 +589,7 @@ export default function ProfilePage() {
                           {postImages.length > 0 && (
                             isVideoUrl(postImages[0]) ? (
                               <div className="relative w-full">
-                                <video src={postImages[0]} type={getVideoMimeType(postImages[0])} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
+                                <video src={postImages[0]} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
                               </div>
                             ) : (
                               <div className="relative w-full" style={{ paddingBottom: '50%' }}>

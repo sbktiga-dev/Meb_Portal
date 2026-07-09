@@ -589,7 +589,7 @@ export default function ProfilePage() {
                           {postImages.length > 0 && (
                             isVideoUrl(postImages[0]) ? (
                               <div className="relative w-full">
-                                <video src={postImages[0]} controls className="w-full rounded-b-xl" playsInline />
+                                <video src={postImages[0]} type={getVideoMimeType(postImages[0])} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
                               </div>
                             ) : (
                               <div className="relative w-full" style={{ paddingBottom: '50%' }}>
@@ -766,5 +766,11 @@ export default function ProfilePage() {
 }
 
 function isVideoUrl(url: string): boolean {
-  return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
+  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/');
+}
+
+function getVideoMimeType(url: string): string {
+  if (url.includes('.webm') || url.includes('webm')) return 'video/webm';
+  if (url.includes('.mov') || url.includes('quicktime')) return 'video/quicktime';
+  return 'video/mp4';
 }

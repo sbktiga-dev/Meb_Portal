@@ -142,19 +142,26 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Изображения</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Медиа</label>
               <div className="flex flex-wrap gap-3">
-                {images.map((img, idx) => (
+                {images.map((img, idx) => {
+                  const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(img) || img.includes('video/');
+                  return (
                   <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-brand-50 to-orange-50 border-2 border-brand-100">
-                    <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                    </div>
+                    {isVideo ? (
+                      <video src={img} preload="metadata" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                      </div>
+                    )}
                     <button type="button" onClick={() => removeImage(idx)}
                       className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   </div>
-                ))}
+                  );
+                })}
                 <button type="button" onClick={() => fileInputRef.current?.click()}
                   className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 hover:border-brand-400 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-brand-500 transition-colors">
                   {uploading ? (

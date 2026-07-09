@@ -604,12 +604,27 @@ function getTimeAgo(dateStr: string): string {
 }
 
 function isVideoUrl(url: string): boolean {
-  return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
+  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/');
+}
+
+function getVideoMimeType(url: string): string {
+  if (url.includes('.webm') || url.includes('webm')) return 'video/webm';
+  if (url.includes('.mov') || url.includes('quicktime')) return 'video/quicktime';
+  return 'video/mp4';
 }
 
 function MediaItem({ src, className }: { src: string; className?: string }) {
   if (isVideoUrl(src)) {
-    return <video src={src} controls className={className || 'w-full'} playsInline />;
+    return (
+      <video
+        src={src}
+        type={getVideoMimeType(src)}
+        controls
+        preload="metadata"
+        className={className || 'w-full rounded-xl'}
+        playsInline
+      />
+    );
   }
   return <Image src={src} alt="" fill className={`object-cover ${className || ''}`} sizes="(max-width: 768px) 100vw, 640px" unoptimized />;
 }

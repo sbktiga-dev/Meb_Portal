@@ -44,15 +44,15 @@ export default function TariffsPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [subscribing, setSubscribing] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
     try {
-      const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+      const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal });
       const me = await meRes.json();
       if (me.user?.role === 'CLIENT') { router.push('/dashboard'); return; }
 
-      const subRes = await fetch('/api/subscription', { headers: { Authorization: `Bearer ${token}` } });
+      const subRes = await fetch('/api/subscription', { headers: { Authorization: `Bearer ${token}` }, signal });
       const subData = await subRes.json();
       setSubscription(subData.subscription || null);
     } catch {
@@ -60,7 +60,11 @@ export default function TariffsPage() {
     } finally { setLoading(false); }
   }, [router]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadData(controller.signal);
+    return () => controller.abort();
+  }, [loadData]);
 
   const handleSubscribe = async (plan: string) => {
     const token = localStorage.getItem('token');

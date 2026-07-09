@@ -49,16 +49,16 @@ export default function PromotionPage() {
   const [bannerForm, setBannerForm] = useState({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all' });
   const [submitting, setSubmitting] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
     try {
       const [meRes, subRes, postsRes, promosRes, bannersRes] = await Promise.all([
-        fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/promotion', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/promotion/banners', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/promotion', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/promotion/banners', { headers: { Authorization: `Bearer ${token}` }, signal }),
       ]);
 
       const me = await meRes.json();
@@ -79,7 +79,11 @@ export default function PromotionPage() {
     finally { setLoading(false); }
   }, [router]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadData(controller.signal);
+    return () => controller.abort();
+  }, [loadData]);
 
   const handleCreatePromotion = async () => {
     if (!selectedPostId) { toast.error('Выберите пост'); return; }

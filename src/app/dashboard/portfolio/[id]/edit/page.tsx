@@ -20,9 +20,10 @@ export default function EditPortfolioPage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch(`/api/portfolio/${params.id}`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`/api/portfolio/${params.id}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => {
         if (d.item) {
@@ -33,8 +34,9 @@ export default function EditPortfolioPage() {
           try { setTagsInput(JSON.parse(d.item.tags).join(', ')); } catch { setTagsInput(''); }
         }
       })
-      .catch(() => setError('Работа не найдена'))
+      .catch((err) => { if (err.name !== 'AbortError') setError('Работа не найдена'); })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [params.id, router]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

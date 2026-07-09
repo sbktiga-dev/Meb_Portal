@@ -21,6 +21,7 @@ function MessagesContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
@@ -30,6 +31,7 @@ function MessagesContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ userId: targetUserId }),
+        signal: controller.signal,
       })
         .then(r => r.json())
         .then(data => {
@@ -38,14 +40,15 @@ function MessagesContent() {
           }
         })
         .catch(() => {});
-      return;
+      return () => controller.abort();
     }
 
-    fetch('/api/conversations', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/conversations', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => setConversations(d.conversations || []))
-      .catch(() => setConversations([]))
+      .catch((err) => { if (err.name !== 'AbortError') setConversations([]); })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [router, searchParams]);
 
   const getTimeAgo = (dateStr: string) => {

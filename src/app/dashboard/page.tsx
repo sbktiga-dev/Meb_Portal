@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import Image from 'next/image';
-import { pluralizeLikes, pluralizeComments, pluralizePosts, pluralizeNew } from '@/lib/pluralize';
+import { pluralizeLikes, pluralizeComments, pluralizeNew } from '@/lib/pluralize';
 
 interface UserData {
   id: string;
@@ -49,6 +49,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) {
       const hasCookie = document.cookie.includes('token=');
@@ -61,11 +62,11 @@ export default function DashboardPage() {
     }
     if (!authToken) { window.location.href = '/login'; return; }
     Promise.all([
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()),
-      fetch('/api/downloads', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ downloads: [] })),
-      fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ posts: [], pagination: { total: 0 } })),
-      fetch('/api/portfolio?limit=1', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
-      fetch('/api/notifications?limit=10', { headers: { Authorization: `Bearer ${authToken}` } }).then(r => r.json()).catch(() => ({ notifications: [] })),
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()),
+      fetch('/api/downloads', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ downloads: [] })),
+      fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ posts: [], pagination: { total: 0 } })),
+      fetch('/api/portfolio?limit=1', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
+      fetch('/api/notifications?limit=10', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ notifications: [] })),
     ])
       .then(async ([userData, downloadsData, postsData, portfolioData, notifData]) => {
         if (userData.user) {
@@ -82,8 +83,8 @@ export default function DashboardPage() {
           let followingCount = 0;
           try {
             const [followersRes, followingRes] = await Promise.all([
-              fetch(`/api/users/${userData.user.id}/followers`),
-              fetch(`/api/users/${userData.user.id}/following`),
+              fetch(`/api/users/${userData.user.id}/followers`, { signal: controller.signal }),
+              fetch(`/api/users/${userData.user.id}/following`, { signal: controller.signal }),
             ]);
             const followersData = await followersRes.json();
             const followingData = await followingRes.json();
@@ -99,12 +100,14 @@ export default function DashboardPage() {
           window.location.href = '/login';
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
         localStorage.removeItem('token');
         document.cookie = 'token=; path=/; max-age=0';
         window.location.href = '/login';
       })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading) {

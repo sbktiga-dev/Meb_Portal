@@ -69,34 +69,6 @@ export function rateLimit(
   return { allowed: true, resetAt: entry.resetAt };
 }
 
-export function checkRateLimit(
-  identifier: string,
-  config: RateLimitConfig
-): { allowed: boolean; remaining: number; resetAt: number } {
-  const now = Date.now();
-  const key = identifier;
-  const entry = store.get(key);
-
-  if (!entry || now > entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + config.windowMs });
-    return { allowed: true, remaining: config.maxRequests - 1, resetAt: now + config.windowMs };
-  }
-
-  if (entry.count >= config.maxRequests) {
-    return { allowed: false, remaining: 0, resetAt: entry.resetAt };
-  }
-
-  entry.count++;
-  return { allowed: true, remaining: config.maxRequests - entry.count, resetAt: entry.resetAt };
-}
-
-export function getRateLimitHeaders(result: { remaining: number; resetAt: number }) {
-  return {
-    'X-RateLimit-Remaining': String(result.remaining),
-    'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
-  };
-}
-
 export function checkDualRateLimit(
   ip: string,
   email: string | undefined,

@@ -21,20 +21,21 @@ export default function AnalyticsPage() {
   const [period, setPeriod] = useState('week');
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(res => res.json())
       .then(async (me) => {
         if (!me.user) { router.push('/login'); return; }
 
         const [postsRes, portfolioRes, downloadsRes, followersRes, followingRes] = await Promise.all([
-          fetch(`/api/posts?authorId=${me.user.id}&limit=100`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('/api/downloads', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`/api/users/${me.user.id}/followers`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`/api/users/${me.user.id}/following`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`/api/posts?authorId=${me.user.id}&limit=100`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }),
+          fetch('/api/portfolio', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }),
+          fetch('/api/downloads', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }),
+          fetch(`/api/users/${me.user.id}/followers`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }),
+          fetch(`/api/users/${me.user.id}/following`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }),
         ]);
 
         const [postsData, portfolioData, downloadsData, followersData, followingData] = await Promise.all([
@@ -74,8 +75,9 @@ export default function AnalyticsPage() {
           })),
         });
       })
-      .catch(() => router.push('/login'))
+      .catch((err) => { if (err.name !== 'AbortError') router.push('/login'); })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [router, period]);
 
   if (loading) return (

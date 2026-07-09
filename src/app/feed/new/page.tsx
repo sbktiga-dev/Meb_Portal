@@ -49,10 +49,12 @@ export default function NewPostPage() {
         const data = await res.json();
         if (res.ok && data.url) {
           newImages.push(data.url);
+        } else {
+          setError(data.error || 'Ошибка загрузки файла');
         }
       }
       setImages(prev => [...prev, ...newImages]);
-    } catch {}
+    } catch (err) { setError('Ошибка сети при загрузке'); console.error('Upload error:', err); }
     finally { setUploading(false); }
   };
 

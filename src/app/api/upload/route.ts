@@ -130,7 +130,8 @@ export async function POST(request: Request) {
       filename: file.name,
       size: file.size,
     }, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json({ error: 'Ошибка сервера', details: String(error) }, { status: 500 });
   }
 }

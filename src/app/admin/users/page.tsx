@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import PageSEO from '@/components/PageSEO';
 
@@ -28,6 +29,7 @@ const roleColors: Record<string, string> = {
 };
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -35,6 +37,15 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 20;
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .catch(() => router.push('/login'));
+  }, [router]);
 
   const fetchUsers = async () => {
     setLoading(true);

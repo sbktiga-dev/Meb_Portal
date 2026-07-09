@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import PageSEO from '@/components/PageSEO';
 
 interface FeedbackItem {
@@ -14,12 +15,22 @@ interface FeedbackItem {
 }
 
 export default function AdminFeedbackPage() {
+  const router = useRouter();
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 20;
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .catch(() => router.push('/login'));
+  }, [router]);
 
   const fetchFeedbacks = async () => {
     setLoading(true);

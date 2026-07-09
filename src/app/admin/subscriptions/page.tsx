@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 interface SubscriptionData {
@@ -22,10 +23,20 @@ const STATUS_LABELS: Record<string, { text: string; color: string }> = {
 };
 
 export default function AdminSubscriptionsPage() {
+  const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [acting, setActing] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .catch(() => router.push('/login'));
+  }, [router]);
 
   const loadData = async (status = filter) => {
     const token = localStorage.getItem('token');

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import PageSEO from '@/components/PageSEO';
 
 interface SystemData {
@@ -14,18 +15,24 @@ interface SystemData {
 }
 
 export default function AdminMonitoringPage() {
+  const router = useRouter();
   const [data, setData] = useState<SystemData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) { window.location.href = '/login'; return; }
-    fetch('/api/admin/monitoring', { headers: { Authorization: `Bearer ${token}` } })
+    if (!token) { router.push('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
-      .then(setData)
+      .then(d => {
+        if (d.user?.role !== 'ADMIN') { router.push('/dashboard'); return; }
+        return fetch('/api/admin/monitoring', { headers: { Authorization: `Bearer ${token}` } });
+      })
+      .then(r => r?.json())
+      .then(d => { if (d) setData(d); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   if (loading) return <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin" /></div>;
 

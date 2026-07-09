@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
             views: true,
             createdAt: true,
             author: {
-              select: { id: true, name: true, avatar: true, role: true },
+              select: { id: true, name: true, avatar: true },
             },
           },
         },

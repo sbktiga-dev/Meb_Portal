@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import PageSEO from '@/components/PageSEO';
 
 interface ActivityItem {
@@ -20,12 +21,22 @@ const actionLabels: Record<string, string> = {
 };
 
 export default function AdminActivityPage() {
+  const router = useRouter();
   const [logs, setLogs] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [actionFilter, setActionFilter] = useState('');
   const limit = 30;
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .catch(() => router.push('/login'));
+  }, [router]);
 
   const fetchLogs = async () => {
     setLoading(true);

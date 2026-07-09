@@ -5,12 +5,24 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+    const { getUserFromToken } = await import('@/lib/auth');
+    let userId: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const user = await getUserFromToken(authHeader.split(' ')[1]);
+      if (user) userId = user.id;
+    }
+
     const item = await prisma.portfolioItem.findUnique({
       where: { id: params.id },
       include: { user: { select: { id: true, name: true } } },
     });
 
     if (!item) {
+      return NextResponse.json({ error: 'Работа не найдена' }, { status: 404 });
+    }
+
+    if (!item.isPublished && item.userId !== userId) {
       return NextResponse.json({ error: 'Работа не найдена' }, { status: 404 });
     }
 

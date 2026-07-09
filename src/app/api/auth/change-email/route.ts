@@ -37,10 +37,11 @@ export async function POST(req: NextRequest) {
     }
 
     const code = crypto.randomInt(100000, 999999).toString();
-    // Store code:email in the field so PUT can verify
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 минут
+    // Store code:email:expiresAt in the field so PUT can verify
     await prisma.user.update({
       where: { id: user.id },
-      data: { emailChangeCode: `${code}:${newEmail}` },
+      data: { emailChangeCode: `${code}:${newEmail}:${expiresAt}` },
     });
 
     await sendEmail({
@@ -85,13 +86,19 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
 
-    // Format is "code:email"
+    // Format is "code:email:expiresAt"
     const parts = (user.emailChangeCode || '').split(':');
     const storedCode = parts[0];
-    const pendingEmail = parts.slice(1).join(':');
+    const pendingEmail = parts.slice(1, -1).join(':');
+    const expiresAt = parseInt(parts[parts.length - 1]) || 0;
 
     if (storedCode !== code || !pendingEmail) {
       return NextResponse.json({ error: 'Неверный или просроченный код' }, { status: 400 });
+    }
+
+    if (Date.now() > expiresAt) {
+      await prisma.user.update({ where: { id: user.id }, data: { emailChangeCode: null } });
+      return NextResponse.json({ error: 'Код истёк. Запросите новый.' }, { status: 400 });
     }
 
     const existing = await prisma.user.findUnique({ where: { email: pendingEmail } });

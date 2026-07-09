@@ -22,6 +22,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Событие не найдено' }, { status: 404 });
     }
 
+    const now = new Date();
+    const eventEnd = event.endDate || event.startDate;
+    if (eventEnd && eventEnd < now) {
+      return NextResponse.json({ error: 'Событие уже прошло' }, { status: 400 });
+    }
+
     const participantCount = await prisma.eventParticipant.count({ where: { eventId: params.id } });
 
     const existing = await prisma.eventParticipant.findUnique({

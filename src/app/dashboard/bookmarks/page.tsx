@@ -24,9 +24,13 @@ export default function BookmarksPage() {
     if (!token) { router.push('/login'); return; }
     try {
       const res = await fetch('/api/bookmarks', { headers: { Authorization: `Bearer ${token}` }, signal });
+      if (signal?.aborted) return;
       const data = await res.json();
       setBookmarks(data.bookmarks || []);
-    } catch {} finally {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      console.error('Fetch bookmarks error:', err);
+    } finally {
       setLoading(false);
     }
   }, [router]);

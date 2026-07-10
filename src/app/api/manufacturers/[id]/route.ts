@@ -75,7 +75,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     });
 
     return NextResponse.json({ manufacturer: updated });
-  } catch {
+  } catch (e) {
+    console.error('Manufacturer PUT error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -101,7 +102,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.manufacturer.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Manufacturer DELETE error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

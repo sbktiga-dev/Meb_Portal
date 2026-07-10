@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       message: 'Регистрация успешна',
     });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('Register error:', error instanceof Error ? error.message : 'Unknown');
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

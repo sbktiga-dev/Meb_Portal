@@ -107,7 +107,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ manufacturer }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Manufacturers POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

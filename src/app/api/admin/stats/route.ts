@@ -87,6 +87,7 @@ export async function GET(request: Request) {
       registrationsByDay,
     });
   } catch (error) {
+    console.error('Admin stats error:', error instanceof Error ? error.message : 'Unknown');
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

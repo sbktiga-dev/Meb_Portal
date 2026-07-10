@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       message: 'Если аккаунт с таким email существует, письмо с инструкциями отправлено',
     });
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error('Forgot password error:', error instanceof Error ? error.message : 'Unknown');
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

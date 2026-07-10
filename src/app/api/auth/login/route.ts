@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       token,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error instanceof Error ? error.message : 'Unknown');
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

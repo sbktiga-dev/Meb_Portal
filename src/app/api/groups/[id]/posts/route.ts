@@ -27,7 +27,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
       posts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Group posts GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -61,6 +62,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Содержание обязательно' }, { status: 400 });
     }
 
+    if (content.trim().length > 5000) {
+      return NextResponse.json({ error: 'Содержание не может превышать 5000 символов' }, { status: 400 });
+    }
+
     const post = await prisma.groupPost.create({
       data: {
         content: content.trim(),
@@ -86,7 +91,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     return NextResponse.json({ post }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Group post POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -103,8 +109,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const postId = searchParams.get('postId');
+    const body = await request.json();
+    const { postId } = body;
     if (!postId) {
       return NextResponse.json({ error: 'postId обязателен' }, { status: 400 });
     }
@@ -126,7 +132,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     await prisma.groupPost.delete({ where: { id: postId } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Group post DELETE error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

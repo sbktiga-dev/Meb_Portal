@@ -192,7 +192,9 @@ export default function DashboardSettingsPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ notificationPrefs: { notifyDocs, notifyImages, notifyNewsletter } }),
       });
-    } catch {}
+    } catch (err) {
+      console.error('Save notification prefs error:', err);
+    }
     setSavingPrefs(false);
   };
 

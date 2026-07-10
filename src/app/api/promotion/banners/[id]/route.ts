@@ -49,6 +49,7 @@ export async function PUT(
 
     return NextResponse.json({ banner: updated });
   } catch (error) {
+    console.error('Banner PUT error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -82,6 +83,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Banner DELETE error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

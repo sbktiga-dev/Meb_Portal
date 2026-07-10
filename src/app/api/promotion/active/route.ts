@@ -77,6 +77,7 @@ export async function GET(req: NextRequest) {
       banners,
     });
   } catch (error) {
+    console.error('Active promotions error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

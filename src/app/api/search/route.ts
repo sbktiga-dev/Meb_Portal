@@ -54,7 +54,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       results: { images, documents, posts, users },
     });
-  } catch {
+  } catch (e) {
+    console.error('Search GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

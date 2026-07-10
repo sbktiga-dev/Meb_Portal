@@ -68,7 +68,9 @@ export default function FavoritesPage() {
       if (res.ok && !data.favorited) {
         setFavorites(prev => prev.filter(f => f.id !== id));
       }
-    } catch {}
+    } catch (err) {
+      console.error('Remove favorite error:', err);
+    }
     setRemoving(null);
   };
 

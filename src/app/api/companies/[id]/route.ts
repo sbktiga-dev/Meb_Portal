@@ -72,7 +72,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     });
 
     return NextResponse.json({ company: updated });
-  } catch {
+  } catch (e) {
+    console.error('Company PUT error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

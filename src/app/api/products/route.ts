@@ -97,7 +97,8 @@ export async function GET(request: Request) {
       res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     }
     return res;
-  } catch {
+  } catch (e) {
+    console.error('Products GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -135,7 +136,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ product }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Products POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ banners });
   } catch (error) {
+    console.error('Banners GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ banner }, { status: 201 });
   } catch (error) {
+    console.error('Banners POST error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

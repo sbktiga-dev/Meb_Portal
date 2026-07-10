@@ -112,7 +112,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ company }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Companies POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

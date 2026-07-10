@@ -73,7 +73,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     });
 
     return NextResponse.json({ supplier: updated });
-  } catch {
+  } catch (e) {
+    console.error('Supplier PUT error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -99,7 +100,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.supplier.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Supplier DELETE error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

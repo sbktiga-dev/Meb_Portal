@@ -49,7 +49,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
 
     return NextResponse.json({ product: { ...product, avgRating: agg._avg.score || 0 } });
-  } catch {
+  } catch (e) {
+    console.error('Product GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

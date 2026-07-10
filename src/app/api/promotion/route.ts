@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ promotions });
   } catch (error) {
+    console.error('Promotion GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ promotion }, { status: 201 });
   } catch (error) {
+    console.error('Promotion POST error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

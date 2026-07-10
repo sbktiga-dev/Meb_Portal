@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Пароль успешно изменён' });
   } catch (error) {
-    console.error('Reset password error:', error);
+    console.error('Reset password error:', error instanceof Error ? error.message : 'Unknown');
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

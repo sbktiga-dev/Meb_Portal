@@ -96,8 +96,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const commentId = searchParams.get('commentId');
+    const body = await request.json();
+    const { commentId } = body;
     if (!commentId) {
       return NextResponse.json({ error: 'commentId обязателен' }, { status: 400 });
     }

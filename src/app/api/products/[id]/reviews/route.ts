@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { sendPushToUsers } from '@/lib/push';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -66,8 +67,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
       },
     });
 
+    if (product.userId !== user.id) {
+      sendPushToUsers(
+        [product.userId],
+        { title: 'Новый отзыв', body: `${user.name || 'Пользователь'} оставил отзыв на ваш товар`, url: `/products/${params.id}` }
+      ).catch(() => {});
+    }
+
     return NextResponse.json({ review }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Product review POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

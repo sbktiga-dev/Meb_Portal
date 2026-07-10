@@ -15,14 +15,6 @@ export function pluralizeComments(count: number): string {
   return pluralize(count, 'комментарий', 'комментария', 'комментариев');
 }
 
-export function pluralizeViews(count: number): string {
-  return pluralize(count, 'просмотр', 'просмотра', 'просмотров');
-}
-
-export function pluralizePosts(count: number): string {
-  return pluralize(count, 'пост', 'поста', 'постов');
-}
-
 export function pluralizeNew(count: number): string {
   return pluralize(count, 'новое', 'новых', 'новых');
 }

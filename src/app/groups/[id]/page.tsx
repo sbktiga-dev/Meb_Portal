@@ -127,10 +127,10 @@ export default function GroupDetailPage() {
   const gradientIdx = (group.owner.name?.charCodeAt(0) || 0) % avatarGradients.length;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
       <PageSEO title={group.name || 'Группа'} description={group.description?.slice(0, 160) || `Группа на МебПортал: ${group.name}`} />
       <div className="section-container py-10">
-        <Link href="/groups" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
+        <Link href="/groups" className="text-sm text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           Все группы
         </Link>
@@ -143,13 +143,13 @@ export default function GroupDetailPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold text-gray-900">{group.name}</h1>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${group.type === 'public' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{group.name}</h1>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${group.type === 'public' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
                     {group.type === 'public' ? 'Публичная' : 'Приватная'}
                   </span>
                 </div>
-                {group.description && <p className="text-gray-500 mt-2">{group.description}</p>}
-                <div className="flex items-center gap-4 mt-3 text-sm text-gray-400">
+                {group.description && <p className="text-gray-500 dark:text-gray-400 mt-2">{group.description}</p>}
+                <div className="flex items-center gap-4 mt-3 text-sm text-gray-400 dark:text-gray-500">
                   <span>{group._count.members} участников</span>
                   <span>{group._count.posts} постов</span>
                   <span>Создана {new Date(group.createdAt).toLocaleDateString('ru-RU')}</span>
@@ -158,7 +158,7 @@ export default function GroupDetailPage() {
               <button
                 onClick={handleJoin}
                 disabled={joining}
-                className={isMember ? 'btn-ghost border border-gray-200' : 'btn-primary'}
+                className={isMember ? 'btn-ghost border border-gray-200 dark:border-gray-700' : 'btn-primary'}
               >
                 {joining ? '...' : isMember ? 'Покинуть' : 'Вступить'}
               </button>
@@ -195,7 +195,7 @@ export default function GroupDetailPage() {
 
         <div className="max-w-2xl mx-auto space-y-6">
           {posts.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <p>Пока нет постов в группе</p>
             </div>
           ) : (
@@ -206,7 +206,7 @@ export default function GroupDetailPage() {
                 <div key={post.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
                     {post.author.avatar ? (
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-sm">
                           <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
                         </div>
                     ) : (
@@ -215,11 +215,11 @@ export default function GroupDetailPage() {
                       </div>
                     )}
                     <div>
-                      <span className="font-semibold text-gray-900 text-sm">{post.author.name || 'Аноним'}</span>
-                      <span className="text-xs text-gray-400 ml-2">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{post.author.name || 'Аноним'}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
-                  <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{post.content}</p>
                   {postImages.length > 0 && (
                     <div className="grid grid-cols-2 gap-1 mt-3 rounded-xl overflow-hidden">
                       {postImages.slice(0, 4).map((img, idx) => (

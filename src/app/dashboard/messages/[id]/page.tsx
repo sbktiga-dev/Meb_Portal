@@ -111,12 +111,12 @@ export default function ChatPage() {
   if (loading) return <Loading text="Загрузка чата..." />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
         <div className="section-container py-3 flex items-center gap-3">
-          <button onClick={() => router.push('/dashboard/messages')} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
+          <button onClick={() => router.push('/dashboard/messages')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           </button>
           {otherUser?.avatar ? (
             <div className="relative w-9 h-9 rounded-full overflow-hidden">
@@ -128,8 +128,8 @@ export default function ChatPage() {
             </div>
           )}
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">{otherUser?.name || 'Чат'}</h2>
-            <p className="text-xs text-gray-400">онлайн</p>
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{otherUser?.name || 'Чат'}</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500">онлайн</p>
           </div>
         </div>
       </div>
@@ -153,17 +153,17 @@ export default function ChatPage() {
                           {msg.author.name?.charAt(0) || '?'}
                         </div>
                       )}
-                      <span className="text-xs text-gray-400">{msg.author.name}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{msg.author.name}</span>
                     </div>
                   )}
                   <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                     isMine
                       ? 'bg-brand-500 text-white rounded-br-md'
-                      : 'bg-white text-gray-900 border border-gray-100 shadow-sm rounded-bl-md'
+                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700 shadow-sm rounded-bl-md'
                   }`}>
                     {msg.content}
                   </div>
-                  <div className={`text-[10px] text-gray-400 mt-1 ${isMine ? 'text-right' : ''}`}>
+                  <div className={`text-[10px] text-gray-400 dark:text-gray-500 mt-1 ${isMine ? 'text-right' : ''}`}>
                     {getTimeAgo(msg.createdAt)}
                   </div>
                 </div>
@@ -175,7 +175,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-100 sticky bottom-0">
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 sticky bottom-0">
         <form onSubmit={handleSend} className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <input
             ref={inputRef}
@@ -183,7 +183,7 @@ export default function ChatPage() {
             placeholder="Написать сообщение..."
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400 focus:bg-white transition-all"
+            className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400 focus:bg-white dark:focus:bg-gray-600 transition-all text-gray-900 dark:text-gray-100"
             autoFocus
           />
           <button

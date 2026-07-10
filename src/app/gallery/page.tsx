@@ -115,7 +115,7 @@ export default function GalleryPage() {
   const activeFilters = (selectedStyle !== 'Все' ? 1 : 0) + (selectedCategory !== 'Все' ? 1 : 0) + (dateFrom || dateTo ? 1 : 0);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <PageSEO title="Каталог изображений" description="Каталог изображений мебельных интерьеров и проектов на МебПортал. Вдохновляйтесь идеями дизайна мебели и интерьеров." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
@@ -124,10 +124,10 @@ export default function GalleryPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-card p-5 md:p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
               <input
@@ -148,16 +148,16 @@ export default function GalleryPage() {
                 <option value="popular">По популярности</option>
                 <option value="title">По названию</option>
               </select>
-              <div className="flex border border-gray-200 rounded-xl overflow-hidden">
+              <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`px-3.5 py-2.5 transition-colors ${viewMode === 'grid' ? 'bg-brand-50 text-brand-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                  className={`px-3.5 py-2.5 transition-colors ${viewMode === 'grid' ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-3.5 py-2.5 transition-colors ${viewMode === 'list' ? 'bg-brand-50 text-brand-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                  className={`px-3.5 py-2.5 transition-colors ${viewMode === 'list' ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </button>
@@ -167,28 +167,28 @@ export default function GalleryPage() {
 
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Период:</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Период:</span>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={e => { setDateFrom(e.target.value); setPage(1); }}
-                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-gray-900 dark:text-gray-100"
               />
-              <span className="text-gray-400">—</span>
+              <span className="text-gray-400 dark:text-gray-500">—</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={e => { setDateTo(e.target.value); setPage(1); }}
-                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                className="px-3 py-1.5 rounded-lg text-xs bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-gray-900 dark:text-gray-100"
               />
               {(dateFrom || dateTo) && (
-                <button onClick={() => { setDateFrom(''); setDateTo(''); setPage(1); }} className="text-xs text-red-500 hover:text-red-600 ml-1">Сбросить</button>
+                <button onClick={() => { setDateFrom(''); setDateTo(''); setPage(1); }} className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 ml-1">Сбросить</button>
               )}
             </div>
           </div>
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Стиль:</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Стиль:</span>
               <div className="flex gap-1.5">
                 {styles.map(s => (
                   <button
@@ -201,9 +201,9 @@ export default function GalleryPage() {
                 ))}
               </div>
             </div>
-            <div className="w-px bg-gray-200 hidden md:block" />
+            <div className="w-px bg-gray-200 dark:bg-gray-700 hidden md:block" />
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Тип:</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Тип:</span>
               <div className="flex gap-1.5">
                 {categories.map(c => (
                   <button
@@ -219,7 +219,7 @@ export default function GalleryPage() {
             {activeFilters > 0 && (
               <button
                 onClick={() => { setSelectedStyle('Все'); setSelectedCategory('Все'); setDateFrom(''); setDateTo(''); setPage(1); }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 Сбросить
@@ -240,11 +240,11 @@ export default function GalleryPage() {
           <SkeletonGrid count={8} />
         ) : images.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Ничего не найдено</h3>
-            <p className="text-gray-500">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ничего не найдено</h3>
+            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
@@ -267,11 +267,11 @@ export default function GalleryPage() {
                       {img.style && <span className="badge-brand text-[10px]">{img.style}</span>}
                       {img.category && <span className="badge-neutral text-[10px]">{img.category}</span>}
                       {tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="badge bg-blue-50 text-blue-600 text-[10px]">#{tag}</span>
+                        <span key={tag} className="badge bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px]">#{tag}</span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                    <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                         {img.downloads}
                       </span>
@@ -302,7 +302,7 @@ export default function GalleryPage() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-xs text-gray-400 font-medium flex items-center gap-1 justify-end">
+                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1 justify-end">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                       {img.downloads}
                     </span>

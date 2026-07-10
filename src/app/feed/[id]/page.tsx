@@ -143,7 +143,7 @@ export default function PostDetailPage() {
   };
 
   if (loading) return <SkeletonPage />;
-  if (!post) return <div className="text-center py-20 text-gray-500">Пост не найден</div>;
+  if (!post) return <div className="text-center py-20 text-gray-500 dark:text-gray-400">Пост не найден</div>;
 
   const tags: string[] = (() => { try { return JSON.parse(post.tags); } catch { return []; } })();
   const postImages: string[] = (() => { try { return JSON.parse(post.images); } catch { return []; } })();
@@ -151,7 +151,7 @@ export default function PostDetailPage() {
   const gradientIdx = (post.author.name?.charCodeAt(0) || 0) % avatarGradients.length;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
       <PageSEO title={post.title || 'Публикация'} description={post.content?.slice(0, 160) || 'Публикация на МебПортал'} />
       <div className="section-container py-10 max-w-3xl">
         <button onClick={() => { if (window.history.length > 1) router.back(); else router.push('/feed'); }} className="btn-ghost mb-6 -ml-4 animate-fade-in">
@@ -161,7 +161,7 @@ export default function PostDetailPage() {
 
         <article className="card-base overflow-hidden animate-fade-in-up stagger-1">
           {postImages.length > 0 && (
-            <div className="relative bg-gray-100">
+            <div className="relative bg-gray-100 dark:bg-gray-700">
               {postImages.length === 1 ? (
                 <div className="h-72 md:h-96 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 relative overflow-hidden">
                   <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
@@ -182,7 +182,7 @@ export default function PostDetailPage() {
                 </div>
               )}
               <div className="absolute top-4 left-4">
-                <span className={`text-sm font-semibold px-3 py-1.5 rounded-lg border backdrop-blur-sm bg-white/90 ${cat.color}`}>{cat.label}</span>
+                <span className={`text-sm font-semibold px-3 py-1.5 rounded-lg border backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 ${cat.color}`}>{cat.label}</span>
               </div>
             </div>
           )}
@@ -191,7 +191,7 @@ export default function PostDetailPage() {
             <div className="flex items-center gap-4 mb-6">
               <div className="relative flex-shrink-0">
                 {post.author.avatar ? (
-                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
+                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-md">
                     <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="56px" unoptimized />
                   </div>
                 ) : (
@@ -203,9 +203,9 @@ export default function PostDetailPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-900 text-lg">{getDisplayName(post.author.name, post.author.role)}</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 text-lg">{getDisplayName(post.author.name, post.author.role)}</span>
               </div>
-                <div className="text-sm text-gray-400">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                <div className="text-sm text-gray-400 dark:text-gray-500">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
               </div>
               {!postImages.length && (
                 <span className={`text-sm font-semibold px-3 py-1.5 rounded-lg border ${cat.color} ${cat.bg}`}>{cat.label}</span>
@@ -219,32 +219,32 @@ export default function PostDetailPage() {
               )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-tight">{post.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-5 leading-tight">{post.title}</h1>
 
             <div className="prose prose-gray max-w-none mb-6">
-              <p className="text-gray-600 leading-relaxed whitespace-pre-wrap text-base">{post.content}</p>
+              <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap text-base">{post.content}</p>
             </div>
 
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {tags.map(tag => <span key={tag} className="text-sm text-brand-600 bg-brand-50 px-3 py-1 rounded-full font-medium">#{tag}</span>)}
+                {tags.map(tag => <span key={tag} className="text-sm text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-3 py-1 rounded-full font-medium">#{tag}</span>)}
               </div>
             )}
 
-            <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-5 border-y border-gray-100">
-              <button onClick={handleLike} className={`flex items-center gap-2 text-sm font-semibold transition-all ${liked ? 'text-red-500 scale-110' : 'text-gray-400 hover:text-red-500 hover:scale-105'}`}>
+            <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-5 border-y border-gray-100 dark:border-gray-700">
+              <button onClick={handleLike} className={`flex items-center gap-2 text-sm font-semibold transition-all ${liked ? 'text-red-500 dark:text-red-400 scale-110' : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:scale-105'}`}>
                 <svg className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
                 {post.likes}
               </button>
-              <span className="flex items-center gap-2 text-sm text-gray-400">
+              <span className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 {post._count.comments}
               </span>
-              <span className="flex items-center gap-2 text-sm text-gray-400">
+              <span className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 {post.views}
               </span>
-              <button onClick={handleShare} className="ml-auto flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-brand-500 transition-colors">
+              <button onClick={handleShare} className="ml-auto flex items-center gap-2 text-sm font-medium text-gray-400 dark:text-gray-500 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
                 {copied ? (
                   <><svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>Скопировано!</>
                 ) : (
@@ -256,7 +256,7 @@ export default function PostDetailPage() {
         </article>
 
         <div className="mt-8 animate-fade-in-up stagger-2">
-          <h2 className="text-xl font-bold text-gray-900 mb-5">Комментарии ({post._count.comments})</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-5">Комментарии ({post._count.comments})</h2>
 
           <div className="card-base p-6 mb-6">
             <textarea value={commentText} onChange={e => setCommentText(e.target.value)}
@@ -264,7 +264,7 @@ export default function PostDetailPage() {
               maxLength={2000}
               className="input-premium resize-none" rows={3} />
             <div className="flex items-center justify-between mt-3">
-              <span className="text-xs text-gray-400">{commentText.length}/2000</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">{commentText.length}/2000</span>
               <button onClick={handleComment} disabled={submitting || !commentText.trim()} className="btn-primary !px-6 !py-2.5 text-sm">
                 {submitting ? 'Отправка...' : 'Отправить'}
               </button>
@@ -281,11 +281,11 @@ export default function PostDetailPage() {
                       {getDisplayInitial(comment.author.name)}
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-900 text-sm">{getDisplayName(comment.author.name)}</span>
-                      <div className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{getDisplayName(comment.author.name)}</span>
+                      <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(comment.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed pl-0 sm:pl-12">{comment.content}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed pl-0 sm:pl-12">{comment.content}</p>
                 </div>
               );
             })}

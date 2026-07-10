@@ -137,7 +137,7 @@ export default function GroupDetailPage() {
 
         <div className="card-base overflow-hidden mb-8 animate-fade-in">
           <div className="h-48 bg-gradient-to-br from-brand-100 via-orange-50 to-amber-50 relative">
-            {group.coverImage && <Image src={group.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
+            {group.coverImage && <Image src={group.coverImage} alt="Обложка группы" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
           </div>
           <div className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -160,7 +160,7 @@ export default function GroupDetailPage() {
                 disabled={joining}
                 className={isMember ? 'btn-ghost border border-gray-200 dark:border-gray-700' : 'btn-primary'}
               >
-                {joining ? '...' : isMember ? 'Покинуть' : 'Вступить'}
+                {joining ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : isMember ? 'Покинуть' : 'Вступить'}
               </button>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function GroupDetailPage() {
                     disabled={posting || !newPost.trim()}
                     className="btn-primary"
                   >
-                    {posting ? 'Отправка...' : 'Опубликовать'}
+                    {posting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Опубликовать'}
                   </button>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function GroupDetailPage() {
                   <div className="flex items-center gap-3 mb-3">
                     {post.author.avatar ? (
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-sm">
-                          <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                          <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} fill className="object-cover" sizes="40px" unoptimized />
                         </div>
                     ) : (
                       <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
@@ -224,7 +224,7 @@ export default function GroupDetailPage() {
                     <div className="grid grid-cols-2 gap-1 mt-3 rounded-xl overflow-hidden">
                       {postImages.slice(0, 4).map((img, idx) => (
                           <div key={idx} className="relative" style={{ paddingBottom: '100%' }}>
-                            <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 640px) 50vw, 300px" unoptimized />
+                            <Image src={img} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 640px) 50vw, 300px" unoptimized />
                         </div>
                       ))}
                     </div>

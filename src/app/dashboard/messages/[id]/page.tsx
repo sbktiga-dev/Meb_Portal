@@ -130,7 +130,7 @@ export default function ChatPage() {
           </button>
           {otherUser?.avatar ? (
             <div className="relative w-9 h-9 rounded-full overflow-hidden">
-              <Image src={otherUser.avatar} alt="" fill className="object-cover" sizes="36px" unoptimized />
+              <Image src={otherUser.avatar} alt={otherUser.name || 'Аватар'} fill className="object-cover" sizes="36px" unoptimized />
             </div>
           ) : (
             <div className="w-9 h-9 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
@@ -163,7 +163,7 @@ export default function ChatPage() {
                     <div className="flex items-center gap-2 mb-1">
                       {msg.author.avatar ? (
                         <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                          <Image src={msg.author.avatar} alt="" fill className="object-cover" sizes="24px" unoptimized />
+                          <Image src={msg.author.avatar} alt={msg.author.name || 'Аватар'} fill className="object-cover" sizes="24px" unoptimized />
                         </div>
                       ) : (
                         <div className="w-6 h-6 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
@@ -206,6 +206,7 @@ export default function ChatPage() {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
+            aria-label="Отправить сообщение"
             className="w-10 h-10 bg-brand-500 text-white rounded-xl flex items-center justify-center hover:bg-brand-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {sending ? (

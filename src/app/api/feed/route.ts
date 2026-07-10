@@ -97,7 +97,7 @@ export async function GET(request: Request) {
           });
           likedPostIds = likes.map(l => l.postId);
         }
-      } catch {}
+      } catch (error) { console.error('Failed to fetch liked posts:', error); }
     }
 
     const res = NextResponse.json({

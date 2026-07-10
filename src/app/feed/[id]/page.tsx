@@ -56,6 +56,7 @@ export default function PostDetailPage() {
   const [liked, setLiked] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [liking, setLiking] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -103,6 +104,8 @@ export default function PostDetailPage() {
   const handleLike = async () => {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
+    if (liking) return;
+    setLiking(true);
     try {
       const res = await fetch(`/api/posts/${params.id}/like`, {
         method: 'POST',
@@ -114,6 +117,7 @@ export default function PostDetailPage() {
         setPost(prev => prev ? { ...prev, likes: data.likes ?? (prev.likes + (data.liked ? 1 : -1)) } : prev);
       }
     } catch {}
+    finally { setLiking(false); }
   };
 
   const handleComment = async () => {
@@ -164,14 +168,14 @@ export default function PostDetailPage() {
             <div className="relative bg-gray-100 dark:bg-gray-700">
               {postImages.length === 1 ? (
                 <div className="h-72 md:h-96 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 relative overflow-hidden">
-                  <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
+                  <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-0.5">
                   {postImages.slice(0, 4).map((img, idx) => (
                     <div key={idx} className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-40 md:h-52 relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => setSelectedImage(idx)}>
-                      <Image src={img} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" unoptimized />
+                      <Image src={img} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" unoptimized />
                     </div>
                   ))}
                 </div>
@@ -192,7 +196,7 @@ export default function PostDetailPage() {
               <div className="relative flex-shrink-0">
                 {post.author.avatar ? (
                   <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-md">
-                    <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="56px" unoptimized />
+                    <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} fill className="object-cover" sizes="56px" unoptimized />
                   </div>
                 ) : (
                   <div className={`w-14 h-14 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md`}>
@@ -232,8 +236,8 @@ export default function PostDetailPage() {
             )}
 
             <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-5 border-y border-gray-100 dark:border-gray-700">
-              <button onClick={handleLike} className={`flex items-center gap-2 text-sm font-semibold transition-all ${liked ? 'text-red-500 dark:text-red-400 scale-110' : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:scale-105'}`}>
-                <svg className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              <button onClick={handleLike} disabled={liking} className={`flex items-center gap-2 text-sm font-semibold transition-all ${liked ? 'text-red-500 dark:text-red-400 scale-110' : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:scale-105'}`}>
+                {liking ? <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <svg className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>}
                 {post.likes}
               </button>
               <span className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
@@ -266,7 +270,7 @@ export default function PostDetailPage() {
             <div className="flex items-center justify-between mt-3">
               <span className="text-xs text-gray-400 dark:text-gray-500">{commentText.length}/2000</span>
               <button onClick={handleComment} disabled={submitting || !commentText.trim()} className="btn-primary !px-6 !py-2.5 text-sm">
-                {submitting ? 'Отправка...' : 'Отправить'}
+                {submitting ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Отправить'}
               </button>
             </div>
           </div>

@@ -107,7 +107,7 @@ export default function AdminUsersPage() {
     <div className="min-h-screen py-10">
       <PageSEO title="Админ: Пользователи" description="Управление пользователями портала" />
       <div className="section-container max-w-6xl">
-        <Link href="/admin" className="text-sm text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors mb-4 inline-flex items-center gap-1">
+        <Link href="/admin" aria-label="Назад к админке" className="text-sm text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors mb-4 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           Назад
         </Link>
@@ -155,7 +155,7 @@ export default function AdminUsersPage() {
                         <div className="flex items-center gap-3">
                           {u.avatar ? (
                             <div className="w-8 h-8 rounded-full overflow-hidden relative shrink-0">
-                              <Image src={u.avatar} alt="" fill unoptimized sizes="32px" className="object-cover" />
+                              <Image src={u.avatar} alt={u.name || 'Пользователь'} fill unoptimized sizes="32px" className="object-cover" />
                             </div>
                           ) : (
                             <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">

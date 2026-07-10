@@ -110,7 +110,7 @@ export default function AdminFeedbackPage() {
                     </div>
                     <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{f.message}</p>
                   </div>
-                  <button onClick={() => handleDelete(f.id)} className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors shrink-0">
+                  <button onClick={() => handleDelete(f.id)} aria-label="Удалить отзыв" className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors shrink-0">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
                 </div>

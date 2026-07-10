@@ -179,7 +179,7 @@ export default function GroupsPage() {
               >
                 <div className="h-32 bg-gradient-to-br from-brand-100 via-orange-50 to-amber-50 relative">
                   {group.coverImage && (
-                    <Image src={group.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" unoptimized />
+                    <Image src={group.coverImage} alt="Обложка группы" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" unoptimized />
                   )}
                   <div className="absolute top-3 right-3">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${group.type === 'public' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>

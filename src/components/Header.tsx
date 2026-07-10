@@ -164,6 +164,7 @@ export default function Header() {
             <SearchModal />
             <button
               onClick={toggle}
+              aria-label={theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
               className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-amber-500 hover:bg-amber-50 transition-colors"
               title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
             >

@@ -78,7 +78,7 @@ export default function SpecialistDetailPage() {
             <div className="relative flex items-center gap-4 sm:gap-6">
               {specialist.user.avatar ? (
                 <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/30 shadow-glass animate-scale-in flex-shrink-0">
-                  <Image src={specialist.user.avatar} alt="" fill className="object-cover" sizes="96px" unoptimized />
+                  <Image src={specialist.user.avatar} alt={specialist.user.name || 'Аватар специалиста'} fill className="object-cover" sizes="96px" unoptimized />
                 </div>
               ) : (
                 <div className="w-16 h-16 sm:w-24 sm:h-24 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl sm:text-4xl font-bold border border-white/20 shadow-glass animate-scale-in flex-shrink-0">

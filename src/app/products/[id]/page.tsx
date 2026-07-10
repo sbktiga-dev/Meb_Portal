@@ -120,7 +120,7 @@ export default function ProductDetailPage() {
                     style={{ borderColor: selectedImage === i ? 'var(--color-brand-500, #6366f1)' : 'transparent' }}
                   >
                     <div className="relative w-full h-full">
-                      <Image src={img} alt="" fill className="object-cover" sizes="64px" unoptimized />
+                      <Image src={img} alt="Изображение товара" fill className="object-cover" sizes="64px" unoptimized />
                     </div>
                   </button>
                 ))}
@@ -173,7 +173,7 @@ export default function ProductDetailPage() {
                   <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors">
                     {product.company.logo ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden">
-                        <Image src={product.company.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
+                        <Image src={product.company.logo} alt="Логотип" fill className="object-cover" sizes="48px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.company.name.charAt(0)}</div>
@@ -188,7 +188,7 @@ export default function ProductDetailPage() {
                   <Link href={`/suppliers/${product.supplier.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors mt-2">
                     {product.supplier.logo ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden">
-                        <Image src={product.supplier.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
+                        <Image src={product.supplier.logo} alt="Логотип" fill className="object-cover" sizes="48px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.supplier.companyName.charAt(0)}</div>
@@ -220,7 +220,7 @@ export default function ProductDetailPage() {
               placeholder="Расскажите о товаре..."
             />
             <button onClick={handleReview} disabled={submitting} className="btn-primary">
-              {submitting ? 'Отправка...' : 'Отправить отзыв'}
+              {submitting ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Отправить отзыв'}
             </button>
           </div>
 
@@ -233,7 +233,7 @@ export default function ProductDetailPage() {
                   <div className="flex items-center gap-3 mb-3">
                     {review.user.avatar ? (
                       <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                        <Image src={review.user.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                        <Image src={review.user.avatar} alt={review.user.name || 'Аватар'} fill className="object-cover" sizes="40px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">{review.user.name?.charAt(0) || '?'}</div>

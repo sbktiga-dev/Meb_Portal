@@ -137,21 +137,22 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center" onClick={onClose}>
-      <button onClick={onClose} className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+      <button onClick={onClose} aria-label="Закрыть" className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
 
       {images.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); goPrev(); }} className="absolute left-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); goPrev(); }} aria-label="Предыдущее изображение" className="absolute left-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           </button>
-          <button onClick={(e) => { e.stopPropagation(); goNext(); }} className="absolute right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); goNext(); }} aria-label="Следующее изображение" className="absolute right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
           </button>
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {images.map((_, i) => (
               <button key={i} onClick={(e) => { e.stopPropagation(); resetTransform(); setCurrent(i); }}
+                aria-label={i === current ? 'Текущее изображение' : `Изображение ${i + 1}`}
                 className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-white scale-125' : 'bg-white/40'}`} />
             ))}
           </div>
@@ -162,7 +163,7 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
         <span>{current + 1} / {images.length}</span>
         <span className="text-white/40">•</span>
         <span>{Math.round(scale * 100)}%</span>
-        <button onClick={(e) => { e.stopPropagation(); resetTransform(); }} className="text-white/60 hover:text-white transition-colors">
+        <button onClick={(e) => { e.stopPropagation(); resetTransform(); }} aria-label="Сбросить масштаб" className="text-white/60 hover:text-white transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
         </button>
       </div>

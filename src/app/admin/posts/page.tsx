@@ -115,7 +115,7 @@ export default function AdminPostsPage() {
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Link href="/admin" className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <Link href="/admin" aria-label="Назад к админке" className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
               </Link>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Модерация постов</h1>
@@ -166,7 +166,7 @@ export default function AdminPostsPage() {
                   <div className="flex flex-col sm:flex-row">
                     {postImages.length > 0 && (
                       <div className="relative sm:w-48 h-32 sm:h-auto flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                        <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 640px) 100vw, 192px" unoptimized />
+                        <Image src={postImages[0]} alt={post.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, 192px" unoptimized />
                       </div>
                     )}
                     <div className="flex-1 p-5">
@@ -184,7 +184,7 @@ export default function AdminPostsPage() {
                             <span className="flex items-center gap-1">
                               {post.author.avatar ? (
                                 <div className="relative w-5 h-5 rounded-full overflow-hidden">
-                                  <Image src={post.author.avatar} alt="" fill className="object-cover" sizes="20px" unoptimized />
+                                  <Image src={post.author.avatar} alt={post.author.name || 'Автор'} fill className="object-cover" sizes="20px" unoptimized />
                                 </div>
                               ) : (
                                 <div className="w-5 h-5 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">

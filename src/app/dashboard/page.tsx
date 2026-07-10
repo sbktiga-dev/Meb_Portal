@@ -139,7 +139,7 @@ export default function DashboardPage() {
           <div className="relative flex items-center gap-5">
             {user?.avatar ? (
                 <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/30 shadow-lg flex-shrink-0">
-                  <Image src={user.avatar} alt="" fill className="object-cover" sizes="64px" unoptimized />
+                  <Image src={user.avatar} alt={user.name || 'Аватар'} fill className="object-cover" sizes="64px" unoptimized />
                 </div>
             ) : (
               <div className="w-16 h-16 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl font-bold border border-white/20 shadow-glass flex-shrink-0">
@@ -263,7 +263,7 @@ export default function DashboardPage() {
                 <div key={n.id} className={`flex items-start gap-3 p-3.5 rounded-xl transition-colors ${n.read ? 'bg-white' : 'bg-brand-50/50'}`}>
                   {n.fromUser?.avatar ? (
                     <div className="relative w-9 h-9 rounded-full flex-shrink-0">
-                      <Image src={n.fromUser.avatar} alt="" fill className="object-cover" sizes="36px" unoptimized />
+                      <Image src={n.fromUser.avatar} alt={n.fromUser.name || 'Аватар'} fill className="object-cover" sizes="36px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0">

@@ -68,6 +68,7 @@ export default function FavoriteButton({ itemType, itemId, compact = false }: Fa
             : 'text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:text-gray-500 dark:hover:bg-amber-500/10'
         } disabled:opacity-50`}
         title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+        aria-label={isFavorited ? 'Убрать из избранного' : 'В избранное'}
       >
         <svg className="w-5 h-5" fill={isFavorited ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

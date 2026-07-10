@@ -349,7 +349,7 @@ export default function FeedPage() {
                     <div className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (
                         <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
-                          <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
+                          <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} width={44} height={44} className="w-full h-full object-cover" unoptimized />
                         </div>
                       ) : (
                         <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
@@ -442,7 +442,7 @@ export default function FeedPage() {
                     <div className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (
                         <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
-                          <Image src={post.author.avatar} alt="" width={44} height={44} className="w-full h-full object-cover" unoptimized />
+                          <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} width={44} height={44} className="w-full h-full object-cover" unoptimized />
                         </div>
                       ) : (
                         <div className={`w-11 h-11 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
@@ -638,5 +638,5 @@ function MediaItem({ src, className }: { src: string; className?: string }) {
       />
     );
   }
-  return <Image src={src} alt="" fill className={`object-cover ${className || ''}`} sizes="(max-width: 768px) 100vw, 640px" unoptimized />;
+  return <Image src={src} alt="Изображение поста" fill className={`object-cover ${className || ''}`} sizes="(max-width: 768px) 100vw, 640px" unoptimized />;
 }

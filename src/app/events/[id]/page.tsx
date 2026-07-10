@@ -102,7 +102,7 @@ export default function EventDetailPage() {
 
         <div className="card-base overflow-hidden mb-8 animate-fade-in">
           <div className="h-64 bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 relative">
-            {event.coverImage && <Image src={event.coverImage} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
+            {event.coverImage && <Image src={event.coverImage} alt="Обложка события" fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" unoptimized />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white">
               <div className="flex items-center gap-2 mb-2">
@@ -138,7 +138,7 @@ export default function EventDetailPage() {
                         <div key={p.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl px-3 py-2">
                           {p.user.avatar ? (
                             <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                              <Image src={p.user.avatar} alt="" fill className="object-cover" sizes="32px" unoptimized />
+                              <Image src={p.user.avatar} alt={p.user.name || 'Аватар'} fill className="object-cover" sizes="32px" unoptimized />
                             </div>
                           ) : (
                             <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
@@ -188,7 +188,7 @@ export default function EventDetailPage() {
                         disabled={joining}
                         className={`w-full ${isParticipant ? 'btn-ghost border border-gray-200 dark:border-gray-700' : 'btn-primary'}`}
                       >
-                        {joining ? '...' : isParticipant ? 'Отписаться' : 'Участвовать'}
+                        {joining ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : isParticipant ? 'Отписаться' : 'Участвовать'}
                       </button>
                     )
                   )}
@@ -198,7 +198,7 @@ export default function EventDetailPage() {
                   <div className="flex items-center gap-3">
                     {event.organizer.avatar ? (
                       <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                        <Image src={event.organizer.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                        <Image src={event.organizer.avatar} alt={event.organizer.name || 'Аватар'} fill className="object-cover" sizes="40px" unoptimized />
                       </div>
                     ) : (
                       <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">

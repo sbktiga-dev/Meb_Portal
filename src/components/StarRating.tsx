@@ -34,6 +34,7 @@ export default function StarRating({ rating, onChange, readonly = false, size = 
           onClick={() => onChange?.(star)}
           onMouseEnter={() => !readonly && setHovered(star)}
           onMouseLeave={() => !readonly && setHovered(0)}
+          aria-label={`${star} из 5 звёзд`}
           className={`${sizeClasses[size]} transition-colors duration-150 ${
             readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'
           }`}

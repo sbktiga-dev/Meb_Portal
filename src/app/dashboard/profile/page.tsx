@@ -291,7 +291,7 @@ export default function DashboardProfilePage() {
                 {cover && (
                   <div className="relative w-32 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                     <Image src={cover} alt="Обложка" fill className="object-cover" sizes="128px" unoptimized />
-                    <button onClick={() => setCover(null)} className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/70">×</button>
+                    <button onClick={() => setCover(null)} aria-label="Удалить обложку" className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/70">×</button>
                   </div>
                 )}
               </div>

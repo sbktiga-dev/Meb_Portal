@@ -266,7 +266,7 @@ export default function ProfilePage() {
       {/* Cover + Avatar */}
       <div className="relative">
         <div className="h-40 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
-          {user.cover && <Image src={user.cover} alt="" fill className="object-cover" sizes="100vw" unoptimized />}
+          {user.cover && <Image src={user.cover} alt="Обложка" fill className="object-cover" sizes="100vw" unoptimized />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
@@ -275,7 +275,7 @@ export default function ProfilePage() {
             <div className="relative flex-shrink-0">
               {user.avatar ? (
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
-                  <Image src={user.avatar} alt="" fill className="object-cover" sizes="128px" unoptimized />
+                  <Image src={user.avatar} alt={user.name || 'Аватар'} fill className="object-cover" sizes="128px" unoptimized />
                 </div>
               ) : (
                 <div className={`w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold border-4 border-white shadow-lg`}>
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                   <Link key={promo.id} href={`/feed/${promo.id}`} className="card-base overflow-hidden hover:shadow-md transition-shadow border-amber-200">
                     {imgs.length > 0 && (
                       <div className="relative h-36">
-                        <Image src={imgs[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                        <Image src={imgs[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
                         <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Акция</div>
                       </div>
                     )}
@@ -485,7 +485,7 @@ export default function ProfilePage() {
                 <Link href={`/companies/${company.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {company.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                      <Image src={company.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                      <Image src={company.logo} alt="Логотип" fill className="object-cover" sizes="40px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">К</div>
@@ -505,7 +505,7 @@ export default function ProfilePage() {
                 <Link href={`/suppliers/${supplier.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {supplier.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                      <Image src={supplier.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                      <Image src={supplier.logo} alt="Логотип" fill className="object-cover" sizes="40px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">П</div>
@@ -525,7 +525,7 @@ export default function ProfilePage() {
                 <Link href={`/manufacturers/${manufacturer.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {manufacturer.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                      <Image src={manufacturer.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                      <Image src={manufacturer.logo} alt="Логотип" fill className="object-cover" sizes="40px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-bold">М</div>
@@ -599,7 +599,7 @@ export default function ProfilePage() {
                               </div>
                             ) : (
                               <div className="relative w-full" style={{ paddingBottom: '50%' }}>
-                                <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                                <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
                               </div>
                             )
                           )}

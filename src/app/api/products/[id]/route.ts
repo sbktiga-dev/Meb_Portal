@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         const { getUserFromToken } = await import('@/lib/auth');
         const u = await getUserFromToken(authHeader.split(' ')[1]);
         if (u) userId = u.id;
-      } catch {}
+      } catch (error) { console.error('Auth error:', error); }
     }
 
     const product = await prisma.product.findUnique({

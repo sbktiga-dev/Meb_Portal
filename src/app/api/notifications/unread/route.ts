@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ unread });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ unread: 0 });
   }
 }

@@ -29,7 +29,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
       data: { views: { increment: 1 } },
     });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

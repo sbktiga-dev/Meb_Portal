@@ -68,7 +68,8 @@ export async function GET(request: Request) {
       res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
     }
     return res;
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -126,7 +127,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ event }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

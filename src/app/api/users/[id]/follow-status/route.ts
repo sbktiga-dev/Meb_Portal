@@ -30,7 +30,8 @@ export async function GET(
     });
 
     return NextResponse.json({ isFollowing: !!follow });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ isFollowing: false });
   }
 }

@@ -23,7 +23,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, count: result.count });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

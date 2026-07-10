@@ -57,7 +57,8 @@ export async function GET(request: Request) {
       favorites: enriched,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -108,7 +109,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ favorited: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

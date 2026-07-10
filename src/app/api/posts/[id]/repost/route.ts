@@ -87,7 +87,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.repost.delete({ where: { id: repost.id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

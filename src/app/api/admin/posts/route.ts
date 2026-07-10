@@ -49,7 +49,8 @@ export async function GET(request: Request) {
       posts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -95,7 +96,8 @@ export async function PATCH(request: Request) {
     logActivity({ action: 'post_moderate', userId: payload.userId, details: `Пост ${postId}: ${isPublished ? 'опубликован' : 'скрыт'}` });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -134,7 +136,8 @@ export async function DELETE(request: Request) {
     logActivity({ action: 'post_delete', userId: payload.userId, details: `Пост ${postId} удалён` });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

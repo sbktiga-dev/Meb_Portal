@@ -30,7 +30,8 @@ export async function GET(
     const following = follows.map((f) => f.following);
 
     return NextResponse.json({ following, total, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

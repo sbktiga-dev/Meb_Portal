@@ -26,7 +26,8 @@ export async function POST(
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

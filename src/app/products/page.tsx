@@ -110,8 +110,8 @@ export default function ProductsPage() {
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Каталог товаров</h1>
-            <p className="text-gray-500 mt-1">{total} товаров в каталоге</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Каталог товаров</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{total} товаров в каталоге</p>
           </div>
           {compareIds.length >= 2 && (
             <Link href={`/products/compare?ids=${compareIds.join(',')}`} className="btn-primary">
@@ -121,7 +121,7 @@ export default function ProductsPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 md:p-6 mb-8 animate-fade-in-up stagger-1">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8 animate-fade-in-up stagger-1">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -181,11 +181,11 @@ export default function ProductsPage() {
           <SkeletonGrid count={8} />
         ) : products.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Товаров не найдено</h3>
-            <p className="text-gray-500">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Товаров не найдено</h3>
+            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -195,7 +195,7 @@ export default function ProductsPage() {
               return (
                 <div key={product.id} className={`card-base overflow-hidden hover-lift animate-fade-in-up stagger-${Math.min((i % 6) + 1, 6)} ${isCompared ? 'ring-2 ring-brand-500' : ''}`}>
                   <Link href={`/products/${product.id}`} className="block">
-                    <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-50 overflow-hidden">
+                    <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
                       {productImages.length > 0 ? (
                         <Image src={productImages[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" unoptimized />
                       ) : (
@@ -204,7 +204,7 @@ export default function ProductsPage() {
                         </div>
                       )}
                       {product.brand && (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-gray-700 backdrop-blur-sm">
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 backdrop-blur-sm">
                           {product.brand}
                         </span>
                       )}
@@ -212,23 +212,23 @@ export default function ProductsPage() {
                   </Link>
                   <div className="p-4">
                     <Link href={`/products/${product.id}`}>
-                      <h3 className="font-semibold text-gray-900 hover:text-brand-600 transition-colors line-clamp-2">{product.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 hover:text-brand-600 transition-colors line-clamp-2">{product.name}</h3>
                     </Link>
                     <div className="flex items-center gap-2 mt-2">
                       {product.avgRating > 0 && (
                         <div className="flex items-center gap-1">
                           <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                          <span className="text-sm font-medium text-gray-700">{product.avgRating.toFixed(1)}</span>
-                          <span className="text-xs text-gray-400">({product._count.reviews})</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{product.avgRating.toFixed(1)}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">({product._count.reviews})</span>
                         </div>
                       )}
                       <span className="badge-neutral text-[10px]">{product.category}</span>
                     </div>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                       <span className="font-bold text-brand-600">{formatPrice(product.price)}</span>
                       <button
                         onClick={(e) => { e.preventDefault(); toggleCompare(product.id); }}
-                        className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isCompared ? 'bg-brand-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isCompared ? 'bg-brand-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                       >
                         {isCompared ? 'Убрать' : 'Сравнить'}
                       </button>

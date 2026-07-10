@@ -8,12 +8,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const idsParam = searchParams.get('ids');
     if (!idsParam) {
-      return NextResponse.json({ error: 'ids parameter required' }, { status: 400 });
+      return NextResponse.json({ error: 'Параметр ids обязателен' }, { status: 400 });
     }
 
     const ids = idsParam.split(',').filter(Boolean);
     if (ids.length === 0) {
       return NextResponse.json({ products: [] });
+    }
+
+    if (ids.length > 20) {
+      return NextResponse.json({ error: 'Максимум 20 идентификаторов за запрос' }, { status: 400 });
     }
 
     const products = await prisma.product.findMany({

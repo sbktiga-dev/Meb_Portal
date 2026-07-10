@@ -115,12 +115,12 @@ export default function AdminPostsPage() {
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Link href="/admin" className="text-gray-400 hover:text-gray-600 transition-colors">
+              <Link href="/admin" className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Модерация постов</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Модерация постов</h1>
             </div>
-            <p className="text-gray-500 ml-8">Публикации пользователей</p>
+            <p className="text-gray-500 dark:text-gray-400 ml-8">Публикации пользователей</p>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ export default function AdminPostsPage() {
           ].map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                filter === f.key ? 'bg-brand-500 text-white shadow-card' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                filter === f.key ? 'bg-brand-500 text-white shadow-card' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-700'
               }`}>
               {f.label}
             </button>
@@ -148,13 +148,13 @@ export default function AdminPostsPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Нет постов</h3>
-            <p className="text-gray-500">Пока нет публикаций для модерации</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Нет постов</h3>
+            <p className="text-gray-500 dark:text-gray-400">Пока нет публикаций для модерации</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -165,7 +165,7 @@ export default function AdminPostsPage() {
                 <div key={post.id} className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min(i + 1, 6)} ${!post.isPublished ? 'border-l-4 border-l-amber-400' : ''}`}>
                   <div className="flex flex-col sm:flex-row">
                     {postImages.length > 0 && (
-                      <div className="relative sm:w-48 h-32 sm:h-auto flex-shrink-0 bg-gray-100">
+                      <div className="relative sm:w-48 h-32 sm:h-auto flex-shrink-0 bg-gray-100 dark:bg-gray-700">
                         <Image src={postImages[0]} alt="" fill className="object-cover" sizes="(max-width: 640px) 100vw, 192px" unoptimized />
                       </div>
                     )}
@@ -173,14 +173,14 @@ export default function AdminPostsPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
-                            <Link href={`/feed/${post.id}`} className="font-bold text-gray-900 hover:text-brand-600 transition-colors line-clamp-1">{post.title}</Link>
+                            <Link href={`/feed/${post.id}`} className="font-bold text-gray-900 dark:text-gray-100 hover:text-brand-600 transition-colors line-clamp-1">{post.title}</Link>
                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                             {!post.isPublished && (
                               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">Скрыт</span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-500 line-clamp-2 mb-3">{post.content}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-400">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{post.content}</p>
+                          <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                             <span className="flex items-center gap-1">
                               {post.author.avatar ? (
                                 <div className="relative w-5 h-5 rounded-full overflow-hidden">

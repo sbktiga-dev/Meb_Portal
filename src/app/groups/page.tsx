@@ -84,8 +84,8 @@ export default function GroupsPage() {
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Группы и сообщества</h1>
-            <p className="text-gray-500 mt-1">Общайтесь с единомышленниками</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Группы и сообщества</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Общайтесь с единомышленниками</p>
           </div>
           <button onClick={() => setShowCreate(true)} className="btn-primary">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -93,7 +93,7 @@ export default function GroupsPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 mb-8 animate-fade-in-up stagger-1">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 mb-8 animate-fade-in-up stagger-1">
           <div className="relative">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -110,11 +110,11 @@ export default function GroupsPage() {
 
         {showCreate && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-float w-full max-w-md p-6 animate-scale-in">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Новая группа</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-float w-full max-w-md p-6 animate-scale-in">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Новая группа</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">Название *</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Название *</label>
                   <input
                     type="text"
                     value={newGroup.name}
@@ -124,7 +124,7 @@ export default function GroupsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">Описание</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Описание</label>
                   <textarea
                     value={newGroup.description}
                     onChange={e => setNewGroup(prev => ({ ...prev, description: e.target.value }))}
@@ -133,7 +133,7 @@ export default function GroupsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">Тип</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Тип</label>
                   <select
                     value={newGroup.type}
                     onChange={e => setNewGroup(prev => ({ ...prev, type: e.target.value }))}
@@ -162,11 +162,11 @@ export default function GroupsPage() {
           <SkeletonGrid count={6} />
         ) : groups.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Пока нет групп</h3>
-            <p className="text-gray-500 mb-6">Создайте первую группу!</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Пока нет групп</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Создайте первую группу!</p>
             <button onClick={() => setShowCreate(true)} className="btn-primary">Создать группу</button>
           </div>
         ) : (
@@ -188,9 +188,9 @@ export default function GroupsPage() {
                   </div>
                 </div>
                 <div className="p-5">
-                  <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-brand-600 transition-colors">{group.name}</h3>
-                  {group.description && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{group.description}</p>}
-                  <div className="flex items-center justify-between text-sm text-gray-400">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-1 group-hover:text-brand-600 transition-colors">{group.name}</h3>
+                  {group.description && <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{group.description}</p>}
+                  <div className="flex items-center justify-between text-sm text-gray-400 dark:text-gray-500">
                     <div className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                       {group._count.members} участников

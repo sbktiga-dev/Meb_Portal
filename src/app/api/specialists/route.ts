@@ -48,6 +48,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
+    console.error('Specialists GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

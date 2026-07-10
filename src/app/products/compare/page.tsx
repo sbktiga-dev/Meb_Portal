@@ -48,18 +48,18 @@ function CompareContent() {
 
   return (
     <>
-      <Link href="/products" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
+      <Link href="/products" className="text-sm text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
         Все товары
       </Link>
 
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Сравнение товаров</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Сравнение товаров</h1>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Загрузка...</div>
+        <div className="text-center py-20 text-gray-400 dark:text-gray-500">Загрузка...</div>
       ) : products.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-500 mb-4">Выберите товары для сравнения</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Выберите товары для сравнения</p>
           <Link href="/products" className="btn-primary">Перейти к каталогу</Link>
         </div>
       ) : (
@@ -67,9 +67,9 @@ function CompareContent() {
           <table className="w-full min-w-[600px]">
             <thead>
               <tr>
-                <th className="text-left p-4 bg-white rounded-tl-xl border border-gray-100 w-40">Параметр</th>
+                <th className="text-left p-4 bg-white dark:bg-gray-800 rounded-tl-xl border border-gray-100 dark:border-gray-700 w-40">Параметр</th>
                 {products.map(p => (
-                  <th key={p.id} className="p-4 bg-white border border-gray-100 last:rounded-tr-xl">
+                  <th key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 last:rounded-tr-xl">
                     <Link href={`/products/${p.id}`} className="block hover:text-brand-600 transition-colors">
                       <div className="w-20 h-20 mx-auto mb-3 rounded-xl overflow-hidden bg-gray-50">
                         {(() => { const imgs = JSON.parse(p.images); return imgs.length > 0 ? <div className="relative w-full h-full"><Image src={imgs[0]} alt="" fill className="object-cover" sizes="80px" unoptimized /></div> : <div className="w-full h-full flex items-center justify-center"><svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>; })()}
@@ -82,47 +82,47 @@ function CompareContent() {
             </thead>
             <tbody>
               <tr>
-                <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">Цена</td>
+                <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">Цена</td>
                 {products.map(p => (
-                  <td key={p.id} className="p-4 bg-white border border-gray-100 text-center text-sm font-bold text-brand-600">{formatPrice(p.price)}</td>
+                  <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center text-sm font-bold text-brand-600">{formatPrice(p.price)}</td>
                 ))}
               </tr>
               <tr>
-                <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">Рейтинг</td>
+                <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">Рейтинг</td>
                 {products.map(p => (
-                  <td key={p.id} className="p-4 bg-white border border-gray-100 text-center">
+                  <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <StarRating rating={p.avgRating} readonly size="sm" />
-                      <span className="text-xs text-gray-400">({p._count.reviews})</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">({p._count.reviews})</span>
                     </div>
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">Категория</td>
+                <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">Категория</td>
                 {products.map(p => (
-                  <td key={p.id} className="p-4 bg-white border border-gray-100 text-center text-sm">{p.category}</td>
+                  <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center text-sm">{p.category}</td>
                 ))}
               </tr>
               <tr>
-                <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">Бренд</td>
+                <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">Бренд</td>
                 {products.map(p => (
-                  <td key={p.id} className="p-4 bg-white border border-gray-100 text-center text-sm">{p.brand || '—'}</td>
+                  <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center text-sm">{p.brand || '—'}</td>
                 ))}
               </tr>
               <tr>
-                <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">Поставщик</td>
+                <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">Поставщик</td>
                 {products.map(p => (
-                  <td key={p.id} className="p-4 bg-white border border-gray-100 text-center text-sm">{p.company?.name || p.supplier?.companyName || '—'}</td>
+                  <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center text-sm">{p.company?.name || p.supplier?.companyName || '—'}</td>
                 ))}
               </tr>
               {allSpecs.map(specKey => (
                 <tr key={specKey}>
-                  <td className="p-4 bg-gray-50 border border-gray-100 text-sm font-medium text-gray-500">{specKey}</td>
+                  <td className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">{specKey}</td>
                   {products.map(p => {
                     const specs: { key: string; value: string }[] = (() => { try { return JSON.parse(p.specs); } catch { return []; } })();
                     const spec = specs.find(s => s.key === specKey);
-                    return <td key={p.id} className="p-4 bg-white border border-gray-100 text-center text-sm">{spec?.value || '—'}</td>;
+                    return <td key={p.id} className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center text-sm">{spec?.value || '—'}</td>;
                   })}
                 </tr>
               ))}
@@ -138,7 +138,7 @@ export default function ComparePage() {
   return (
     <div className="min-h-screen">
       <div className="section-container py-10">
-        <Suspense fallback={<div className="text-center py-20 text-gray-400">Загрузка...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-gray-400 dark:text-gray-500">Загрузка...</div>}>
           <CompareContent />
         </Suspense>
       </div>

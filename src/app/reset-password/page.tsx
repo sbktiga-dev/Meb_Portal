@@ -15,14 +15,14 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <div className="bg-white rounded-2xl shadow-card p-8 text-center">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8 text-center">
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
             <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Неверная ссылка</h1>
-        <p className="text-gray-500 mb-6">Ссылка для сброса пароля недействительна</p>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Неверная ссылка</h1>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">Ссылка для сброса пароля недействительна</p>
         <Link href="/forgot-password" className="btn-primary inline-flex">
           Запросить новую ссылку
         </Link>
@@ -62,7 +62,7 @@ function ResetPasswordContent() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-card p-8">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8">
       {success ? (
         <div className="text-center">
           <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -70,8 +70,8 @@ function ResetPasswordContent() {
               <path d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Пароль изменён!</h2>
-          <p className="text-gray-500 text-sm mb-6">Теперь вы можете войти с новым паролем</p>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Пароль изменён!</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">Теперь вы можете войти с новым паролем</p>
           <Link href="/login" className="btn-primary inline-flex">
             Войти в аккаунт
           </Link>
@@ -87,11 +87,11 @@ function ResetPasswordContent() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Новый пароль</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Новый пароль</label>
               <input type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} className="input-premium" placeholder="Минимум 6 символов" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Повторите пароль</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Повторите пароль</label>
               <input type="password" required minLength={6} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="input-premium" placeholder="Ещё раз пароль" />
             </div>
             <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5">
@@ -119,12 +119,12 @@ export default function ResetPasswordPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold text-gray-900">Меб<span className="text-gradient">Портал</span></span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Меб<span className="text-gradient">Портал</span></span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Новый пароль</h1>
-          <p className="text-gray-500 mt-2">Введите новый пароль для аккаунта</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Новый пароль</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Введите новый пароль для аккаунта</p>
         </div>
-        <Suspense fallback={<div className="bg-white rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
+        <Suspense fallback={<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
           <ResetPasswordContent />
         </Suspense>
       </div>

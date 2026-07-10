@@ -71,12 +71,12 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-card p-8 text-center">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8 text-center">
       {status === 'loading' && (
         <>
           <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-6" />
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Подтверждение email...</h1>
-          <p className="text-gray-500">Пожалуйста, подождите</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Подтверждение email...</h1>
+          <p className="text-gray-500 dark:text-gray-400">Пожалуйста, подождите</p>
         </>
       )}
 
@@ -87,8 +87,8 @@ function VerifyEmailContent() {
               <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Проверьте почту</h1>
-          <p className="text-gray-500 mb-6">{message}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Проверьте почту</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{message}</p>
           <div className="flex flex-col gap-3">
             <button
               onClick={handleResend}
@@ -116,8 +116,8 @@ function VerifyEmailContent() {
               <path d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Email подтверждён!</h1>
-          <p className="text-gray-500 mb-6">{message}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Email подтверждён!</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{message}</p>
           <Link href="/login" className="btn-primary inline-flex">
             Войти в аккаунт
           </Link>
@@ -131,8 +131,8 @@ function VerifyEmailContent() {
               <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Ошибка</h1>
-          <p className="text-gray-500 mb-6">{message}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ошибка</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{message}</p>
           <Link href="/" className="btn-primary inline-flex">
             На главную
           </Link>
@@ -157,10 +157,10 @@ export default function VerifyEmailPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold text-gray-900">Меб<span className="text-gradient">Портал</span></span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Меб<span className="text-gradient">Портал</span></span>
           </Link>
         </div>
-        <Suspense fallback={<div className="bg-white rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
+        <Suspense fallback={<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8 text-center"><div className="w-16 h-16 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>}>
           <VerifyEmailContent />
         </Suspense>
       </div>

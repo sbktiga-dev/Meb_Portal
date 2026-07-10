@@ -85,8 +85,8 @@ export default function FavoritesPage() {
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Избранное</h1>
-            <p className="text-gray-500 mt-1">Сохранённые изображения и документы</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Избранное</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Сохранённые изображения и документы</p>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function FavoritesPage() {
           ].map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                filter === f.key ? 'bg-brand-500 text-white shadow-card' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                filter === f.key ? 'bg-brand-500 text-white shadow-card' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
               }`}>
               {f.label}
             </button>
@@ -109,13 +109,13 @@ export default function FavoritesPage() {
           <Loading text="Загрузка избранного..." />
         ) : favorites.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Избранное пусто</h3>
-            <p className="text-gray-500 mb-6">Сохраняйте понравившиеся изображения и документы</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Избранное пусто</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Сохраняйте понравившиеся изображения и документы</p>
             <Link href="/gallery" className="btn-primary">Перейти в каталог</Link>
           </div>
         ) : (
@@ -150,15 +150,15 @@ export default function FavoritesPage() {
                   </div>
                   <div className="p-5">
                     <Link href={getHref(fav)}>
-                      <h3 className="font-bold text-gray-900 line-clamp-1 hover:text-brand-600 transition-colors">{fav.item.title}</h3>
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 hover:text-brand-600 transition-colors">{fav.item.title}</h3>
                     </Link>
-                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-400 dark:text-gray-500">
                       {fav.item.category && <span className="badge-brand text-[10px]">{fav.item.category}</span>}
                       {fav.item.fileType && <span className="uppercase text-xs font-medium">{fav.item.fileType}</span>}
                       {fav.item.downloads !== undefined && <span>· {fav.item.downloads} загрузок</span>}
                     </div>
-                    <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs text-gray-400">Сохранено {new Date(fav.createdAt).toLocaleDateString('ru-RU')}</span>
+                    <div className="pt-3 mt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">Сохранено {new Date(fav.createdAt).toLocaleDateString('ru-RU')}</span>
                       <button onClick={() => handleRemove(fav.id)} disabled={removing === fav.id}
                         className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-40">
                         {removing === fav.id ? 'Удаление...' : 'Убрать'}

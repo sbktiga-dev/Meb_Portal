@@ -129,7 +129,7 @@ export default function DocumentsPage() {
           <p className="page-subtitle">Шаблоны договоров, актов, спецификаций для мебельщиков</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 md:p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -152,16 +152,16 @@ export default function DocumentsPage() {
 
         {docs.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Документов не найдено</h3>
-            <p className="text-gray-500">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Документов не найдено</h3>
+            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
           <div className="space-y-3">
             {docs.map(doc => {
-              const ft = fileTypeConfig[doc.fileType] || { color: 'bg-gray-50 text-gray-500', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> };
+              const ft = fileTypeConfig[doc.fileType] || { color: 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> };
               return (
                 <div key={doc.id} className="card-base p-5 hover-lift group">
                   <div className="flex items-center gap-3 sm:gap-5">
@@ -169,18 +169,18 @@ export default function DocumentsPage() {
                       {ft.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <a href={`/documents/${doc.id}`} className="font-semibold text-gray-900 hover:text-brand-600 transition-colors block truncate">
+                      <a href={`/documents/${doc.id}`} className="font-semibold text-gray-900 dark:text-gray-100 hover:text-brand-600 transition-colors block truncate">
                         {doc.title}
                       </a>
-                      <div className="flex items-center gap-2.5 mt-1.5 text-sm text-gray-500">
+                      <div className="flex items-center gap-2.5 mt-1.5 text-sm text-gray-500 dark:text-gray-400">
                         <span className="badge-neutral text-[10px]">{doc.category}</span>
-                        <span className="uppercase text-xs font-medium text-gray-400">{doc.fileType}</span>
-                        <span className="flex items-center gap-1 text-gray-400">
+                        <span className="uppercase text-xs font-medium text-gray-400 dark:text-gray-500">{doc.fileType}</span>
+                        <span className="flex items-center gap-1 text-gray-400 dark:text-gray-500">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                           {doc.downloads}
                         </span>
                       </div>
-                      {doc.description && <p className="text-sm text-gray-400 mt-1.5 truncate">{doc.description}</p>}
+                      {doc.description && <p className="text-sm text-gray-400 dark:text-gray-500 mt-1.5 truncate">{doc.description}</p>}
                     </div>
                     <button
                       onClick={() => handleDownload(doc)}

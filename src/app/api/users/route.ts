@@ -31,6 +31,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ users });
   } catch (error) {
+    console.error('Users GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

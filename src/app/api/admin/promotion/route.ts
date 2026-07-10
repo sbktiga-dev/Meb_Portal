@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ promotions, banners });
   } catch (error) {
+    console.error('Promotion GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -121,6 +122,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ banner: updated });
     }
   } catch (error) {
+    console.error('Promotion PATCH error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

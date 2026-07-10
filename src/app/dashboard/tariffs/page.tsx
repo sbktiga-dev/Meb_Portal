@@ -119,8 +119,8 @@ export default function TariffsPage() {
       <Sidebar />
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
         <div className="max-w-3xl">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Тарифы</h1>
-          <p className="text-gray-500 mb-4">Выберите план для продвижения вашего контента</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Тарифы</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Выберите план для продвижения вашего контента</p>
 
           {/* Баннер бесплатного периода */}
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-5 mb-8 text-white">
@@ -139,13 +139,13 @@ export default function TariffsPage() {
 
           {/* Текущая подписка */}
           {subscription && (
-            <div className={`rounded-xl p-5 mb-6 border ${isActive ? 'bg-green-50 border-green-200' : isPending ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
+            <div className={`rounded-xl p-5 mb-6 border ${isActive ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : isPending ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <h2 className="font-bold text-gray-900">
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100">
                     {isActive ? 'Подписка активна' : isPending ? 'Заявка ожидает подтверждения' : 'Подписка неактивна'}
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     План: <span className="font-semibold">{PLANS[subscription.plan as keyof typeof PLANS]?.name || subscription.plan}</span>
                     {' · '}
                     {subscription.period === 'monthly' ? 'Ежемесячная' : 'Ежегодная'}
@@ -166,11 +166,11 @@ export default function TariffsPage() {
           {/* Переключатель периода */}
           {!subscription && (
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex bg-gray-100 rounded-lg p-0.5">
-                <button onClick={() => setBillingPeriod('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'monthly' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
+              <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+                <button onClick={() => setBillingPeriod('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'monthly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
                   Ежемесячно
                 </button>
-                <button onClick={() => setBillingPeriod('yearly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'yearly' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
+                <button onClick={() => setBillingPeriod('yearly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'yearly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
                   Ежегодно <span className="text-green-600 text-xs">-17%</span>
                 </button>
               </div>
@@ -186,23 +186,23 @@ export default function TariffsPage() {
                 const isPro = key === 'pro';
                 const isPremium = key === 'premium';
                 return (
-                  <div key={key} className={`rounded-2xl border-2 p-5 ${isPremium ? 'relative border-amber-400 shadow-lg shadow-amber-100' : isPro ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200'}`}>
+                  <div key={key} className={`rounded-2xl border-2 p-5 ${isPremium ? 'relative border-amber-400 shadow-lg shadow-amber-100' : isPro ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200 dark:border-gray-700'}`}>
                     {isPro && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Популярный</div>}
                     {isPremium && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Лучший</div>}
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">{plan.name}</h3>
                     <div className="mb-5">
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-green-600">Бесплатно</span>
                       </div>
                       <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-sm text-gray-400 line-through">{formatPrice(price)}</span>
-                        <span className="text-gray-400 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500 line-through">{formatPrice(price)}</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
                       </div>
                       {billingPeriod === 'yearly' && <p className="text-sm text-gray-400 line-through mt-0.5">{formatPrice(perMonth)}/мес</p>}
                     </div>
                     <ul className="space-y-3 mb-6">
                       {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
+                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
                           <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
                           {f}
                         </li>
@@ -223,12 +223,12 @@ export default function TariffsPage() {
 
           {/* Сравнение */}
           {!subscription && (
-            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-              <h2 className="font-bold text-gray-900 mb-4">Сравнение тарифов</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
+              <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Сравнение тарифов</h2>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-3 text-gray-500 font-medium">Возможность</th>
+                  <tr className="border-b border-gray-100 dark:border-gray-700">
+                    <th className="text-left py-3 text-gray-500 dark:text-gray-400 font-medium">Возможность</th>
                     <th className="text-center py-3 font-medium">Lite</th>
                     <th className="text-center py-3 font-medium text-brand-600">Pro</th>
                     <th className="text-center py-3 font-medium text-amber-600">Premium</th>
@@ -245,23 +245,23 @@ export default function TariffsPage() {
                     { feature: 'Аналитика профиля', lite: false, pro: false, premium: true },
                   ].map((row, i) => (
                     <tr key={i}>
-                      <td className="py-3 text-gray-700">{row.feature}</td>
+                      <td className="py-3 text-gray-700 dark:text-gray-300">{row.feature}</td>
                       <td className="py-3 text-center">
                         {typeof row.lite === 'boolean' ? (
                           row.lite ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300">—</span>
-                        ) : <span className="text-gray-700">{row.lite}</span>}
+                            : <span className="text-gray-300 dark:text-gray-600">—</span>
+                        ) : <span className="text-gray-700 dark:text-gray-300">{row.lite}</span>}
                       </td>
                       <td className="py-3 text-center">
                         {typeof row.pro === 'boolean' ? (
                           row.pro ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300">—</span>
+                            : <span className="text-gray-300 dark:text-gray-600">—</span>
                         ) : <span className="text-brand-600 font-medium">{row.pro}</span>}
                       </td>
                       <td className="py-3 text-center">
                         {typeof row.premium === 'boolean' ? (
                           row.premium ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300">—</span>
+                            : <span className="text-gray-300 dark:text-gray-600">—</span>
                         ) : <span className="text-amber-600 font-medium">{row.premium}</span>}
                       </td>
                     </tr>
@@ -272,9 +272,9 @@ export default function TariffsPage() {
           )}
 
           {/* Оплата */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Оплата</h2>
-            <p className="text-gray-500 text-sm mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Оплата</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               Сейчас все функции доступны <span className="text-green-600 font-medium">бесплатно</span>. После 30 сентября 2026 года для оплаты подписки свяжитесь с нами по телефону.
             </p>
             <a href="tel:+79001234567" className="inline-flex items-center gap-2 bg-brand-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-600 transition">

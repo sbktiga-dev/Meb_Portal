@@ -31,21 +31,23 @@ export default function AdminActivityPage() {
   const limit = 30;
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
       .catch(() => router.push('/login'));
+    return () => controller.abort();
   }, [router]);
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (actionFilter) params.set('action', actionFilter);
-      const res = await fetch(`/api/admin/activity?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`/api/admin/activity?${params}`, { headers: { Authorization: `Bearer ${token}` }, signal });
       const data = await res.json();
       setLogs(data.logs || []);
       setTotal(data.total || 0);
@@ -53,7 +55,11 @@ export default function AdminActivityPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchLogs(); }, [page, actionFilter]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchLogs(controller.signal);
+    return () => controller.abort();
+  }, [page, actionFilter]);
 
   return (
     <div className="min-h-screen py-10 bg-white dark:bg-gray-900">

@@ -65,14 +65,15 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { window.location.href = '/login'; return; }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(res => res.json())
       .then(data => {
         if (data.user?.role !== 'ADMIN') { window.location.href = '/dashboard'; return; }
         setUser(data.user);
-        return fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` } });
+        return fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
       })
       .then(res => res?.json())
       .then(data => {
@@ -86,6 +87,7 @@ export default function AdminPage() {
       })
       .catch(() => window.location.href = '/login')
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading) return (
@@ -122,8 +124,8 @@ export default function AdminPage() {
       <div className="section-container">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Админ-панель</h1>
-            <p className="text-gray-500 mt-1">Обзор платформы</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Админ-панель</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Обзор платформы</p>
           </div>
         </div>
 
@@ -134,9 +136,9 @@ export default function AdminPage() {
                 <div key={i} className="card-base p-4 animate-fade-in-up" style={{ animationDelay: `${i * 0.03}s` }}>
                   <div className="flex items-center gap-3 mb-2">
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${stat.color}`}>{stat.icon}</div>
-                    <div className="text-2xl font-bold text-gray-900">{stat.value || 0}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value || 0}</div>
                   </div>
-                  <div className="text-sm text-gray-500">{stat.label}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</div>
                   {stat.change && <div className="text-xs text-emerald-600 font-medium mt-1">{stat.change}</div>}
                 </div>
               ))}
@@ -144,10 +146,10 @@ export default function AdminPage() {
 
             <div className="grid lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2 card-base p-5">
-                <h2 className="font-bold text-gray-900 mb-4">Регистрации (30 дней)</h2>
+                <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Регистрации (30 дней)</h2>
                 <div className="flex items-end gap-1 h-32">
                   {registrations.length === 0 ? (
-                    <div className="text-sm text-gray-400 w-full text-center py-8">Нет данных</div>
+                    <div className="text-sm text-gray-400 dark:text-gray-500 w-full text-center py-8">Нет данных</div>
                   ) : (
                     registrations.map((r, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -161,7 +163,7 @@ export default function AdminPage() {
                   )}
                 </div>
                 {registrations.length > 0 && (
-                  <div className="flex justify-between text-xs text-gray-400 mt-2">
+                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-2">
                     <span>{registrations[0]?.date}</span>
                     <span>{registrations[registrations.length - 1]?.date}</span>
                   </div>
@@ -169,35 +171,35 @@ export default function AdminPage() {
               </div>
 
               <div className="card-base p-5">
-                <h2 className="font-bold text-gray-900 mb-4">Сводка</h2>
+                <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Сводка</h2>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">За 7 дней</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">За 7 дней</span>
                     <div className="text-right">
-                      <span className="font-semibold text-gray-900">{stats.newUsers7d} пользователей</span>
-                      <span className="text-gray-400 mx-2">·</span>
-                      <span className="font-semibold text-gray-900">{stats.newPosts7d} постов</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.newUsers7d} пользователей</span>
+                      <span className="text-gray-400 dark:text-gray-500 mx-2">·</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.newPosts7d} постов</span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">За 30 дней</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">За 30 дней</span>
                     <div className="text-right">
-                      <span className="font-semibold text-gray-900">{stats.newUsers30d} пользователей</span>
-                      <span className="text-gray-400 mx-2">·</span>
-                      <span className="font-semibold text-gray-900">{stats.newPosts30d} постов</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.newUsers30d} пользователей</span>
+                      <span className="text-gray-400 dark:text-gray-500 mx-2">·</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.newPosts30d} постов</span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Уведомлений</span>
-                    <span className="font-semibold text-gray-900">{stats.notifications} <span className="text-xs text-gray-400">({stats.unreadNotifications} непрочитанных)</span></span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Уведомлений</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.notifications} <span className="text-xs text-gray-400 dark:text-gray-500">({stats.unreadNotifications} непрочитанных)</span></span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Групп</span>
-                    <span className="font-semibold text-gray-900">{stats.groups}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Групп</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.groups}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-sm text-gray-600">Событий</span>
-                    <span className="font-semibold text-gray-900">{stats.events}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Событий</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.events}</span>
                   </div>
                 </div>
               </div>
@@ -206,12 +208,12 @@ export default function AdminPage() {
             <div className="grid lg:grid-cols-2 gap-6 mb-8">
               <div className="card-base p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-gray-900">Последние регистрации</h2>
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100">Последние регистрации</h2>
                   <Link href="/admin/users" className="text-sm text-brand-500 hover:text-brand-600">Все →</Link>
                 </div>
                 <div className="space-y-3">
                   {recentUsers.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-4">Нет пользователей</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">Нет пользователей</p>
                   ) : (
                     recentUsers.map(u => (
                       <div key={u.id} className="flex items-center gap-3 py-2">
@@ -225,8 +227,8 @@ export default function AdminPage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{u.name || 'Пользователь'}</p>
-                          <p className="text-xs text-gray-400">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{u.name || 'Пользователь'}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</p>
                         </div>
                         {u.role === 'ADMIN' && <span className="badge-brand text-[10px]">Admin</span>}
                       </div>
@@ -237,20 +239,20 @@ export default function AdminPage() {
 
               <div className="card-base p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-gray-900">Популярные посты</h2>
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100">Популярные посты</h2>
                   <Link href="/admin/posts" className="text-sm text-brand-500 hover:text-brand-600">Все →</Link>
                 </div>
                 <div className="space-y-3">
                   {popularPosts.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-4">Нет постов</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">Нет постов</p>
                   ) : (
                     popularPosts.map(p => (
                       <div key={p.id} className="flex items-center gap-3 py-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{p.title}</p>
-                          <p className="text-xs text-gray-400">{p.author.name || 'Аноним'}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{p.title}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{p.author.name || 'Аноним'}</p>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-gray-400 shrink-0">
+                        <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 shrink-0">
                           <span className="flex items-center gap-1">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             {p.views}
@@ -275,9 +277,9 @@ export default function AdminPage() {
               <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center mb-3 group-hover:bg-brand-100 transition-colors">
                 {section.icon}
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm group-hover:text-brand-600 transition-colors">{section.label}</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm group-hover:text-brand-600 transition-colors">{section.label}</h3>
               {section.count !== undefined && (
-                <span className="text-xs text-gray-400 mt-1 block">{section.count} записей</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{section.count} записей</span>
               )}
             </Link>
           ))}

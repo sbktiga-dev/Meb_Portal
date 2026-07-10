@@ -43,13 +43,13 @@ export default function ForgotPasswordPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold text-gray-900">Меб<span className="text-gradient">Портал</span></span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Меб<span className="text-gradient">Портал</span></span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Забыли пароль?</h1>
-          <p className="text-gray-500 mt-2">Мы отправим инструкции на ваш email</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Забыли пароль?</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Мы отправим инструкции на ваш email</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-8">
           {success ? (
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -57,8 +57,8 @@ export default function ForgotPasswordPage() {
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-lg font-bold text-gray-900 mb-2">Письмо отправлено</h2>
-              <p className="text-gray-500 text-sm mb-6">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Письмо отправлено</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
                 Если аккаунт с таким email существует, вы получите инструкции по сбросу пароля.
                 Проверьте папку &laquo;Спам&raquo;.
               </p>
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email</label>
                   <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="input-premium" placeholder="you@example.com" />
                 </div>
                 <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5">
@@ -85,8 +85,8 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
 
-              <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-                <p className="text-sm text-gray-500">
+              <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Вспомнили пароль?{' '}
                   <Link href="/login" className="text-brand-600 hover:text-brand-700 font-semibold">Войти</Link>
                 </p>

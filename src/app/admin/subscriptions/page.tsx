@@ -18,7 +18,7 @@ interface SubscriptionData {
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   pending: { text: 'Ожидает', color: 'bg-yellow-100 text-yellow-700' },
   active: { text: 'Активно', color: 'bg-green-100 text-green-700' },
-  expired: { text: 'Истекло', color: 'bg-gray-100 text-gray-500' },
+  expired: { text: 'Истекло', color: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' },
   cancelled: { text: 'Отменено', color: 'bg-red-100 text-red-600' },
 };
 
@@ -31,27 +31,33 @@ export default function AdminSubscriptionsPage() {
   const [acting, setActing] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
       .catch(() => router.push('/login'));
+    return () => controller.abort();
   }, [router]);
 
-  const loadData = async (status = filter) => {
+  const loadData = async (status = filter, signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
     if (!token) { window.location.href = '/login'; return; }
     try {
       const params = status !== 'all' ? `?status=${status}` : '';
-      const res = await fetch(`/api/admin/subscriptions${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`/api/admin/subscriptions${params}`, { headers: { Authorization: `Bearer ${token}` }, signal });
       const data = await res.json();
       setSubscriptions(data.subscriptions || []);
     } catch { setError('Ошибка загрузки данных'); setSubscriptions([]); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); }, [filter]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadData(filter, controller.signal);
+    return () => controller.abort();
+  }, [filter]);
 
   const handleAction = async (id: string, action: 'active' | 'expired') => {
     if (!confirm(action === 'active' ? 'Активировать подписку?' : 'Деактивировать подписку?')) return;
@@ -85,9 +91,9 @@ export default function AdminSubscriptionsPage() {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Подписки</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Подписки</h1>
 
         <div className="flex gap-2 mb-6 flex-wrap">
           {[
@@ -97,42 +103,42 @@ export default function AdminSubscriptionsPage() {
             { key: 'expired', label: 'Истекло' },
           ].map(s => (
             <button key={s.key} onClick={() => { setFilter(s.key); setLoading(true); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${filter === s.key ? 'bg-amber-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${filter === s.key ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}>
               {s.label}
             </button>
           ))}
         </div>
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700">
                 <tr>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600">Пользователь</th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600">План</th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600">Период</th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600">Статус</th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600">Даты</th>
-                  <th className="text-right px-6 py-3 text-sm font-medium text-gray-600">Действия</th>
+                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">Пользователь</th>
+                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">План</th>
+                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">Период</th>
+                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">Статус</th>
+                  <th className="text-left px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">Даты</th>
+                  <th className="text-right px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">Действия</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y dark:divide-gray-700">
                 {subscriptions.map(s => {
                   const st = STATUS_LABELS[s.status] || STATUS_LABELS.pending;
                   return (
-                    <tr key={s.id} className="hover:bg-gray-50">
+                    <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{s.user.name || '—'}</div>
-                        <div className="text-xs text-gray-500">{s.user.email}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{s.user.name || '—'}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{s.user.email}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${s.plan === 'premium' ? 'bg-amber-100 text-amber-700' : s.plan === 'pro' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${s.plan === 'premium' ? 'bg-amber-100 text-amber-700' : s.plan === 'pro' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
                           {s.plan === 'premium' ? 'Premium' : s.plan === 'pro' ? 'Pro' : 'Lite'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{s.period === 'monthly' ? 'Месяц' : 'Год'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{s.period === 'monthly' ? 'Месяц' : 'Год'}</td>
                       <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-medium ${st.color}`}>{st.text}</span></td>
-                      <td className="px-6 py-4 text-xs text-gray-500">
+                      <td className="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
                         {s.startDate && <div>С: {new Date(s.startDate).toLocaleDateString('ru-RU')}</div>}
                         {s.endDate && <div>До: {new Date(s.endDate).toLocaleDateString('ru-RU')}</div>}
                         {!s.startDate && <div>Создана: {new Date(s.createdAt).toLocaleDateString('ru-RU')}</div>}
@@ -157,7 +163,7 @@ export default function AdminSubscriptionsPage() {
               </tbody>
             </table>
           </div>
-          {subscriptions.length === 0 && <p className="text-center py-8 text-gray-500">Нет подписок</p>}
+          {subscriptions.length === 0 && <p className="text-center py-8 text-gray-500 dark:text-gray-400">Нет подписок</p>}
         </div>
       </div>
     </div>

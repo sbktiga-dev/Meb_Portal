@@ -230,8 +230,8 @@ export default function FeedPage() {
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Лента новостей</h1>
-            <p className="text-gray-500 mt-1">Публикации от участников сообщества</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Лента новостей</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Публикации от участников сообщества</p>
           </div>
           <Link href="/feed/new" className="btn-primary">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -249,10 +249,10 @@ export default function FeedPage() {
               placeholder="Поиск по заголовку, содержанию, тегам..."
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition"
             />
             {search && (
-              <button onClick={() => { setSearch(''); setPage(1); }} aria-label="Очистить поиск" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setSearch(''); setPage(1); }} aria-label="Очистить поиск" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
               </button>
             )}
@@ -283,14 +283,14 @@ export default function FeedPage() {
                   (c.key === 'subscriptions' && feedFilter === 'subscriptions') ||
                   (c.key !== 'subscriptions' && feedFilter === 'all' && category === c.key)
                     ? 'bg-brand-500 text-white shadow-card'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
                 }`}>
                 {c.label}
               </button>
             ))}
           </div>
           <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
-            className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-white border border-gray-200 text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+            className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
             <option value="newest">Новые</option>
             <option value="popular">Популярные</option>
             <option value="discussed">Обсуждаемые</option>
@@ -301,19 +301,19 @@ export default function FeedPage() {
           <SkeletonFeed count={3} />
         ) : feedError ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 flex items-center justify-center">
-              <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+              <svg className="w-10 h-10 text-red-400 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{feedError}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{feedError}</h3>
             <button onClick={() => { setFeedError(null); fetchPosts(1, false); }} className="btn-primary mt-4">Попробовать снова</button>
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Пока нет публикаций</h3>
-            <p className="text-gray-500 mb-6">Будьте первым — создайте пост!</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Пока нет публикаций</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Будьте первым — создайте пост!</p>
             <Link href="/feed/new" className="btn-primary">Создать первый пост</Link>
           </div>
         ) : (
@@ -342,7 +342,7 @@ export default function FeedPage() {
 
               return (
                 <article key={`promoted-${post.id}`} className="card-base overflow-hidden animate-fade-in-up border-amber-200">
-                  <div className="bg-amber-50 px-5 py-2 border-b border-amber-100">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 px-5 py-2 border-b border-amber-100 dark:border-amber-800">
                     <PromotionBadge />
                   </div>
                   <div className="flex items-center gap-3 p-5 pb-0">
@@ -360,25 +360,25 @@ export default function FeedPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{timeAgo}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo}</span>
                     </div>
                     <FollowButton userId={post.author.id} compact />
-                    <Link href={`/feed/${post.id}`} className="text-gray-400 hover:text-brand-500 transition-colors">
+                    <Link href={`/feed/${post.id}`} className="text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </Link>
                   </div>
                   <div className="px-5 pt-4 pb-3">
                     <Link href={`/feed/${post.id}`}>
-                      <h2 className="text-lg font-bold text-gray-900 mb-2 hover:text-brand-600 transition-colors leading-snug">{post.title}</h2>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 hover:text-brand-600 transition-colors leading-snug">{post.title}</h2>
                     </Link>
-                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">{post.content}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">{post.content}</p>
                   </div>
                   {postImages.length > 0 && (
                     <div className="block cursor-pointer" onClick={() => !isVideoUrl(postImages[0]) && setLightbox({ images: postImages, index: 0 })}>
-                      <div className="relative bg-gray-50">
+                      <div className="relative bg-gray-50 dark:bg-gray-800">
                         {postImages.length === 1 ? (
                           <div className="relative w-full" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '75%' }}>
                             <MediaItem src={postImages[0]} />
@@ -400,16 +400,16 @@ export default function FeedPage() {
                       {tags.slice(0, 5).map(tag => <span key={tag} className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full font-medium">#{tag}</span>)}
                     </div>
                   )}
-                  <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 mt-3">
-                    <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-500 hover:bg-gray-50'}`}>
+                  <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 dark:border-gray-700 mt-3">
+                    <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}>
                       <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
                       {post.likes}
                     </button>
-                    <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all">
+                    <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                       {post._count.comments}
                     </Link>
-                    <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400">
+                    <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 dark:text-gray-500">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       {post.views}
                     </span>
@@ -453,13 +453,13 @@ export default function FeedPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{timeAgo}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo}</span>
                     </div>
                     <FollowButton userId={post.author.id} compact />
-                    <Link href={`/feed/${post.id}`} className="text-gray-400 hover:text-brand-500 transition-colors">
+                    <Link href={`/feed/${post.id}`} className="text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </Link>
                   </div>
@@ -467,15 +467,15 @@ export default function FeedPage() {
                   {/* Content */}
                   <div className="px-5 pt-4 pb-3">
                     <Link href={`/feed/${post.id}`}>
-                      <h2 className="text-lg font-bold text-gray-900 mb-2 hover:text-brand-600 transition-colors leading-snug">{post.title}</h2>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 hover:text-brand-600 transition-colors leading-snug">{post.title}</h2>
                     </Link>
-                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">{post.content}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">{post.content}</p>
                   </div>
 
                   {/* Images — vertical stack */}
                   {postImages.length > 0 && (
                     <div className="block cursor-pointer" onClick={() => !isVideoUrl(postImages[0]) && setLightbox({ images: postImages, index: 0 })}>
-                      <div className="relative bg-gray-50">
+                      <div className="relative bg-gray-50 dark:bg-gray-800">
                         {postImages.length === 1 ? (
                           <div className="relative w-full" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '75%' }}>
                             <MediaItem src={postImages[0]} />
@@ -526,24 +526,24 @@ export default function FeedPage() {
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 mt-3">
-                    <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-500 hover:bg-gray-50'}`}>
+                  <div className="flex items-center gap-1 px-5 py-3 border-t border-gray-100 dark:border-gray-700 mt-3">
+                    <button onClick={(e) => handleLike(post.id, e)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isLiked ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}>
                       <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
                       {post.likes}
                     </button>
-                    <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all">
+                    <Link href={`/feed/${post.id}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                       {post._count.comments}
                     </Link>
                     <button
                       onClick={(e) => handleRepost(post.id, e)}
                       disabled={repostedPosts.has(post.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${repostedPosts.has(post.id) ? 'text-emerald-500 bg-emerald-50' : 'text-gray-500 hover:bg-gray-50'}`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${repostedPosts.has(post.id) ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
                       {repostedPosts.has(post.id) ? 'Репостнуто' : 'Репост'}
                     </button>
-                    <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400">
+                    <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 dark:text-gray-500">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       {post.views}
                     </span>
@@ -563,11 +563,11 @@ export default function FeedPage() {
               {loadingMore && (
                 <div className="flex items-center justify-center gap-3">
                   <div className="w-6 h-6 border-2 border-brand-200 border-t-brand-500 rounded-full animate-spin" />
-                  <span className="text-sm text-gray-400">Загрузка ещё...</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">Загрузка ещё...</span>
                 </div>
               )}
               {!hasMore && posts.length > 0 && (
-                <p className="text-center text-sm text-gray-400">Все посты загружены</p>
+                <p className="text-center text-sm text-gray-400 dark:text-gray-500">Все посты загружены</p>
               )}
             </div>
           </div>

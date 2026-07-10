@@ -249,8 +249,8 @@ export default function ProfilePage() {
     fetchReviews(1, false, c.signal);
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50/50"><div className="max-w-4xl mx-auto px-4 py-12"><SkeletonProfile /></div></div>;
-  if (!profile) return <div className="text-center py-20 text-gray-500">Пользователь не найден</div>;
+  if (loading) return <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50"><div className="max-w-4xl mx-auto px-4 py-12"><SkeletonProfile /></div></div>;
+  if (!profile) return <div className="text-center py-20 text-gray-500 dark:text-gray-400">Пользователь не найден</div>;
 
   const { user, specialist, company, supplier, manufacturer, promoPosts, analytics } = profile;
   const roleInfo = roleLabels[user.role] || roleLabels.USER;
@@ -261,7 +261,7 @@ export default function ProfilePage() {
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
       <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
       {/* Cover + Avatar */}
       <div className="relative">
@@ -286,11 +286,11 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 pb-2 text-center sm:text-left">
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center sm:justify-start">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{getDisplayName(user.name, user.role)}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{getDisplayName(user.name, user.role)}</h1>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${roleInfo.color}`}>
                   {roleInfo.icon} {roleInfo.label}
                 </span>
-                {specialist && <span className="text-xs text-gray-500">· {specialistTypes[specialist.type] || specialist.type}</span>}
+                {specialist && <span className="text-xs text-gray-500 dark:text-gray-400">· {specialistTypes[specialist.type] || specialist.type}</span>}
                 {(company?.isVerified || supplier?.isVerified || manufacturer?.isVerified) && (
                   <span className="text-xs text-blue-500 flex items-center gap-1">
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
@@ -298,7 +298,7 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-              {user.bio && <p className="text-gray-600 mt-1.5 text-sm max-w-xl">{user.bio}</p>}
+              {user.bio && <p className="text-gray-600 dark:text-gray-400 mt-1.5 text-sm max-w-xl">{user.bio}</p>}
             </div>
             <div className="flex items-center gap-2 pb-2">
               {!isOwnProfile && currentUserId && (
@@ -322,52 +322,52 @@ export default function ProfilePage() {
         {/* Аналитика профиля */}
         {analytics && isOwnProfile && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5 mb-6">
-            <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
               <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
               Аналитика профиля
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white/70 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-gray-900">{analytics.profileViews}</div>
-                <div className="text-xs text-gray-500">Просмотров профиля</div>
+              <div className="bg-white/70 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.profileViews}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Просмотров профиля</div>
               </div>
-              <div className="bg-white/70 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-gray-900">{analytics.totalViews}</div>
-                <div className="text-xs text-gray-500">Просмотров постов</div>
+              <div className="bg-white/70 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.totalViews}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Просмотров постов</div>
               </div>
-              <div className="bg-white/70 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-gray-900">{analytics.totalLikes}</div>
-                <div className="text-xs text-gray-500">Лайков</div>
+              <div className="bg-white/70 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.totalLikes}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Лайков</div>
               </div>
-              <div className="bg-white/70 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-gray-900">{analytics.totalPosts}</div>
-                <div className="text-xs text-gray-500">Постов</div>
+              <div className="bg-white/70 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.totalPosts}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Постов</div>
               </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mt-3 pt-3 border-t border-amber-200/50">
               <div className="text-center">
                 <div className="text-lg font-bold text-brand-600">{analytics.weekViews}</div>
-                <div className="text-[10px] text-gray-500">Постов за неделю</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Постов за неделю</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-brand-600">{analytics.weekLikes}</div>
-                <div className="text-[10px] text-gray-500">Лайков за неделю</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Лайков за неделю</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-brand-600">{analytics.weekPosts}</div>
-                <div className="text-[10px] text-gray-500">Новых постов</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Новых постов</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-600">{analytics.monthViews}</div>
-                <div className="text-[10px] text-gray-500">Просмотров за месяц</div>
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">{analytics.monthViews}</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Просмотров за месяц</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-600">{analytics.monthLikes}</div>
-                <div className="text-[10px] text-gray-500">Лайков за месяц</div>
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">{analytics.monthLikes}</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Лайков за месяц</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-600">{analytics.monthPosts}</div>
-                <div className="text-[10px] text-gray-500">Постов за месяц</div>
+                <div className="text-lg font-bold text-gray-600 dark:text-gray-400">{analytics.monthPosts}</div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Постов за месяц</div>
               </div>
             </div>
           </div>
@@ -376,7 +376,7 @@ export default function ProfilePage() {
         {/* Рекламные посты (акции) */}
         {promoPosts && promoPosts.length > 0 && (
           <div className="mb-6">
-            <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
               <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
               Акции и спецпредложения
             </h3>
@@ -392,8 +392,8 @@ export default function ProfilePage() {
                       </div>
                     )}
                     <div className="p-4">
-                      <h4 className="font-bold text-gray-900 text-sm mb-1">{promo.title}</h4>
-                      <p className="text-xs text-gray-500 line-clamp-2">{promo.content}</p>
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm mb-1">{promo.title}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{promo.content}</p>
                     </div>
                   </Link>
                 );
@@ -416,14 +416,14 @@ export default function ProfilePage() {
             {/* Quick actions */}
             {!isOwnProfile && currentUserId && (
               <div className="card-base p-4 md:p-5 space-y-2">
-                <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Действия</h3>
                 <FollowButton userId={user.id} />
-                <Link href={`/dashboard/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <Link href={`/dashboard/messages?user=${user.id}`} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                   Написать сообщение
                 </Link>
-                <button onClick={() => { navigator.clipboard.writeText(window.location.href); }} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <button onClick={() => { navigator.clipboard.writeText(window.location.href); }} className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                   Поделиться профилем
                 </button>
               </div>
@@ -431,17 +431,17 @@ export default function ProfilePage() {
 
             {isOwnProfile && (
               <div className="card-base p-4 md:p-5 space-y-2">
-                <h3 className="font-bold text-gray-900 text-sm">Действия</h3>
-                <Link href="/dashboard/profile" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Действия</h3>
+                <Link href="/dashboard/profile" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   Редактировать профиль
                 </Link>
-                <Link href="/dashboard/portfolio/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                <Link href="/dashboard/portfolio/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
                   Добавить работу
                 </Link>
-                <Link href="/feed/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <Link href="/feed/new" className="flex items-center gap-2 w-full p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   Написать пост
                 </Link>
               </div>
@@ -450,21 +450,21 @@ export default function ProfilePage() {
             {/* Stats */}
             <div className="card-base p-4 md:p-5">
               <div className="grid grid-cols-2 gap-2.5 md:gap-3">
-                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
-                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.posts}</div>
-                  <div className="text-[11px] md:text-xs text-gray-500">Постов</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{user._count.posts}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400">Постов</div>
                 </div>
-                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
-                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.portfolio}</div>
-                  <div className="text-[11px] md:text-xs text-gray-500">Портфолио</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{user._count.portfolio}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400">Портфолио</div>
                 </div>
-                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
-                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.followers}</div>
-                  <div className="text-[11px] md:text-xs text-gray-500">Подписчиков</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{user._count.followers}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400">Подписчиков</div>
                 </div>
-                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50">
-                  <div className="text-lg md:text-xl font-bold text-gray-900">{user._count.following}</div>
-                  <div className="text-[11px] md:text-xs text-gray-500">Подписок</div>
+                <div className="text-center p-2.5 md:p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{user._count.following}</div>
+                  <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400">Подписок</div>
                 </div>
                 {reviewStats.count > 0 && (
                   <div className="col-span-2 text-center p-2.5 md:p-3 rounded-xl bg-amber-50">
@@ -481,8 +481,8 @@ export default function ProfilePage() {
             {/* Business info */}
             {company && (
               <div className="card-base p-4 md:p-5 space-y-3">
-                <h3 className="font-bold text-gray-900 text-sm">Компания</h3>
-                <Link href={`/companies/${company.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Компания</h3>
+                <Link href={`/companies/${company.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {company.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
                       <Image src={company.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
@@ -491,18 +491,18 @@ export default function ProfilePage() {
                     <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">К</div>
                   )}
                   <div>
-                    <div className="font-medium text-sm text-gray-900">{company.name}</div>
+                    <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{company.name}</div>
                     {company.isVerified && <span className="text-xs text-blue-500">Верифицирована</span>}
                   </div>
                 </Link>
-                {company.description && <p className="text-xs text-gray-500 line-clamp-3">{company.description}</p>}
+                {company.description && <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3">{company.description}</p>}
               </div>
             )}
 
             {supplier && (
               <div className="card-base p-4 md:p-5 space-y-3">
-                <h3 className="font-bold text-gray-900 text-sm">Поставщик</h3>
-                <Link href={`/suppliers/${supplier.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Поставщик</h3>
+                <Link href={`/suppliers/${supplier.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {supplier.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
                       <Image src={supplier.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
@@ -511,18 +511,18 @@ export default function ProfilePage() {
                     <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">П</div>
                   )}
                   <div>
-                    <div className="font-medium text-sm text-gray-900">{supplier.companyName}</div>
+                    <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{supplier.companyName}</div>
                     {supplier.isVerified && <span className="text-xs text-blue-500">Верифицирован</span>}
                   </div>
                 </Link>
-                {supplier.description && <p className="text-xs text-gray-500 line-clamp-3">{supplier.description}</p>}
+                {supplier.description && <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3">{supplier.description}</p>}
               </div>
             )}
 
             {manufacturer && (
               <div className="card-base p-4 md:p-5 space-y-3">
-                <h3 className="font-bold text-gray-900 text-sm">Производство</h3>
-                <Link href={`/manufacturers/${manufacturer.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Производство</h3>
+                <Link href={`/manufacturers/${manufacturer.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   {manufacturer.logo ? (
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden">
                       <Image src={manufacturer.logo} alt="" fill className="object-cover" sizes="40px" unoptimized />
@@ -531,11 +531,11 @@ export default function ProfilePage() {
                     <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-bold">М</div>
                   )}
                   <div>
-                    <div className="font-medium text-sm text-gray-900">{manufacturer.name}</div>
+                    <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{manufacturer.name}</div>
                     {manufacturer.isVerified && <span className="text-xs text-blue-500">Верифицировано</span>}
                   </div>
                 </Link>
-                {manufacturer.description && <p className="text-xs text-gray-500 line-clamp-3">{manufacturer.description}</p>}
+                {manufacturer.description && <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3">{manufacturer.description}</p>}
               </div>
             )}
           </div>
@@ -556,11 +556,11 @@ export default function ProfilePage() {
                   className={`flex-1 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === tab.key
                       ? 'bg-brand-500 text-white shadow-sm'
-                      : 'text-gray-500 hover:bg-gray-50'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   {tab.label}
-                  {tab.count !== null && tab.count > 0 && <span className={`ml-1 text-[11px] ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400'}`}>({tab.count})</span>}
+                  {tab.count !== null && tab.count > 0 && <span className={`ml-1 text-[11px] ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'}`}>({tab.count})</span>}
                 </button>
               ))}
             </div>
@@ -575,8 +575,8 @@ export default function ProfilePage() {
                       return (
                         <Link key={post.id} href={`/feed/${post.id}`} className="card-base block overflow-hidden hover:shadow-md transition-shadow">
                           <div className="p-4 sm:p-5">
-                            <h4 className="font-bold text-gray-900 mb-2 text-sm sm:text-base">{post.title}</h4>
-                            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 flex-wrap">
+                            <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-2 text-sm sm:text-base">{post.title}</h4>
+                            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400 dark:text-gray-500 flex-wrap">
                               <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${categoryLabels[post.category]?.color || 'text-gray-500'}`}>
                                 {categoryLabels[post.category]?.label || post.category}
                               </span>
@@ -608,7 +608,7 @@ export default function ProfilePage() {
                     })}
                   </div>
                 ) : (
-                  !postsLoading && <div className="card-base p-10 text-center"><p className="text-gray-400">Пока нет публикаций</p></div>
+                  !postsLoading && <div className="card-base p-10 text-center"><p className="text-gray-400 dark:text-gray-500">Пока нет публикаций</p></div>
                 )}
               </InfiniteScroll>
             )}
@@ -625,7 +625,7 @@ export default function ProfilePage() {
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                         portfolioCategory === cat.key
                           ? 'bg-brand-500 text-white'
-                          : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+                          : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
                       }`}
                     >
                       {cat.label}
@@ -639,11 +639,11 @@ export default function ProfilePage() {
                       {portfolioItems.map(item => {
                         const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
                         return (
-                          <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                          <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 group">
                             {imgs[0] ? (
                               <Image src={imgs[0]} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" unoptimized />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                               </div>
                             )}
@@ -656,7 +656,7 @@ export default function ProfilePage() {
                       })}
                     </div>
                   ) : (
-                    !portfolioLoading && <div className="card-base p-10 text-center"><p className="text-gray-400">Пока нет работ в портфолио</p></div>
+                    !portfolioLoading && <div className="card-base p-10 text-center"><p className="text-gray-400 dark:text-gray-500">Пока нет работ в портфолио</p></div>
                   )}
                 </InfiniteScroll>
               </>
@@ -681,8 +681,8 @@ export default function ProfilePage() {
                   ) : (
                     !reviewsLoading && (
                       <div className="card-base p-10 text-center">
-                        <p className="text-gray-400">Пока нет отзывов</p>
-                        {currentUserId && !isOwnProfile && <p className="text-gray-400 text-sm mt-1">Будьте первым!</p>}
+                        <p className="text-gray-400 dark:text-gray-500">Пока нет отзывов</p>
+                        {currentUserId && !isOwnProfile && <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Будьте первым!</p>}
                       </div>
                     )
                   )}
@@ -695,14 +695,14 @@ export default function ProfilePage() {
               <div className="space-y-4 md:space-y-5">
                 {user.bio && (
                   <div className="card-base p-4 md:p-5">
-                    <h3 className="font-bold text-gray-900 mb-2">О себе</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{user.bio}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">О себе</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{user.bio}</p>
                   </div>
                 )}
 
                 {specialist && (
                   <div className="card-base p-4 md:p-5">
-                    <h3 className="font-bold text-gray-900 mb-3">Опыт работы</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Опыт работы</h3>
                     <div className="grid grid-cols-2 gap-3 md:gap-4">
                       <div className="p-3 rounded-xl bg-purple-50 text-center">
                         <div className="text-lg md:text-2xl font-bold text-purple-600">{specialistTypes[specialist.type]}</div>
@@ -728,7 +728,7 @@ export default function ProfilePage() {
 
                 {interests.length > 0 && (
                   <div className="card-base p-4 md:p-5">
-                    <h3 className="font-bold text-gray-900 mb-3">Интересы</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Интересы</h3>
                     <div className="flex flex-wrap gap-2">
                       {interests.map(interest => (
                         <span key={interest} className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-600 text-xs font-medium">
@@ -740,24 +740,24 @@ export default function ProfilePage() {
                 )}
 
                 <div className="card-base p-4 md:p-5">
-                  <h3 className="font-bold text-gray-900 mb-3">Деятельность</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Деятельность</h3>
                   <div className="space-y-2.5">
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                      <span className="text-sm text-gray-600">Публикаций</span>
-                      <span className="font-bold text-gray-900">{user._count.posts}</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Публикаций</span>
+                      <span className="font-bold text-gray-900 dark:text-gray-100">{user._count.posts}</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                      <span className="text-sm text-gray-600">Работ в портфолио</span>
-                      <span className="font-bold text-gray-900">{user._count.portfolio}</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Работ в портфолио</span>
+                      <span className="font-bold text-gray-900 dark:text-gray-100">{user._count.portfolio}</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                      <span className="text-sm text-gray-600">На портале с</span>
-                      <span className="font-bold text-gray-900">{joinDate}</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">На портале с</span>
+                      <span className="font-bold text-gray-900 dark:text-gray-100">{joinDate}</span>
                     </div>
                     {user.inn && (
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                        <span className="text-sm text-gray-600">ИНН</span>
-                        <span className="font-bold text-gray-900">{user.inn}</span>
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">ИНН</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{user.inn}</span>
                       </div>
                     )}
                   </div>

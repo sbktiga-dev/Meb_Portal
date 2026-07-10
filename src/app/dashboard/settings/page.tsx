@@ -216,27 +216,27 @@ export default function DashboardSettingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Настройки</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Настройки</h1>
 
         <div className="space-y-6 max-w-2xl">
           {/* Профиль */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Профиль</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Профиль</h2>
               <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${profileCompletion === 100 ? 'bg-green-500' : 'bg-amber-500'}`}
                     style={{ width: `${profileCompletion}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-500">{profileCompletion}%</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{profileCompletion}%</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               {profileCompletion === 100
                 ? 'Ваш профиль полностью заполнен!'
                 : `Заполните профиль на ${100 - profileCompletion}% для полного доступа ко всем функциям`}
@@ -249,35 +249,35 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Изменение пароля */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Изменить пароль</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Изменить пароль</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Текущий пароль</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Текущий пароль</label>
                 <input
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-amber-600 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Новый пароль</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-amber-600 transition"
                   minLength={6}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Подтвердите пароль</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Подтвердите пароль</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-amber-600 transition"
                 />
               </div>
               <div className="flex items-center gap-4">
@@ -293,21 +293,21 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Уведомления */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Уведомления</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Уведомления</h2>
             <div className="space-y-3">
               <PushNotificationManager />
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-gray-700">Email-уведомления о новых документах</span>
-                <input type="checkbox" checked={notifyDocs} onChange={e => setNotifyDocs(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <span className="text-gray-700 dark:text-gray-300">Email-уведомления о новых документах</span>
+                <input type="checkbox" checked={notifyDocs} onChange={e => setNotifyDocs(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 dark:border-gray-600" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-gray-700">Уведомления о новых изображениях</span>
-                <input type="checkbox" checked={notifyImages} onChange={e => setNotifyImages(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <span className="text-gray-700 dark:text-gray-300">Уведомления о новых изображениях</span>
+                <input type="checkbox" checked={notifyImages} onChange={e => setNotifyImages(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 dark:border-gray-600" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-gray-700">Рассылка новостей платформы</span>
-                <input type="checkbox" checked={notifyNewsletter} onChange={e => setNotifyNewsletter(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300" />
+                <span className="text-gray-700 dark:text-gray-300">Рассылка новостей платформы</span>
+                <input type="checkbox" checked={notifyNewsletter} onChange={e => setNotifyNewsletter(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 dark:border-gray-600" />
               </label>
             </div>
             <button onClick={handleSaveNotifications} disabled={savingPrefs} className="mt-4 btn-secondary text-sm">
@@ -316,9 +316,9 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Подтверждение email */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Подтверждение email</h2>
-            <p className="text-gray-500 text-sm mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Подтверждение email</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               {user?.emailVerified ? 'Ваш email подтверждён' : 'Подтвердите email для доступа к подпискам и продвижению'}
             </p>
             {user?.emailVerified ? (
@@ -334,22 +334,22 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Смена email */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Смена email</h2>
-            <p className="text-gray-500 text-sm mb-4">Введите новый email и получите код подтверждения</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Смена email</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Введите новый email и получите код подтверждения</p>
             {!emailChangeCodeSent ? (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Новый email</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Новый email</label>
                   <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="input-premium" placeholder="new@email.com" />
                 </div>
                 <button onClick={handleChangeEmailSend} className="btn-primary text-sm">Отправить код</button>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-gray-500">Код отправлен на {newEmail}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Код отправлен на {newEmail}</p>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Код подтверждения</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Код подтверждения</label>
                   <input type="text" value={emailChangeCode} onChange={e => setEmailChangeCode(e.target.value)} className="input-premium" placeholder="123456" maxLength={6} />
                 </div>
                 <button onClick={handleChangeEmailConfirm} className="btn-primary text-sm">Подтвердить смену</button>
@@ -358,9 +358,9 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Обратная связь */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Обратная связь</h2>
-            <p className="text-gray-500 text-sm mb-4">Сообщите об ошибке или предложите улучшение</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Обратная связь</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Сообщите об ошибке или предложите улучшение</p>
             <button onClick={() => setFeedbackOpen(true)} className="btn-primary">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               Написать нам
@@ -368,19 +368,19 @@ export default function DashboardSettingsPage() {
           </div>
 
           {/* Опасная зона */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-red-200">
-            <h2 className="text-lg font-bold text-red-600 mb-2">Опасная зона</h2>
-            <p className="text-gray-500 text-sm mb-4">Необратимые действия с вашим аккаунтом</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-red-200 dark:border-red-800">
+            <h2 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Опасная зона</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Необратимые действия с вашим аккаунтом</p>
             <div className="flex gap-3">
               <button
                 onClick={handleLogout}
-                className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl font-medium hover:bg-gray-200 transition"
+                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition"
               >
                 Выйти из аккаунта
               </button>
               <button
                 onClick={handleDeleteAccount}
-                className="bg-red-50 text-red-600 px-6 py-2.5 rounded-xl font-medium hover:bg-red-100 transition"
+                className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-6 py-2.5 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition"
               >
                 Удалить аккаунт
               </button>

@@ -91,22 +91,22 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
       <PageSEO title={product.name || 'Товар'} description={product.description?.slice(0, 160) || `Товар на МебПортал: ${product.name}`} />
       <div className="section-container py-10">
-        <Link href="/products" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
+        <Link href="/products" className="text-sm text-gray-400 dark:text-gray-500 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           Все товары
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-8 mb-12 animate-fade-in">
           <div>
-            <div className="relative bg-white rounded-2xl shadow-card overflow-hidden aspect-square">
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-card overflow-hidden aspect-square">
               {productImages.length > 0 ? (
                 <Image src={productImages[selectedImage]} alt={product.name} width={600} height={600} className="w-full h-full object-contain p-4" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <svg className="w-24 h-24 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                  <svg className="w-24 h-24 text-gray-200 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </div>
               )}
             </div>
@@ -134,11 +134,11 @@ export default function ProductDetailPage() {
                 <span className="badge-neutral">{product.category}</span>
                 {product.brand && <span className="badge-brand">{product.brand}</span>}
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{product.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h1>
               {product.avgRating > 0 && (
                 <div className="flex items-center gap-2 mt-2">
                   <StarRating rating={product.avgRating} readonly />
-                  <span className="text-sm text-gray-500">{product.avgRating.toFixed(1)} ({product._count.reviews} отзывов)</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{product.avgRating.toFixed(1)} ({product._count.reviews} отзывов)</span>
                 </div>
               )}
             </div>
@@ -147,19 +147,19 @@ export default function ProductDetailPage() {
 
             {product.description && (
               <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-2">Описание</h2>
-                <p className="text-gray-600 whitespace-pre-wrap">{product.description}</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Описание</h2>
+                <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{product.description}</p>
               </div>
             )}
 
             {specs.length > 0 && (
               <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-2">Характеристики</h2>
-                <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Характеристики</h2>
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
                   {specs.map((spec, i) => (
                     <div key={i} className="flex justify-between px-4 py-3 text-sm">
-                      <span className="text-gray-500">{spec.key}</span>
-                      <span className="font-medium text-gray-900">{spec.value}</span>
+                      <span className="text-gray-500 dark:text-gray-400">{spec.key}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{spec.value}</span>
                     </div>
                   ))}
                 </div>
@@ -168,9 +168,9 @@ export default function ProductDetailPage() {
 
             {(product.company || product.supplier) && (
               <div className="card-base p-5">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Поставщик</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">Поставщик</h2>
                 {product.company && (
-                  <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors">
+                  <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors">
                     {product.company.logo ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                         <Image src={product.company.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
@@ -179,13 +179,13 @@ export default function ProductDetailPage() {
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.company.name.charAt(0)}</div>
                     )}
                     <div>
-                      <p className="font-semibold text-gray-900">{product.company.name}</p>
-                      {product.company.phone && <p className="text-sm text-gray-500">{product.company.phone}</p>}
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{product.company.name}</p>
+                      {product.company.phone && <p className="text-sm text-gray-500 dark:text-gray-400">{product.company.phone}</p>}
                     </div>
                   </Link>
                 )}
                 {product.supplier && (
-                  <Link href={`/suppliers/${product.supplier.id}`} className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 -m-2 transition-colors mt-2">
+                  <Link href={`/suppliers/${product.supplier.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors mt-2">
                     {product.supplier.logo ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                         <Image src={product.supplier.logo} alt="" fill className="object-cover" sizes="48px" unoptimized />
@@ -194,8 +194,8 @@ export default function ProductDetailPage() {
                       <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.supplier.companyName.charAt(0)}</div>
                     )}
                     <div>
-                      <p className="font-semibold text-gray-900">{product.supplier.companyName}</p>
-                      {product.supplier.phone && <p className="text-sm text-gray-500">{product.supplier.phone}</p>}
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{product.supplier.companyName}</p>
+                      {product.supplier.phone && <p className="text-sm text-gray-500 dark:text-gray-400">{product.supplier.phone}</p>}
                     </div>
                   </Link>
                 )}
@@ -205,12 +205,12 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="max-w-2xl mx-auto animate-fade-in-up stagger-2">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Отзывы ({product._count.reviews})</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">Отзывы ({product._count.reviews})</h2>
 
           <div className="card-base p-5 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3">Оставить отзыв</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Оставить отзыв</h3>
             <div className="mb-3">
-              <p className="text-sm text-gray-500 mb-2">Ваша оценка</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Ваша оценка</p>
               <StarRating rating={reviewScore} onChange={setReviewScore} />
             </div>
             <textarea
@@ -226,7 +226,7 @@ export default function ProductDetailPage() {
 
           <div className="space-y-4">
             {product.reviews.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">Пока нет отзывов</p>
+              <p className="text-center text-gray-400 dark:text-gray-500 py-8">Пока нет отзывов</p>
             ) : (
               product.reviews.map((review, i) => (
                 <div key={review.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
@@ -239,14 +239,14 @@ export default function ProductDetailPage() {
                       <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">{review.user.name?.charAt(0) || '?'}</div>
                     )}
                     <div>
-                      <p className="font-semibold text-gray-900 text-sm">{review.user.name || 'Аноним'}</p>
-                      <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString('ru-RU')}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{review.user.name || 'Аноним'}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(review.createdAt).toLocaleDateString('ru-RU')}</p>
                     </div>
                     <div className="ml-auto">
                       <StarRating rating={review.score} readonly size="sm" />
                     </div>
                   </div>
-                  {review.comment && <p className="text-gray-600">{review.comment}</p>}
+                  {review.comment && <p className="text-gray-600 dark:text-gray-400">{review.comment}</p>}
                 </div>
               ))
             )}

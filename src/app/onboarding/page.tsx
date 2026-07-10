@@ -82,11 +82,11 @@ export default function OnboardingPage() {
               className={`p-4 rounded-xl border-2 transition-all text-center ${
                 selectedTypes.includes(t.id)
                   ? 'border-brand-500 bg-brand-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               <span className="text-2xl block mb-2">{t.icon}</span>
-              <span className="text-sm font-medium text-gray-900">{t.label}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{t.label}</span>
             </button>
           ))}
         </div>
@@ -104,11 +104,11 @@ export default function OnboardingPage() {
               className={`p-4 rounded-xl border-2 transition-all text-left ${
                 selectedStyles.includes(s.id)
                   ? 'border-brand-500 bg-brand-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <span className="font-medium text-gray-900">{s.label}</span>
-              <span className="text-sm text-gray-500 block mt-1">{s.desc}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{s.label}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 block mt-1">{s.desc}</span>
             </button>
           ))}
         </div>
@@ -126,11 +126,11 @@ export default function OnboardingPage() {
               className={`p-5 rounded-xl border-2 transition-all text-center ${
                 selectedBudget === b.id
                   ? 'border-brand-500 bg-brand-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <span className="font-bold text-gray-900 block">{b.label}</span>
-              <span className="text-sm text-gray-500 mt-1 block">{b.desc}</span>
+              <span className="font-bold text-gray-900 dark:text-gray-100 block">{b.label}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 block">{b.desc}</span>
             </button>
           ))}
         </div>
@@ -139,7 +139,7 @@ export default function OnboardingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
           <div className="w-14 h-14 gradient-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
@@ -147,30 +147,30 @@ export default function OnboardingPage() {
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Добро пожаловать на МебПортал!</h1>
-          <p className="text-gray-500 mt-2">Настройте свою ленту под ваши вкусы</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Добро пожаловать на МебПортал!</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Настройте свою ленту под ваши вкусы</p>
         </div>
 
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
           {steps.map((_, i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? 'bg-brand-500' : 'bg-gray-200'}`} />
+            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-6 md:p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">{steps[step].title}</h2>
-          <p className="text-sm text-gray-500 mb-6">{steps[step].subtitle}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-6 md:p-8">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{steps[step].title}</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{steps[step].subtitle}</p>
 
           {steps[step].content}
 
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-gray-700">
             {step > 0 ? (
-              <button onClick={() => setStep(step - 1)} className="text-sm text-gray-500 hover:text-gray-700">
+              <button onClick={() => setStep(step - 1)} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                 Назад
               </button>
             ) : (
-              <button onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-gray-600">
+              <button onClick={() => router.push('/')} className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
                 Пропустить
               </button>
             )}

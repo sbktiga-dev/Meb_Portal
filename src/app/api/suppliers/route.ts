@@ -78,6 +78,7 @@ export async function GET(request: Request) {
     }
     return res;
   } catch (error) {
+    console.error('Suppliers GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -100,6 +101,10 @@ export async function POST(request: Request) {
 
     if (!companyName) {
       return NextResponse.json({ error: 'Название обязательно' }, { status: 400 });
+    }
+
+    if (companyName.length > 100) {
+      return NextResponse.json({ error: 'Название не может превышать 100 символов' }, { status: 400 });
     }
 
     const supplier = await prisma.supplier.create({

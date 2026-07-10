@@ -58,7 +58,7 @@ export default function ManufacturersPage() {
           <p className="page-subtitle">Мебельные производства, портфолио работ, технические возможности</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 md:p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
           <div className="relative">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input type="text" placeholder="Поиск производств..." value={search} onChange={e => setSearch(e.target.value)} className="input-premium pl-11" />
@@ -67,11 +67,11 @@ export default function ManufacturersPage() {
 
         {manufacturers.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Производства не найдены</h3>
-            <p className="text-gray-500">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Производства не найдены</h3>
+            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
@@ -79,7 +79,7 @@ export default function ManufacturersPage() {
               <a key={m.id} href={m.userId ? `/profile/${m.userId}` : `/manufacturers/${m.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-3">
                   {(m.logo || m.avatar) ? (
-                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 relative">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm flex-shrink-0 bg-gray-50 dark:bg-gray-900 relative">
                       <Image src={m.logo || m.avatar || ''} alt={m.name} fill className="object-cover" sizes="56px" unoptimized />
                     </div>
                   ) : (
@@ -96,14 +96,14 @@ export default function ManufacturersPage() {
                         {m.isVerified && <span className="badge-success">Проверено</span>}
                       </div>
                     </div>
-                    {m.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{m.description}</p>}
+                    {m.description && <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{m.description}</p>}
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {m.capabilities.map(cap => (
                         <span key={cap} className="badge-brand text-[10px]">{cap}</span>
                       ))}
                     </div>
                     {m.address && (
-                      <div className="flex items-center gap-2 text-sm text-gray-400 pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                         <span className="truncate">{m.address}</span>
                       </div>

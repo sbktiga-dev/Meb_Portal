@@ -132,13 +132,13 @@ export default function NewPostPage() {
               <svg className="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Новый пост</h1>
-              <p className="text-sm text-gray-500">Поделитесь новостями с сообществом</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Новый пост</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Поделитесь новостями с сообществом</p>
             </div>
           </div>
 
           {error && (
-            <div className="mb-5 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2">
+            <div className="mb-5 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
               {error}
             </div>
@@ -146,7 +146,7 @@ export default function NewPostPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Категория</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Категория</label>
               <div className="flex flex-wrap gap-2">
                 {categoryConfig.map(c => (
                   <button key={c.key} type="button" onClick={() => setCategory(c.key)}
@@ -158,21 +158,21 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Заголовок</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Заголовок</label>
               <input type="text" value={title} onChange={e => setTitle(e.target.value)}
                 placeholder="О чём ваш пост?"
                 className="input-premium text-lg" />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Содержание</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Содержание</label>
               <textarea value={content} onChange={e => setContent(e.target.value)}
                 placeholder="Расскажите подробнее..."
                 className="input-premium resize-none min-h-[200px]" rows={8} />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Медиа</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Медиа</label>
               <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => {
                   const isEmbed = img.includes('youtube.com/embed') || img.includes('rutube.ru/embed') || img.includes('vk.com/video_ext');
@@ -214,7 +214,7 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Видео по ссылке</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Видео по ссылке</label>
               <div className="flex gap-2">
                 <input type="url" value={videoUrl} onChange={e => setVideoUrl(e.target.value)}
                   placeholder="YouTube, Rutube, VK Video или прямая ссылка на MP4"
@@ -224,29 +224,29 @@ export default function NewPostPage() {
                   Добавить
                 </button>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Вставьте ссылку на видео с YouTube, Rutube, VK Video или прямую ссылку на MP4-файл</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Вставьте ссылку на видео с YouTube, Rutube, VK Video или прямую ссылку на MP4-файл</p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Теги <span className="text-gray-400 font-normal">(через запятую)</span></label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Теги <span className="text-gray-400 dark:text-gray-500 font-normal">(через запятую)</span></label>
               <input type="text" value={tagsInput} onChange={e => setTagsInput(e.target.value)}
                 placeholder="мебель, кухня, проект"
                 className="input-premium" />
             </div>
 
             {canCreatePromo && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" checked={isProfilePromo} onChange={e => setIsProfilePromo(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 focus:ring-amber-500" />
+                  <input type="checkbox" checked={isProfilePromo} onChange={e => setIsProfilePromo(e.target.checked)} className="w-5 h-5 text-amber-600 rounded border-gray-300 dark:border-gray-600 focus:ring-amber-500" />
                   <div>
-                    <span className="font-medium text-gray-900">Разместить как акцию на профиле</span>
-                    <p className="text-xs text-gray-500">Пост отобразится в разделе «Акции и спецпредложения» на вашем профиле</p>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">Разместить как акцию на профиле</span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Пост отобразится в разделе «Акции и спецпредложения» на вашем профиле</p>
                   </div>
                 </label>
               </div>
             )}
 
-            <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
               <button type="submit" disabled={submitting} className="btn-primary !px-8 !py-3">
                 {submitting ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Опубликовать'}
               </button>

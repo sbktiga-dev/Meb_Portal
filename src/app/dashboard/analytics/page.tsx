@@ -102,8 +102,8 @@ export default function AnalyticsPage() {
       <div className="section-container">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Аналитика</h1>
-            <p className="text-gray-500 mt-1">Статистика вашей активности</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Аналитика</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Статистика вашей активности</p>
           </div>
           <div className="flex gap-2">
             {[
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
               <button
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${period === p.key ? 'bg-brand-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${period === p.key ? 'bg-brand-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'}`}
               >
                 {p.label}
               </button>
@@ -126,9 +126,9 @@ export default function AnalyticsPage() {
           {statCards.map((stat, i) => (
             <div key={i} className="card-base p-4 animate-fade-in-up" style={{ animationDelay: `${i * 0.03}s` }}>
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${stat.color} text-lg mb-2`}>{stat.icon}</div>
-              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{stat.sub}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{stat.sub}</div>
             </div>
           ))}
         </div>
@@ -136,23 +136,23 @@ export default function AnalyticsPage() {
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="card-base p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-900">Мои посты</h2>
+              <h2 className="font-bold text-gray-900 dark:text-gray-100">Мои посты</h2>
               <Link href="/feed?authorId=me" className="text-sm text-brand-500 hover:text-brand-600">Все →</Link>
             </div>
             {data.recentPosts.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-400 mb-3">У вас пока нет постов</p>
+                <p className="text-gray-400 dark:text-gray-500 mb-3">У вас пока нет постов</p>
                 <Link href="/feed/new" className="btn-primary text-sm">Создать пост</Link>
               </div>
             ) : (
               <div className="space-y-3">
                 {data.recentPosts.map(post => (
-                  <Link key={post.id} href={`/feed/${post.id}`} className="flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors">
+                  <Link key={post.id} href={`/feed/${post.id}`} className="flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg px-2 -mx-2 transition-colors">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{post.title}</p>
-                      <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{post.title}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</p>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-400 shrink-0">
+                    <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 shrink-0">
                       <span className="flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         {post.views}
@@ -169,42 +169,42 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="card-base p-5">
-            <h2 className="font-bold text-gray-900 mb-4">Быстрые действия</h2>
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Быстрые действия</h2>
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/feed/new" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
+              <Link href="/feed/new" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Новый пост</p>
-                  <p className="text-xs text-gray-400">Опубликовать</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Новый пост</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Опубликовать</p>
                 </div>
               </Link>
-              <Link href="/dashboard/portfolio/new" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
+              <Link href="/dashboard/portfolio/new" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Портфолио</p>
-                  <p className="text-xs text-gray-400">Добавить работу</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Портфолио</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Добавить работу</p>
                 </div>
               </Link>
-              <Link href="/groups" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+              <Link href="/groups" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Группы</p>
-                  <p className="text-xs text-gray-400">Найти сообщество</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Группы</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Найти сообщество</p>
                 </div>
               </Link>
-              <Link href="/events" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-500 flex items-center justify-center">
+              <Link href="/events" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">События</p>
-                  <p className="text-xs text-gray-400">Мероприятия</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">События</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Мероприятия</p>
                 </div>
               </Link>
             </div>

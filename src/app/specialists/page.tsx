@@ -71,7 +71,7 @@ export default function SpecialistsPage() {
           <p className="page-subtitle">Дизайнеры, технологи, установщики, менеджеры</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 md:p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -95,11 +95,11 @@ export default function SpecialistsPage() {
 
         {specialists.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Специалисты не найдены</h3>
-            <p className="text-gray-500">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Специалисты не найдены</h3>
+            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
@@ -116,9 +116,9 @@ export default function SpecialistsPage() {
                     </span>
                   </div>
                 </div>
-                {s.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{s.description}</p>}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                {s.description && <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{s.description}</p>}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-4 text-sm text-gray-400 dark:text-gray-500">
                     <span className="flex items-center gap-1">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                       {s.experience || 0} лет
@@ -132,7 +132,7 @@ export default function SpecialistsPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span className="font-bold text-gray-900">{s.rating.toFixed(1)}</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">{s.rating.toFixed(1)}</span>
                   </div>
                 </div>
               </a>

@@ -73,6 +73,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const body = await request.json();
     const { name, description, coverImage, type } = body;
 
+    if (name && name.length > 100) {
+      return NextResponse.json({ error: 'Название не может превышать 100 символов' }, { status: 400 });
+    }
+
+    if (description && description.length > 2000) {
+      return NextResponse.json({ error: 'Описание не может превышать 2000 символов' }, { status: 400 });
+    }
+
     const updated = await prisma.group.update({
       where: { id: params.id },
       data: {

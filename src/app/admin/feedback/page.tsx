@@ -51,7 +51,11 @@ export default function AdminFeedbackPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Удалить отзыв?')) return;
     const token = localStorage.getItem('token');
-    await fetch(`/api/admin/feedback/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`/api/admin/feedback/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) {
+      alert('Ошибка удаления');
+      return;
+    }
     setFeedbacks(prev => prev.filter(f => f.id !== id));
     setTotal(prev => prev - 1);
   };

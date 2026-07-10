@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { logActivity } from '@/lib/activity';
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +52,8 @@ export async function POST(req: NextRequest) {
         data: { used: true },
       }),
     ]);
+
+    logActivity({ action: 'password_reset', userId: resetToken.userId, ip, details: 'Сброс пароля' });
 
     return NextResponse.json({ message: 'Пароль успешно изменён' });
   } catch (error) {

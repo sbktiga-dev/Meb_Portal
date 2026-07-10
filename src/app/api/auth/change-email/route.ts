@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/email';
+import { logActivity } from '@/lib/activity';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -110,6 +111,8 @@ export async function PUT(req: NextRequest) {
       where: { id: user.id },
       data: { email: pendingEmail, emailChangeCode: null, emailVerified: true },
     });
+
+    logActivity({ action: 'email_change', userId: user.id, details: `Смена email на ${pendingEmail}` });
 
     return NextResponse.json({ message: 'Email успешно изменён', email: pendingEmail });
   } catch (error) {

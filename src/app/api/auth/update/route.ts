@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken, hashPassword, verifyPassword } from '@/lib/auth';
 import { validateRequest, updateProfileSchema } from '@/lib/validations';
+import { logActivity } from '@/lib/activity';
 
 export async function PUT(req: NextRequest) {
   try {
@@ -87,6 +88,8 @@ export async function POST(req: NextRequest) {
       where: { id: payload.userId },
       data: { password: hashedPassword },
     });
+
+    logActivity({ action: 'password_change', userId: payload.userId, details: 'Смена пароля' });
 
     return NextResponse.json({ success: true });
   } catch (error) {

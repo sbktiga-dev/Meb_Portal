@@ -115,7 +115,7 @@ export default function ChatPage() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
         <div className="section-container py-3 flex items-center gap-3">
-          <button onClick={() => router.push('/dashboard/messages')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+          <button onClick={() => router.push('/dashboard/messages')} aria-label="Назад к сообщениям" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
             <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
           </button>
           {otherUser?.avatar ? (

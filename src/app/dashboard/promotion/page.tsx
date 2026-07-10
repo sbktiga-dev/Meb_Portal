@@ -192,7 +192,7 @@ export default function PromotionPage() {
                     {bannerForm.imageUrl ? (
                       <div className="relative h-40">
                         <Image src={bannerForm.imageUrl} alt="Превью" fill className="object-cover rounded-lg border border-gray-200" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
-                        <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
+                        <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} aria-label="Закрыть" className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
                       </div>
                     ) : (
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 transition">

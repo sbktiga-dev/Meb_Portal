@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function GET(request: Request) {
   try {
@@ -74,6 +75,15 @@ export async function POST(request: Request) {
     const user = await getUserFromToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`favorite:${user.id}:${ip}`, 30, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много действий. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const body = await request.json();

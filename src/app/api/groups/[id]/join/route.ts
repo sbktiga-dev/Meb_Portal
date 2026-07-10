@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { logActivity } from '@/lib/activity';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -15,6 +16,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const user = await getUserFromToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Необходима авторизация' }, { status: 401 });
+    }
+
+    const ip = getClientIp(request as Parameters<typeof getClientIp>[0]);
+    const { allowed, resetAt } = rateLimit(`group-join:${user.id}:${ip}`, 20, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Слишком много действий. Попробуйте через минуту.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const group = await prisma.group.findUnique({ where: { id: params.id } });

@@ -32,6 +32,7 @@ export default function AdminPostsPage() {
   const router = useRouter();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [filter, setFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export default function AdminPostsPage() {
         setPosts(data.posts || []);
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
+        setError('Ошибка загрузки данных');
         setPosts([]);
       }
       setLoading(false);
@@ -139,6 +141,11 @@ export default function AdminPostsPage() {
 
         {loading ? (
           <Loading text="Загрузка постов..." />
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button onClick={() => { setError(null); window.location.reload(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+          </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">

@@ -18,6 +18,7 @@ export default function AdminFeedbackPage() {
   const router = useRouter();
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -42,7 +43,7 @@ export default function AdminFeedbackPage() {
       const data = await res.json();
       setFeedbacks(data.feedbacks || []);
       setTotal(data.total || 0);
-    } catch {}
+    } catch { setError('Ошибка загрузки данных'); }
     setLoading(false);
   };
 
@@ -81,6 +82,11 @@ export default function AdminFeedbackPage() {
 
         {loading ? (
           <div className="text-center py-12 text-gray-400">Загрузка...</div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button onClick={() => { setError(null); fetchFeedbacks(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+          </div>
         ) : feedbacks.length === 0 ? (
           <div className="text-center py-12 text-gray-400">Нет отзывов</div>
         ) : (

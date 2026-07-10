@@ -24,6 +24,7 @@ export default function AdminActivityPage() {
   const router = useRouter();
   const [logs, setLogs] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [actionFilter, setActionFilter] = useState('');
@@ -48,7 +49,7 @@ export default function AdminActivityPage() {
       const data = await res.json();
       setLogs(data.logs || []);
       setTotal(data.total || 0);
-    } catch {}
+    } catch { setError('Ошибка загрузки данных'); }
     setLoading(false);
   };
 
@@ -73,6 +74,11 @@ export default function AdminActivityPage() {
 
         {loading ? (
           <div className="text-center py-12 text-gray-400">Загрузка...</div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button onClick={() => { setError(null); fetchLogs(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+          </div>
         ) : logs.length === 0 ? (
           <div className="text-center py-12 text-gray-400">Нет записей</div>
         ) : (

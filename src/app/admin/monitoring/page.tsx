@@ -18,6 +18,7 @@ export default function AdminMonitoringPage() {
   const router = useRouter();
   const [data, setData] = useState<SystemData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -30,11 +31,22 @@ export default function AdminMonitoringPage() {
       })
       .then(r => r?.json())
       .then(d => { if (d) setData(d); })
-      .catch(() => {})
+      .catch(() => { setError('Ошибка загрузки данных'); })
       .finally(() => setLoading(false));
   }, [router]);
 
   if (loading) return <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin" /></div>;
+
+  if (error) return (
+    <div className="min-h-screen py-10">
+      <div className="section-container max-w-5xl">
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button onClick={() => { setError(null); window.location.reload(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen py-10">

@@ -26,6 +26,7 @@ export default function AdminSubscriptionsPage() {
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
   const [acting, setActing] = useState<string | null>(null);
 
@@ -46,7 +47,7 @@ export default function AdminSubscriptionsPage() {
       const res = await fetch(`/api/admin/subscriptions${params}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       setSubscriptions(data.subscriptions || []);
-    } catch { setSubscriptions([]); }
+    } catch { setError('Ошибка загрузки данных'); setSubscriptions([]); }
     finally { setLoading(false); }
   };
 
@@ -71,6 +72,17 @@ export default function AdminSubscriptionsPage() {
   };
 
   if (loading) return <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin" /></div>;
+
+  if (error) return (
+    <div className="min-h-screen py-10">
+      <div className="section-container max-w-5xl">
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button onClick={() => { setError(null); loadData(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">

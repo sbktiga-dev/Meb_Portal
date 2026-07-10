@@ -32,6 +32,7 @@ export default function AdminUsersPage() {
   const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [page, setPage] = useState(1);
@@ -58,7 +59,7 @@ export default function AdminUsersPage() {
       const data = await res.json();
       setUsers(data.users || []);
       setTotal(data.total || 0);
-    } catch {}
+    } catch { setError('Ошибка загрузки данных'); }
     setLoading(false);
   };
 
@@ -120,6 +121,11 @@ export default function AdminUsersPage() {
 
         {loading ? (
           <div className="text-center py-12 text-gray-400">Загрузка...</div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button onClick={() => { setError(null); fetchUsers(); }} className="text-brand-500 hover:underline">Попробовать снова</button>
+          </div>
         ) : users.length === 0 ? (
           <div className="text-center py-12 text-gray-400">Пользователей не найдено</div>
         ) : (

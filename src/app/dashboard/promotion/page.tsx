@@ -62,7 +62,8 @@ export default function PromotionPage() {
       ]);
 
       const me = await meRes.json();
-      if (me.user?.role === 'CLIENT') { router.push('/dashboard'); return; }
+      const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
+      if (!allowedRoles.includes(me.user?.role)) { router.push('/dashboard'); return; }
 
       const subData = await subRes.json();
       setHasSubscription(subData.canPromote || false);

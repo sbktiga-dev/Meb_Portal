@@ -146,7 +146,7 @@ export default function TariffsPage() {
                     {isActive ? 'Подписка активна' : isPending ? 'Заявка ожидает подтверждения' : 'Подписка неактивна'}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    План: <span className="font-semibold">{subscription.plan === 'lite' ? 'Lite' : 'Pro'}</span>
+                    План: <span className="font-semibold">{PLANS[subscription.plan as keyof typeof PLANS]?.name || subscription.plan}</span>
                     {' · '}
                     {subscription.period === 'monthly' ? 'Ежемесячная' : 'Ежегодная'}
                     {subscription.endDate && isActive && (

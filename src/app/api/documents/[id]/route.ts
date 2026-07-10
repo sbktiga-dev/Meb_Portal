@@ -21,10 +21,14 @@ export async function GET(
     const isDownload = authHeader?.startsWith('Bearer ');
 
     if (isDownload) {
-      await prisma.document.update({
-        where: { id: params.id },
-        data: { downloads: { increment: 1 } },
-      });
+      try {
+        await prisma.document.update({
+          where: { id: params.id },
+          data: { downloads: { increment: 1 } },
+        });
+      } catch (e) {
+        console.error('Document download count update error:', e);
+      }
     }
 
     return NextResponse.json({ document });

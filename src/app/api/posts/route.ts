@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
 import { sanitizeInput, validatePostTitle, validatePostContent } from '@/lib/validation';
+import { PLAN_PREMIUM } from '@/lib/constants';
 
 export async function GET(request: Request) {
   try {
@@ -42,7 +43,8 @@ export async function GET(request: Request) {
       posts,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Posts GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -103,7 +105,7 @@ export async function POST(request: Request) {
     let profilePromo = false;
     if (isProfilePromo) {
       const subscription = await prisma.subscription.findFirst({
-        where: { userId: user.id, status: 'active', plan: 'premium' },
+        where: { userId: user.id, status: 'active', plan: PLAN_PREMIUM },
       });
       if (subscription) profilePromo = true;
     }
@@ -122,7 +124,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ post }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Posts POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
             thisWeek: portfolio.filter((p: { createdAt: string }) => new Date(p.createdAt) > cutoff).length,
           },
           downloads: {
-            total: downloadsData.downloads?.length || 0,
+            total: downloadsData.pagination?.total || downloadsData.downloads?.length || 0,
             thisWeek: (downloadsData.downloads || []).filter((d: { createdAt: string }) => new Date(d.createdAt) > cutoff).length,
           },
           followers: followersData.followers?.length || 0,

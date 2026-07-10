@@ -54,6 +54,7 @@ export async function GET(request: Request) {
     }
     return res;
   } catch (error) {
+    console.error('Refs GET error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

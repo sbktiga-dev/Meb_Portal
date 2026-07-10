@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { logActivity } from '@/lib/activity';
+import { PLAN_LITE, PLAN_PREMIUM, ROLE_CLIENT } from '@/lib/constants';
 
 const DURATION_DAYS: Record<number, number> = { 7: 7, 14: 14, 30: 30 };
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    if (user.role === 'CLIENT') {
+    if (user.role === ROLE_CLIENT) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
@@ -58,12 +59,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Check banner limit
-    const bannerLimits: Record<string, number> = { lite: 1, pro: 2, premium: 4 };
+    const bannerLimits: Record<string, number> = { [PLAN_LITE]: 1, pro: 2, [PLAN_PREMIUM]: 4 };
     const maxBanners = bannerLimits[subscription.plan] || 2;
-    const limitLabel = subscription.plan === 'lite' ? '1 баннер (Lite)' :
-      subscription.plan === 'premium' ? '4 баннера в неделю (Premium)' : '2 баннера в неделю (Pro)';
+    const limitLabel = subscription.plan === PLAN_LITE ? '1 баннер (Lite)' :
+      subscription.plan === PLAN_PREMIUM ? '4 баннера в неделю (Premium)' : '2 баннера в неделю (Pro)';
 
-    if (subscription.plan === 'lite') {
+    if (subscription.plan === PLAN_LITE) {
       const activeBanners = await prisma.banner.count({
         where: { userId: user.id, status: { in: ['pending', 'active'] } },
       });

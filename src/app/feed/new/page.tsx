@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { PLAN_PREMIUM } from '@/lib/constants';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function NewPostPage() {
     if (token) {
       fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.json())
-        .then(d => setCanCreatePromo(d.plan === 'premium'))
+        .then(d => setCanCreatePromo(d.plan === PLAN_PREMIUM))
         .catch(() => {});
     }
   }, []);

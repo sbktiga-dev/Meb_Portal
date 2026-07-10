@@ -46,7 +46,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     return NextResponse.json({ post, liked });
-  } catch {
+  } catch (e) {
+    console.error('Post GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -116,7 +117,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     });
 
     return NextResponse.json({ post: updated });
-  } catch {
+  } catch (e) {
+    console.error('Post PUT error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -145,7 +147,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.post.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Post DELETE error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

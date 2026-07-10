@@ -45,7 +45,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const otherUser = conversation.participants.find(p => p.userId !== user.id)?.user;
 
     return NextResponse.json({ conversation, otherUser });
-  } catch {
+  } catch (e) {
+    console.error('Conversation GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

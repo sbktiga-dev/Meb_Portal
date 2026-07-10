@@ -92,7 +92,7 @@ export default function DashboardPage() {
             followingCount = followingData.total || 0;
           } catch {}
 
-          setStats({ downloads: dlList.length, favoriteImages: 0, posts: postsData.pagination?.total || 0, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes });
+          setStats({ downloads: dlList.length, favoriteImages: 0, posts: userPosts.length, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes });
           setNotifications(notifData.notifications || []);
         } else {
           localStorage.removeItem('token');

@@ -96,8 +96,8 @@ export default function DocumentsPage() {
         link.click();
         document.body.removeChild(link);
       }
-    } catch {
-      // silent
+    } catch (e) {
+      console.error('Document download error:', e);
     } finally {
       setDownloadingId(null);
     }

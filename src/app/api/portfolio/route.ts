@@ -28,7 +28,8 @@ export async function GET(request: Request) {
       items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Portfolio GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }
@@ -82,7 +83,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ item }, { status: 201 });
-  } catch {
+  } catch (e) {
+    console.error('Portfolio POST error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

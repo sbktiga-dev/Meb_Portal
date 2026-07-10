@@ -57,7 +57,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     return NextResponse.json({ added: true });
-  } catch {
+  } catch (e) {
+    console.error('Bookmark items error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

@@ -37,7 +37,8 @@ export async function GET(request: Request, { params }: { params: { userId: stri
       items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Portfolio user error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

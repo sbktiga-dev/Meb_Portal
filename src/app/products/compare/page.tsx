@@ -30,8 +30,9 @@ function CompareContent() {
     const ids = searchParams.get('ids')?.split(',').filter(Boolean) || [];
     if (ids.length === 0) { setLoading(false); return; }
 
-    Promise.all(ids.map(id => fetch(`/api/products/${id}`).then(r => r.json()).then(d => d.product)))
-      .then(setProducts)
+    fetch(`/api/products/batch?ids=${ids.join(',')}`)
+      .then(r => r.json())
+      .then(d => setProducts(d.products || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [searchParams]);

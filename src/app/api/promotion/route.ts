@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     }
 
     const promotions = await prisma.promotion.findMany({
-      where: { userId: user.id },
+      where: { userId: user.id, status: { not: 'deleted' } },
       include: { post: { select: { id: true, title: true, category: true } } },
       orderBy: { createdAt: 'desc' },
     });

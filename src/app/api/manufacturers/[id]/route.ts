@@ -91,13 +91,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const { getUserFromToken } = await import('@/lib/auth');
     const token = authHeader.split(' ')[1];
     const user = await getUserFromToken(token);
-    if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const manufacturer = await prisma.manufacturer.findUnique({ where: { id: params.id } });
+    const manufacturer = await prisma.manufacturer.findUnique({
+      where: { id: params.id },
+      include: { users: { select: { id: true } } },
+    });
     if (!manufacturer) {
       return NextResponse.json({ error: 'Производство не найдено' }, { status: 404 });
+    }
+
+    const isOwner = manufacturer.users.some(u => u.id === user.id);
+    if (!isOwner && user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
     await prisma.manufacturer.delete({ where: { id: params.id } });

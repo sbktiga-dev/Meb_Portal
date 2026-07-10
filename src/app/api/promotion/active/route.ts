@@ -12,7 +12,12 @@ export async function GET(req: NextRequest) {
 
     let userInterests: string[] = [];
     if (interestsParam) {
-      try { userInterests = JSON.parse(interestsParam); } catch {}
+      try {
+        const parsed = JSON.parse(interestsParam);
+        if (Array.isArray(parsed) && parsed.every((v: unknown) => typeof v === 'string')) {
+          userInterests = parsed;
+        }
+      } catch {}
     }
 
     const promotions = await prisma.promotion.findMany({

@@ -23,7 +23,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.bookmark.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (e) {
+    console.error('Bookmark DELETE error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

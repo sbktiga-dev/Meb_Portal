@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
+import { PLAN_PRO, PLAN_PREMIUM, ROLE_ADMIN } from '@/lib/constants';
 
 export async function GET(request: Request) {
   try {
@@ -36,11 +37,11 @@ export async function GET(request: Request) {
     // Get Pro/Premium user IDs for priority sorting
     const userIds = manufacturers.flatMap(m => m.users.map(u => u.id));
     const proSubscriptions = await prisma.subscription.findMany({
-      where: { userId: { in: userIds }, status: 'active', plan: { in: ['pro', 'premium'] } },
+      where: { userId: { in: userIds }, status: 'active', plan: { in: [PLAN_PRO, PLAN_PREMIUM] } },
       select: { userId: true, plan: true },
     });
     const proUserIds = new Set(proSubscriptions.map(s => s.userId));
-    const premiumUserIds = new Set(proSubscriptions.filter(s => s.plan === 'premium').map(s => s.userId));
+    const premiumUserIds = new Set(proSubscriptions.filter(s => s.plan === PLAN_PREMIUM).map(s => s.userId));
 
     const parsed = manufacturers.map((m) => ({
       ...m,
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
     const { verifyToken } = await import('@/lib/auth');
     const token = authHeader.split(' ')[1];
     const user = verifyToken(token);
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== ROLE_ADMIN) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 

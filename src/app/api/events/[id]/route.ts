@@ -24,7 +24,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     return NextResponse.json({ event });
-  } catch {
+  } catch (e) {
+    console.error('Event GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

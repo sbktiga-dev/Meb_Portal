@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { logActivity } from '@/lib/activity';
+import { PLANS_LIST } from '@/lib/constants';
 
 export async function GET(request: Request) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { plan, period } = body;
 
-    if (!plan || !['lite', 'pro', 'premium'].includes(plan)) {
+    if (!plan || !(PLANS_LIST as readonly string[]).includes(plan)) {
       return NextResponse.json({ error: 'Неверный план. Допустимые: lite, pro, premium' }, { status: 400 });
     }
     if (!period || !['monthly', 'yearly'].includes(period)) {

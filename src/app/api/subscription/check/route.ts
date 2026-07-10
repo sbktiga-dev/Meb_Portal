@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
+import { PLAN_LITE } from '@/lib/constants';
 
 export async function GET(request: Request) {
   try {
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ canPromote: false, canCreateBanner: false, plan: null });
     }
 
-    const bannerLimits: Record<string, number> = { lite: 1, pro: 2, premium: 4 };
+    const bannerLimits: Record<string, number> = { [PLAN_LITE]: 1, pro: 2, premium: 4 };
     const maxBanners = bannerLimits[subscription.plan] || 1;
 
     const bannerCount = await prisma.banner.count({
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
     });
 
     let canCreateBanner: boolean;
-    if (subscription.plan === 'lite') {
+    if (subscription.plan === PLAN_LITE) {
       canCreateBanner = bannerCount < 1;
     } else {
       const weekAgo = new Date();

@@ -38,7 +38,8 @@ export async function GET(request: Request) {
       notifications,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-  } catch {
+  } catch (e) {
+    console.error('Notifications GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

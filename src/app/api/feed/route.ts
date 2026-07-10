@@ -110,7 +110,8 @@ export async function GET(request: Request) {
       res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=120');
     }
     return res;
-  } catch {
+  } catch (e) {
+    console.error('Feed GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }
 }

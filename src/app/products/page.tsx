@@ -7,6 +7,7 @@ import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import PageSEO from '@/components/PageSEO';
 import { useCompare } from '@/components/CompareProvider';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface ProductData {
   id: string;
@@ -27,6 +28,7 @@ interface ProductData {
 const categories = ['Все', 'Кухни', 'Шкафы', 'Столы', 'Стеллажи', 'Диваны', 'Кровати', 'Фурнитура', 'Материалы'];
 const sortOptions = [
   { value: 'newest', label: 'Сначала новые' },
+  { value: 'popular', label: 'По популярности' },
   { value: 'price_asc', label: 'Сначала дешёвые' },
   { value: 'price_desc', label: 'Сначала дорогие' },
   { value: 'name', label: 'По названию' },
@@ -37,6 +39,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400);
   const [category, setCategory] = useState('Все');
   const [sortBy, setSortBy] = useState('newest');
   const [page, setPage] = useState(1);
@@ -53,7 +56,7 @@ export default function ProductsPage() {
     else setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (search) params.set('search', search);
+      if (debouncedSearch) params.set('search', debouncedSearch);
       if (category !== 'Все') params.set('category', category);
       if (minPrice) params.set('minPrice', minPrice);
       if (maxPrice) params.set('maxPrice', maxPrice);
@@ -75,7 +78,7 @@ export default function ProductsPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [search, category, sortBy, minPrice, maxPrice, minRating]);
+  }, [debouncedSearch, category, sortBy, minPrice, maxPrice, minRating]);
 
   useEffect(() => {
     const controller = new AbortController();

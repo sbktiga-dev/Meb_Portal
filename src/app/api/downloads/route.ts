@@ -33,7 +33,9 @@ export async function GET(request: Request) {
       take: 50,
     });
 
-    return NextResponse.json({ downloads });
+    const total = await prisma.download.count({ where: { userId: payload.userId } });
+
+    return NextResponse.json({ downloads, pagination: { total } });
   } catch (error) {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

@@ -115,11 +115,18 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: 'Нет прав на удаление' }, { status: 403 });
     }
 
-    const postsCount = await prisma.post.count({ where: { groupId: params.id } });
+    const [postsCount, membersCount] = await Promise.all([
+      prisma.groupPost.count({ where: { groupId: params.id } }),
+      prisma.groupMember.count({ where: { groupId: params.id } }),
+    ]);
     if (postsCount > 0) {
       return NextResponse.json({ error: 'Нельзя удалить группу с постами. Сначала удалите все посты.' }, { status: 400 });
     }
+    if (membersCount > 1) {
+      return NextResponse.json({ error: 'Нельзя удалить группу с участниками. Сначала удалите всех участников.' }, { status: 400 });
+    }
 
+    await prisma.groupMember.deleteMany({ where: { groupId: params.id } });
     await prisma.group.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (e) {

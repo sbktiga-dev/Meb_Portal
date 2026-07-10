@@ -178,8 +178,25 @@ export default function DashboardSettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm('Вы уверены? Это действие необратимо.')) return;
-    toast.error('Функция удаления аккаунта будет доступна позже');
+    if (!confirm('Вы уверены? Это действие необратимо. Все ваши данные будут удалены.')) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        localStorage.removeItem('token');
+        toast.success('Аккаунт удалён');
+        router.push('/');
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Ошибка удаления');
+      }
+    } catch {
+      toast.error('Ошибка сети');
+    }
   };
 
   const handleSaveNotifications = async () => {

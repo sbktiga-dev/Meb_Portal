@@ -65,7 +65,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
-    await prisma.promotion.delete({ where: { id: params.id } });
+    await prisma.promotion.update({ where: { id: params.id }, data: { status: 'deleted' } });
 
     logActivity({ action: 'promotion_delete', userId: user.id, details: `Продвижение ${params.id} удалено` });
 

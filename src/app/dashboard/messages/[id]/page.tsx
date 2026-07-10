@@ -28,6 +28,8 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [otherUserOnline, setOtherUserOnline] = useState(false);
+  const [otherUserLastSeen, setOtherUserLastSeen] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const shouldAutoScroll = useRef(true);
@@ -77,6 +79,14 @@ export default function ChatPage() {
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages);
+        if (currentUserId && otherUser) {
+          const lastOtherMsg = [...data.messages].reverse().find((m: Message) => m.author.id === otherUser.id);
+          if (lastOtherMsg) {
+            const diff = Date.now() - new Date(lastOtherMsg.createdAt).getTime();
+            setOtherUserOnline(diff < 5 * 60 * 1000);
+            setOtherUserLastSeen(lastOtherMsg.createdAt);
+          }
+        }
       }
     } catch {} finally { setLoading(false); }
   };
@@ -129,7 +139,14 @@ export default function ChatPage() {
           )}
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{otherUser?.name || 'Чат'}</h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500">онлайн</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              {otherUserOnline
+                ? 'онлайн'
+                : otherUserLastSeen
+                  ? `был(а) в сети ${new Date(otherUserLastSeen).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}`
+                  : 'не в сети'
+              }
+            </p>
           </div>
         </div>
       </div>

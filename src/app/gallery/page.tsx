@@ -6,6 +6,7 @@ import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
 import PageSEO from '@/components/PageSEO';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface ImageData {
   id: string;
@@ -32,6 +33,7 @@ export default function GalleryPage() {
   const [selectedStyle, setSelectedStyle] = useState('Все');
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400);
   const [sortBy, setSortBy] = useState('newest');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -54,7 +56,7 @@ export default function GalleryPage() {
       const params = new URLSearchParams();
       if (selectedStyle !== 'Все') params.set('style', selectedStyle);
       if (selectedCategory !== 'Все') params.set('category', selectedCategory);
-      if (search) params.set('search', search);
+      if (debouncedSearch) params.set('search', debouncedSearch);
       if (dateFrom) params.set('dateFrom', dateFrom);
       if (dateTo) params.set('dateTo', dateTo);
       params.set('page', String(pageNum));
@@ -77,7 +79,7 @@ export default function GalleryPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [selectedStyle, selectedCategory, search, sortBy, dateFrom, dateTo]);
+  }, [selectedStyle, selectedCategory, debouncedSearch, sortBy, dateFrom, dateTo]);
 
   useEffect(() => {
     const controller = new AbortController();

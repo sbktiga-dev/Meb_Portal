@@ -16,8 +16,8 @@ export const updateProfileSchema = z.object({
   location: z.string().max(100).optional(),
   website: z.string().max(200).optional(),
   socialLinks: z.string().optional(),
-  profileBanners: z.string().optional(),
-  profileTheme: z.string().optional(),
+  profileBanners: z.string().optional().nullable(),
+  profileTheme: z.string().optional().nullable(),
 });
 
 export function validateRequest<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {

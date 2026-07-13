@@ -39,8 +39,8 @@ export async function PUT(req: NextRequest) {
         location: location !== undefined ? location : undefined,
         website: website !== undefined ? website : undefined,
         socialLinks: socialLinks !== undefined ? socialLinks : undefined,
-        profileBanners: profileBanners !== undefined ? profileBanners : undefined,
-        profileTheme: profileTheme !== undefined ? profileTheme : undefined,
+        profileBanners: profileBanners !== undefined && profileBanners !== null ? profileBanners : undefined,
+        profileTheme: profileTheme !== undefined && profileTheme !== null ? profileTheme : undefined,
       },
       select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, profileBanners: true, profileTheme: true },
     });

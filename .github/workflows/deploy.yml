@@ -16,7 +16,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/Meb_Portal
-            git pull origin main
-            npm install --production
+            git fetch origin && git reset --hard origin/main
+            npm install
             npx prisma generate
+            rm -rf .next
+            npm run build
             pm2 restart mebportal

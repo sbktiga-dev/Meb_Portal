@@ -343,7 +343,7 @@ export default function ProfilePage() {
         </>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
+      <div className="max-w-6xl mx-auto px-4 pt-4 pb-6 md:pt-6 md:pb-8">
         {/* Аналитика профиля */}
         {analytics && isOwnProfile && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5 mb-6">
@@ -429,7 +429,7 @@ export default function ProfilePage() {
 
         {/* Hero Banner — full width */}
         {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
-          <div className="mb-6">
+          <div className="mb-2">
             <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
           </div>
         )}

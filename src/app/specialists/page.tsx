@@ -104,7 +104,7 @@ export default function SpecialistsPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {specialists.map(s => (
-              <a key={s.id} href={`/specialists/${s.id}`} className="card-base p-6 hover-lift group">
+              <a key={s.id} href={`/profile/${s.user?.id || s.id}`} className="card-base p-6 hover-lift group">
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 ${typeColors[s.type] || 'bg-gray-100 text-gray-600'}`}>
                     {typeIcons[s.type] || s.user?.name?.charAt(0) || '?'}

@@ -111,7 +111,11 @@ export default function SpecialistDetailPage() {
             </div>
 
             <div className="flex flex-wrap gap-3 mb-6 animate-fade-in-up stagger-4">
-              <Link href={`/portfolio/${specialist.user.id}`} className="btn-primary !px-5 !py-2.5 text-sm">
+              <Link href={`/profile/${specialist.user.id}`} className="btn-primary !px-5 !py-2.5 text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Моя страница
+              </Link>
+              <Link href={`/portfolio/${specialist.user.id}`} className="btn-secondary !px-5 !py-2.5 text-sm">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                 Портфолио
               </Link>

@@ -41,7 +41,7 @@ export default function ProfileHeroBanner({ banners, theme }: ProfileHeroBannerP
   const banner = heroBanners[current];
 
   const content = (
-    <div className="relative h-72 md:h-96 w-full max-w-2xl mx-auto overflow-hidden rounded-2xl">
+    <div className="relative h-60 md:h-80 w-full max-w-2xl mx-auto overflow-hidden rounded-2xl">
       <Image src={banner.imageUrl} alt={banner.title || 'Баннер'} fill className="object-cover" sizes="672px" unoptimized />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       {(banner.title || banner.subtitle) && (

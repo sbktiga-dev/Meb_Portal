@@ -421,7 +421,7 @@ export default function ProfilePage() {
         <div className="flex gap-5 md:gap-6">
           {/* Left side banners */}
           {isBusiness && (
-            <div className="hidden xl:flex flex-col gap-4 w-52 flex-shrink-0 sticky top-20 self-start">
+            <div className="hidden lg:flex flex-col gap-4 w-64 flex-shrink-0 sticky top-20 self-start">
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
@@ -429,7 +429,7 @@ export default function ProfilePage() {
           )}
 
           {/* Center content */}
-          <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
+          <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-4 gap-5 md:gap-6">
           {/* Left sidebar */}
           <div className="space-y-4 md:space-y-5">
             {/* Contacts */}
@@ -795,7 +795,7 @@ export default function ProfilePage() {
 
           {/* Right side banners */}
           {isBusiness && (
-            <div className="hidden xl:flex flex-col gap-4 w-52 flex-shrink-0 sticky top-20 self-start">
+            <div className="hidden lg:flex flex-col gap-4 w-64 flex-shrink-0 sticky top-20 self-start">
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />

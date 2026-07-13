@@ -797,8 +797,6 @@ export default function ProfilePage() {
                </div>
             )}
           </div>
-          </div>
-          </div>
 
           {isBusiness && (
             <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">

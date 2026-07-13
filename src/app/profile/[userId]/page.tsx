@@ -798,6 +798,8 @@ export default function ProfilePage() {
             )}
           </div>
 
+          </div>
+
           {isBusiness && (
             <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
@@ -807,6 +809,8 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

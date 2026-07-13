@@ -39,7 +39,7 @@ export async function getUserFromToken(token: string) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, interests: true, banned: true },
+    select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, interests: true, banned: true, profileBanners: true, profileTheme: true },
   });
 
   if (!user || user.banned) return null;

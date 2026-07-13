@@ -6,11 +6,24 @@ import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import BannerEditor from '@/components/BannerEditor';
+import ThemePicker from '@/components/ThemePicker';
+
+interface Banner {
+  id: string;
+  position: string;
+  imageUrl: string;
+  title: string;
+  subtitle?: string;
+  linkUrl?: string;
+  buttonText?: string;
+  active: boolean;
+}
 
 export default function DashboardProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null; profileBanners: string | null; profileTheme: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
@@ -22,6 +35,8 @@ export default function DashboardProfilePage() {
   const [location, setLocation] = useState('');
   const [website, setWebsite] = useState('');
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const [profileBanners, setProfileBanners] = useState<Banner[]>([]);
+  const [profileTheme, setProfileTheme] = useState('{}');
   const [uploading, setUploading] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
 
@@ -46,6 +61,8 @@ export default function DashboardProfilePage() {
           setLocation(data.user.location || '');
           setWebsite(data.user.website || '');
           try { setSocialLinks(JSON.parse(data.user.socialLinks || '{}')); } catch { setSocialLinks({}); }
+          try { setProfileBanners(JSON.parse(data.user.profileBanners || '[]')); } catch { setProfileBanners([]); }
+          setProfileTheme(data.user.profileTheme || '{}');
         } else {
           router.push('/login');
         }
@@ -123,7 +140,7 @@ export default function DashboardProfilePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, phone, inn, avatar, cover, bio, location, website, socialLinks: JSON.stringify(socialLinks) }),
+        body: JSON.stringify({ name, phone, inn, avatar, cover, bio, location, website, socialLinks: JSON.stringify(socialLinks), profileBanners: JSON.stringify(profileBanners), profileTheme }),
       });
 
       const data = await res.json();
@@ -319,6 +336,19 @@ export default function DashboardProfilePage() {
                 ))}
               </div>
             </div>
+
+            {/* Theme picker */}
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+              <ThemePicker value={profileTheme} onChange={setProfileTheme} />
+            </div>
+
+            {/* Banner editor (business roles only) */}
+            {user && ['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(user.role) && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Рекламные баннеры</h3>
+                <BannerEditor banners={profileBanners} onChange={setProfileBanners} role={user.role} />
+              </div>
+            )}
 
             <div className="flex items-center gap-4">
               <button

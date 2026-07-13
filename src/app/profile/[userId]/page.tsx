@@ -14,6 +14,9 @@ import ReviewForm from '@/components/ReviewForm';
 import StarRating from '@/components/StarRating';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import PageSEO from '@/components/PageSEO';
+import ProfileHeroBanner from '@/components/ProfileHeroBanner';
+import ProfileSideBanner from '@/components/ProfileSideBanner';
+import ProfileBackground from '@/components/ProfileBackground';
 
 interface ProfileData {
   user: {
@@ -29,6 +32,8 @@ interface ProfileData {
     phone: string | null;
     socialLinks: string;
     interests: string;
+    profileBanners: string;
+    profileTheme: string;
     createdAt: string;
     _count: { posts: number; followers: number; following: number; portfolio: number };
   };
@@ -46,6 +51,8 @@ interface ProfileData {
 interface Post { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
 interface PortfolioItem { id: string; title: string; images: string; category: string | null; createdAt: string }
 interface Review { id: string; score: number; comment: string | null; createdAt: string; reviewer: { id: string; name: string | null; avatar: string | null; role: string } }
+
+interface Banner { id: string; position: string; imageUrl: string; title: string; subtitle?: string; linkUrl?: string; buttonText?: string; active: boolean }
 
 const roleLabels: Record<string, { label: string; color: string; icon: string }> = {
   USER: { label: 'Специалист', color: 'bg-purple-100 text-purple-700', icon: '✦' },
@@ -257,28 +264,30 @@ export default function ProfilePage() {
   const gradientIdx = (user.name?.charCodeAt(0) || 0) % avatarGradients.length;
   const socialLinks: Record<string, string> = (() => { try { return JSON.parse(user.socialLinks); } catch { return {}; } })();
   const interests: string[] = (() => { try { return JSON.parse(user.interests); } catch { return []; } })();
+  const banners: Banner[] = (() => { try { return JSON.parse(user.profileBanners || '[]'); } catch { return []; } })();
   const isOwnProfile = currentUserId === user.id;
+  const isBusiness = ['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(user.role);
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
-      <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
-      {/* Cover + Avatar */}
-      <div className="relative">
-        <div className="h-40 md:h-64 bg-gradient-to-br from-brand-500 via-brand-600 to-orange-500 relative overflow-hidden">
-          {user.cover && <Image src={user.cover} alt="Обложка" fill className="object-cover" sizes="100vw" unoptimized />}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-        </div>
+      <ProfileBackground theme={user.profileTheme}>
+        <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
+        {/* Hero Banner */}
+        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(user.role)) && (
+          <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
+        )}
 
-        <div className="max-w-4xl mx-auto px-4 -mt-14 md:-mt-16 relative z-10">
+        {/* Avatar + Info */}
+        <div className="max-w-5xl mx-auto px-4 -mt-12 md:-mt-14 relative z-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-4">
             <div className="relative flex-shrink-0">
               {user.avatar ? (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
-                  <Image src={user.avatar} alt={user.name || 'Аватар'} fill className="object-cover" sizes="128px" unoptimized />
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-white shadow-lg relative">
+                  <Image src={user.avatar} alt={user.name || 'Аватар'} fill className="object-cover" sizes="112px" unoptimized />
                 </div>
               ) : (
-                <div className={`w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold border-4 border-white shadow-lg`}>
+                <div className={`w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold border-4 border-white shadow-lg`}>
                   {getDisplayInitial(user.name, user.role)}
                 </div>
               )}
@@ -286,39 +295,40 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 pb-2 text-center sm:text-left">
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center sm:justify-start">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{getDisplayName(user.name, user.role)}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">{getDisplayName(user.name, user.role)}</h1>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${roleInfo.color}`}>
                   {roleInfo.icon} {roleInfo.label}
                 </span>
-                {specialist && <span className="text-xs text-gray-500 dark:text-gray-400">· {specialistTypes[specialist.type] || specialist.type}</span>}
+                {specialist && <span className="text-xs text-white/80">· {specialistTypes[specialist.type] || specialist.type}</span>}
                 {(company?.isVerified || supplier?.isVerified || manufacturer?.isVerified) && (
-                  <span className="text-xs text-blue-500 flex items-center gap-1">
+                  <span className="text-xs text-white flex items-center gap-1">
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
                     Верифицирован
                   </span>
                 )}
               </div>
-              {user.bio && <p className="text-gray-600 dark:text-gray-400 mt-1.5 text-sm max-w-xl">{user.bio}</p>}
+              {user.bio && <p className="text-white/80 mt-1.5 text-sm max-w-xl drop-shadow">{user.bio}</p>}
             </div>
             <div className="flex items-center gap-2 pb-2">
               {!isOwnProfile && currentUserId && (
                 <>
                   <FollowButton userId={user.id} />
-                  <Link href={`/dashboard/messages?user=${user.id}`} className="btn-ghost text-sm !px-4">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  <Link href={`/dashboard/messages?user=${user.id}`} className="bg-white/90 hover:bg-white text-gray-900 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                     Написать
                   </Link>
                 </>
               )}
               {isOwnProfile && (
-                <Link href="/dashboard/profile" className="btn-ghost text-sm">Редактировать</Link>
+                <Link href="/dashboard/profile" className="bg-white/90 hover:bg-white text-gray-900 text-sm font-medium px-4 py-2 rounded-lg transition-colors">Редактировать</Link>
               )}
             </div>
           </div>
         </div>
-      </div>
+        <div className="h-6" />
+      </ProfileBackground>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
         {/* Аналитика профиля */}
         {analytics && isOwnProfile && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5 mb-6">
@@ -402,7 +412,18 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
+        <div className="flex gap-5 md:gap-6">
+          {/* Left side banners */}
+          {isBusiness && (
+            <div className="hidden xl:flex flex-col gap-4 w-52 flex-shrink-0 sticky top-20 self-start">
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
+            </div>
+          )}
+
+          {/* Center content */}
+          <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
           {/* Left sidebar */}
           <div className="space-y-4 md:space-y-5">
             {/* Contacts */}
@@ -765,8 +786,18 @@ export default function ProfilePage() {
                </div>
             )}
           </div>
+
+          {/* Right side banners */}
+          {isBusiness && (
+            <div className="hidden xl:flex flex-col gap-4 w-52 flex-shrink-0 sticky top-20 self-start">
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
+            </div>
+          )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

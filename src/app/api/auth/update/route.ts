@@ -25,7 +25,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const { name, phone, inn, avatar, cover, bio, location, website, socialLinks } = validation.data;
+    const { name, phone, inn, avatar, cover, bio, location, website, socialLinks, profileBanners, profileTheme } = validation.data;
 
     const user = await prisma.user.update({
       where: { id: payload.userId },
@@ -39,8 +39,10 @@ export async function PUT(req: NextRequest) {
         location: location !== undefined ? location : undefined,
         website: website !== undefined ? website : undefined,
         socialLinks: socialLinks !== undefined ? socialLinks : undefined,
+        profileBanners: profileBanners !== undefined ? profileBanners : undefined,
+        profileTheme: profileTheme !== undefined ? profileTheme : undefined,
       },
-      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true },
+      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, profileBanners: true, profileTheme: true },
     });
 
     return NextResponse.json({ user });

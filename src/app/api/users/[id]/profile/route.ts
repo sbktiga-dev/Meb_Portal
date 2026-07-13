@@ -29,6 +29,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
         socialLinks: true,
         interests: true,
         profileViews: true,
+        profileBanners: true,
+        profileTheme: true,
         createdAt: true,
         _count: {
           select: {

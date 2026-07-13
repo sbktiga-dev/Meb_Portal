@@ -67,11 +67,22 @@ export async function POST(request: Request, { params }: { params: { id: string 
       },
     });
 
-    if (product.userId !== user.id) {
-      sendPushToUsers(
-        [product.userId],
-        { title: 'Новый отзыв', body: `${user.name || 'Пользователь'} оставил отзыв на ваш товар`, url: `/products/${params.id}` }
-      ).catch(() => {});
+    if (product.companyId || product.supplierId) {
+      const ownerIds: string[] = [];
+      if (product.companyId) {
+        const companyUsers = await prisma.user.findMany({ where: { companyId: product.companyId }, select: { id: true } });
+        ownerIds.push(...companyUsers.map(u => u.id));
+      }
+      if (product.supplierId) {
+        const supplierUsers = await prisma.user.findMany({ where: { supplierId: product.supplierId }, select: { id: true } });
+        ownerIds.push(...supplierUsers.map(u => u.id));
+      }
+      if (ownerIds.length > 0) {
+        sendPushToUsers(
+          ownerIds,
+          { title: 'Новый отзыв', body: `${user.name || 'Пользователь'} оставил отзыв на ваш товар`, url: `/products/${params.id}` }
+        ).catch(() => {});
+      }
     }
 
     return NextResponse.json({ review }, { status: 201 });

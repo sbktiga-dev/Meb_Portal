@@ -60,6 +60,7 @@ const roleLabels: Record<string, { label: string; color: string; icon: string }>
   SUPPLIER: { label: 'Поставщик', color: 'bg-emerald-100 text-emerald-700', icon: '●' },
   MANUFACTURER: { label: 'Производство', color: 'bg-amber-100 text-amber-700', icon: '■' },
   CLIENT: { label: 'Клиент', color: 'bg-gray-100 text-gray-700', icon: '○' },
+  ADMIN: { label: 'Администратор', color: 'bg-red-100 text-red-700', icon: '★' },
 };
 
 const categoryLabels: Record<string, { label: string; color: string }> = {
@@ -266,7 +267,7 @@ export default function ProfilePage() {
   const interests: string[] = (() => { try { return JSON.parse(user.interests); } catch { return []; } })();
   const banners: Banner[] = (() => { try { return JSON.parse(user.profileBanners || '[]'); } catch { return []; } })();
   const isOwnProfile = currentUserId === user.id;
-  const isBusiness = ['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(user.role);
+  const isBusiness = ['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role);
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -274,7 +275,7 @@ export default function ProfilePage() {
       <ProfileBackground theme={user.profileTheme}>
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
         {/* Hero Banner */}
-        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(user.role)) && (
+        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
           <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
         )}
 

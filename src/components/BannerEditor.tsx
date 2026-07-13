@@ -36,7 +36,7 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const canEdit = ['COMPANY', 'SUPPLIER', 'MANUFACTURER'].includes(role);
+  const canEdit = ['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(role);
 
   if (!canEdit) return null;
 

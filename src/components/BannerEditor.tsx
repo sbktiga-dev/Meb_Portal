@@ -24,9 +24,11 @@ interface BannerEditorProps {
 const POSITIONS = [
   { key: 'hero', label: 'Главный баннер', icon: '★', max: 3 },
   { key: 'side', label: 'Боковые баннеры', icon: '◆', max: 6 },
+  { key: 'content', label: 'Контентные баннеры', icon: '■', max: 10 },
 ];
 
 const SIDE_SLOTS = ['side-1', 'side-2', 'side-3', 'side-4', 'side-5', 'side-6'];
+const CONTENT_MAX = 10;
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -42,6 +44,7 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
 
   const heroBanners = banners.filter(b => b.position === 'hero');
   const sideBanners = banners.filter(b => b.position.startsWith('side-'));
+  const contentBanners = banners.filter(b => b.position.startsWith('content-'));
 
   const addHeroBanner = () => {
     if (heroBanners.length >= 3) {
@@ -73,6 +76,26 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
       position: slot,
       imageUrl: '',
       title: '',
+      linkUrl: '',
+      buttonText: '',
+      active: true,
+    };
+    onChange([...banners, newBanner]);
+    setEditingId(newBanner.id);
+  };
+
+  const addContentBanner = () => {
+    if (contentBanners.length >= CONTENT_MAX) {
+      toast.error('Максимум 10 контентных баннеров');
+      return;
+    }
+    const idx = contentBanners.length + 1;
+    const newBanner: Banner = {
+      id: generateId(),
+      position: `content-${idx}`,
+      imageUrl: '',
+      title: '',
+      subtitle: '',
       linkUrl: '',
       buttonText: '',
       active: true,
@@ -184,13 +207,33 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
         </div>
       </div>
 
+      {/* Content banners */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Контентные баннеры (внизу страницы)</h3>
+          <button type="button" onClick={addContentBanner} className="text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+            Добавить
+          </button>
+        </div>
+        {contentBanners.length === 0 ? (
+          <p className="text-xs text-gray-400 dark:text-gray-500">Нет контентных баннеров. Нажмите «Добавить».</p>
+        ) : (
+          <div className="space-y-2">
+            {contentBanners.map(banner => (
+              <BannerCard key={banner.id} banner={banner} onEdit={() => setEditingId(banner.id)} onRemove={() => removeBanner(banner.id)} />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Edit modal */}
       {editingBanner && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setEditingId(null)}>
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-900 dark:text-gray-100">
-                {editingBanner.position === 'hero' ? 'Главный баннер' : editingBanner.position}
+                {editingBanner.position === 'hero' ? 'Главный баннер' : editingBanner.position.startsWith('content-') ? 'Контентный баннер' : editingBanner.position}
               </h3>
               <button onClick={() => setEditingId(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>

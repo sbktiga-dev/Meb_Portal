@@ -800,6 +800,33 @@ export default function ProfilePage() {
 
           </div>
 
+          {/* Контентные баннеры — внизу страницы */}
+          {isBusiness && banners.filter(b => b.position.startsWith('content-') && b.active).length > 0 && (
+            <div className="mt-6 space-y-4">
+              {banners.filter(b => b.position.startsWith('content-') && b.active).sort((a, b) => a.position.localeCompare(b.position)).map(banner => (
+                <div key={banner.id} className="relative rounded-2xl overflow-hidden">
+                  {banner.imageUrl && (
+                    <div className="relative h-48 md:h-64">
+                      <Image src={banner.imageUrl} alt={banner.title || 'Баннер'} fill className="object-cover" sizes="100vw" unoptimized />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                  )}
+                  {(banner.title || banner.subtitle) && (
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                      {banner.title && <h3 className="text-lg md:text-xl font-bold text-white mb-1">{banner.title}</h3>}
+                      {banner.subtitle && <p className="text-sm text-white/80">{banner.subtitle}</p>}
+                      {banner.linkUrl && (
+                        <Link href={banner.linkUrl} className="inline-block mt-2 bg-white/90 hover:bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors">
+                          {banner.buttonText || 'Подробнее'}
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
           {isBusiness && (
             <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />

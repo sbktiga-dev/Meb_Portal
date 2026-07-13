@@ -273,6 +273,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
       <ProfileBackground theme={user.profileTheme}>
+        <div className="pt-16">
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
         {/* Hero Banner */}
         {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
@@ -280,7 +281,7 @@ export default function ProfilePage() {
         )}
 
         {/* Avatar + Info */}
-        <div className="max-w-5xl mx-auto px-4 -mt-12 md:-mt-14 relative z-10">
+        <div className="max-w-5xl mx-auto px-4 -mt-10 md:-mt-12 relative z-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-4">
             <div className="relative flex-shrink-0">
               {user.avatar ? (
@@ -327,6 +328,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="h-6" />
+        </div>
       </ProfileBackground>
 
       <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">

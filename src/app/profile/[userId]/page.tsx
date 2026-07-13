@@ -271,7 +271,7 @@ export default function ProfilePage() {
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0 relative">
       <ProfileBackground theme={user.profileTheme}>
         <div className="pt-16">
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
@@ -418,15 +418,23 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <div className="flex gap-5 md:gap-6">
-          {/* Left side banners */}
-          {isBusiness && (
-            <div className="hidden lg:flex flex-col gap-4 w-64 flex-shrink-0 sticky top-20 self-start">
+        {/* Side banners — на краях страницы */}
+        {isBusiness && (
+          <>
+            <div className="hidden lg:flex flex-col gap-4 w-64 fixed top-20 left-4 z-0">
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
               <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
             </div>
-          )}
+            <div className="hidden lg:flex flex-col gap-4 w-64 fixed top-20 right-4 z-0">
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
+              <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
+            </div>
+          </>
+        )}
+
+        <div className="flex gap-0">
 
           {/* Center content */}
           <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-4 gap-5 md:gap-6">
@@ -793,14 +801,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Right side banners */}
-          {isBusiness && (
-            <div className="hidden lg:flex flex-col gap-4 w-64 flex-shrink-0 sticky top-20 self-start">
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -271,7 +271,7 @@ export default function ProfilePage() {
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0 relative">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
       <ProfileBackground theme={user.profileTheme}>
         <div className="pt-16">
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
@@ -326,6 +326,22 @@ export default function ProfilePage() {
         <div className="h-6" />
         </div>
       </ProfileBackground>
+
+      {/* Side banners — FIXED на белых полях страницы */}
+      {isBusiness && (
+        <>
+          <div className="hidden lg:flex flex-col gap-4 w-72 fixed top-20 left-0 px-2 z-0">
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
+          </div>
+          <div className="hidden lg:flex flex-col gap-4 w-72 fixed top-20 right-0 px-2 z-0">
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
+          </div>
+        </>
+      )}
 
       <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
         {/* Аналитика профиля */}
@@ -416,22 +432,6 @@ export default function ProfilePage() {
           <div className="mb-6">
             <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
           </div>
-        )}
-
-        {/* Side banners — на краях страницы */}
-        {isBusiness && (
-          <>
-            <div className="hidden lg:flex flex-col gap-4 w-64 fixed top-20 left-4 z-0">
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
-            </div>
-            <div className="hidden lg:flex flex-col gap-4 w-64 fixed top-20 right-4 z-0">
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
-            </div>
-          </>
         )}
 
         <div className="flex gap-0">

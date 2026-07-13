@@ -32,7 +32,7 @@ export async function GET(request: Request) {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        include: { user: { select: { name: true } } },
+        include: { user: { select: { id: true, name: true } } },
         orderBy,
       }),
       prisma.specialist.count({ where }),

@@ -275,10 +275,6 @@ export default function ProfilePage() {
       <ProfileBackground theme={user.profileTheme}>
         <div className="pt-16">
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />
-        {/* Hero Banner */}
-        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
-          <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
-        )}
 
         {/* Avatar + Info */}
         <div className="max-w-5xl mx-auto px-4 -mt-10 md:-mt-12 relative z-10">
@@ -412,6 +408,13 @@ export default function ProfilePage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Hero Banner — full width */}
+        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
+          <div className="mb-6">
+            <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
           </div>
         )}
 

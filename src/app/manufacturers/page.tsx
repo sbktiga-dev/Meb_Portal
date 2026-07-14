@@ -29,16 +29,16 @@ export default async function ManufacturersPage({
   if (category && category !== 'Все') where.categories = { contains: category };
   if (search) {
     where.OR = [
-      { companyName: { contains: search } },
+      { name: { contains: search } },
       { description: { contains: search } },
     ];
   }
 
   const orderBy = sort === 'verified'
     ? { isVerified: 'desc' as const }
-    : sort === 'products'
-      ? { companyName: 'asc' as const }
-      : { createdAt: 'desc' as const };
+    : sort === 'newest'
+      ? { createdAt: 'desc' as const }
+      : { name: 'asc' as const };
 
   const [manufacturers, total] = await Promise.all([
     prisma.manufacturer.findMany({
@@ -63,7 +63,7 @@ export default async function ManufacturersPage({
   const parsed = manufacturers.map((m) => ({
     ...m,
     avatar: m.users?.[0]?.avatar || null,
-    displayName: m.users?.[0]?.name || m.companyName,
+    displayName: m.users?.[0]?.name || m.name,
     userId: m.users?.[0]?.id || null,
     isPro: m.users?.[0]?.id ? proUserIds.has(m.users[0].id) : false,
     isPremium: m.users?.[0]?.id ? premiumUserIds.has(m.users[0].id) : false,

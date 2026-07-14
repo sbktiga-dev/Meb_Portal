@@ -434,7 +434,7 @@ export default function ProfilePage() {
         <div className="flex gap-0">
 
           {/* Center content */}
-          <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-4 gap-5 md:gap-6">
+          <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
           {/* Left sidebar */}
           <div className="space-y-4 md:space-y-5">
             {/* Contacts */}

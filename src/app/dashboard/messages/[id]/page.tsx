@@ -47,6 +47,7 @@ export default function ChatPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const shouldAutoScroll = useRef(true);
+  const prevMessageCount = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,11 +57,7 @@ export default function ChatPage() {
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => {
-        if (d.user) {
-          setCurrentUserId(d.user.id);
-          // Update lastActiveAt periodically
-          fetch('/api/auth/me', { method: 'PUT', headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
-        }
+        if (d.user) setCurrentUserId(d.user.id);
       });
 
     fetch(`/api/conversations/${params.id}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
@@ -80,9 +77,11 @@ export default function ChatPage() {
   }, [params.id, router]);
 
   useEffect(() => {
-    if (shouldAutoScroll.current) {
+    // Only scroll to bottom if new messages arrived AND user was at bottom
+    if (messages.length > prevMessageCount.current && shouldAutoScroll.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
+    prevMessageCount.current = messages.length;
   }, [messages]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -399,7 +398,6 @@ export default function ChatPage() {
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}
               className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400 focus:bg-white dark:focus:bg-gray-600 transition-all text-gray-900 dark:text-gray-100"
-              autoFocus
             />
             {showEmojiPicker && (
               <EmojiPicker onSelect={handleEmojiSelect} onClose={() => setShowEmojiPicker(false)} />

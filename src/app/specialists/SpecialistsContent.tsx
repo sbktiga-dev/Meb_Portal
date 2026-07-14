@@ -11,7 +11,7 @@ interface SpecialistData {
   experience: number | null;
   rating: number;
   portfolio: string | null;
-  user: { id: string; name: string | null; email: string };
+  user: { id: string; name: string | null; email: string } | null;
 }
 
 interface Props {

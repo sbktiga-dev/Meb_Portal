@@ -11,13 +11,24 @@ interface ReviewCardProps {
     score: number;
     comment: string | null;
     createdAt: string;
+    status?: string;
     reviewer: { id: string; name: string | null; avatar: string | null; role: string };
   };
+  showStatus?: boolean;
 }
 
-export default function ReviewCard({ review }: ReviewCardProps) {
+const statusLabels: Record<string, { label: string; color: string }> = {
+  pending: { label: 'Ожидает одобрения', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  approved: { label: 'Одобрен', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+  auto_approved: { label: 'Опубл.', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  disputed: { label: 'На рассмотрении', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' },
+  rejected: { label: 'Отклонён', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+};
+
+export default function ReviewCard({ review, showStatus = false }: ReviewCardProps) {
   const { reviewer } = review;
   const date = new Date(review.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const statusInfo = review.status ? statusLabels[review.status] : null;
 
   return (
     <div className="card-base p-5">
@@ -39,6 +50,11 @@ export default function ReviewCard({ review }: ReviewCardProps) {
               {getDisplayName(reviewer.name, reviewer.role)}
             </Link>
             <StarRating rating={review.score} readonly size="sm" />
+            {showStatus && statusInfo && (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusInfo.color}`}>
+                {statusInfo.label}
+              </span>
+            )}
           </div>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{date}</p>
           {review.comment && (

@@ -32,7 +32,7 @@ export default function ReviewForm({ targetUserId, onSuccess }: ReviewFormProps)
         toast.error(data.error || 'Ошибка');
         return;
       }
-      toast.success('Отзыв отправлен');
+      toast.success('Отзыв отправлен на одобрение');
       setScore(0);
       setComment('');
       onSuccess();
@@ -46,6 +46,11 @@ export default function ReviewForm({ targetUserId, onSuccess }: ReviewFormProps)
   return (
     <div className="card-base p-5 space-y-4">
       <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Оставить отзыв</h3>
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+        <p className="text-xs text-amber-700 dark:text-amber-300">
+          Отзыв появится на странице после одобрения пользователем (в течение 24 часов)
+        </p>
+      </div>
       <div>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Ваша оценка</p>
         <StarRating rating={score} onChange={setScore} size="lg" />

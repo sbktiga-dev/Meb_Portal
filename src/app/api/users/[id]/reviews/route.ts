@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
 
+const PUBLIC_STATUSES = ['approved', 'auto_approved'];
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const { searchParams } = new URL(request.url);
@@ -14,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const [items, total] = await Promise.all([
       prisma.userProfileReview.findMany({
-        where: { targetUserId: params.id },
+        where: { targetUserId: params.id, status: { in: PUBLIC_STATUSES } },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -24,11 +26,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
           },
         },
       }),
-      prisma.userProfileReview.count({ where: { targetUserId: params.id } }),
+      prisma.userProfileReview.count({ where: { targetUserId: params.id, status: { in: PUBLIC_STATUSES } } }),
     ]);
 
     const stats = await prisma.userProfileReview.aggregate({
-      where: { targetUserId: params.id },
+      where: { targetUserId: params.id, status: { in: PUBLIC_STATUSES } },
       _avg: { score: true },
       _count: true,
     });
@@ -79,32 +81,22 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const sanitizedComment = trimmedComment ? sanitizeInput(trimmedComment) : null;
 
-    const existing = await prisma.userProfileReview.findUnique({
-      where: { reviewerId_targetUserId: { reviewerId: user.id, targetUserId: params.id } },
-    });
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
 
-    let review;
-    if (existing) {
-      review = await prisma.userProfileReview.update({
-        where: { id: existing.id },
-        data: { score: Math.round(score), comment: sanitizedComment },
-        include: {
-          reviewer: { select: { id: true, name: true, avatar: true, role: true } },
-        },
-      });
-    } else {
-      review = await prisma.userProfileReview.create({
-        data: {
-          score: Math.round(score),
-          comment: sanitizedComment,
-          reviewerId: user.id,
-          targetUserId: params.id,
-        },
-        include: {
-          reviewer: { select: { id: true, name: true, avatar: true, role: true } },
-        },
-      });
-    }
+    const review = await prisma.userProfileReview.create({
+      data: {
+        score: Math.round(score),
+        comment: sanitizedComment,
+        reviewerId: user.id,
+        targetUserId: params.id,
+        status: 'pending',
+        expiresAt,
+      },
+      include: {
+        reviewer: { select: { id: true, name: true, avatar: true, role: true } },
+      },
+    });
 
     return NextResponse.json({ review }, { status: 201 });
   } catch (e) {

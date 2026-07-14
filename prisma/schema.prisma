@@ -160,19 +160,25 @@ model ProductReview {
 }
 
 model UserProfileReview {
-  id          String    @id @default(cuid())
-  score       Int
-  comment     String?
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  score         Int
+  comment       String?
+  createdAt     DateTime  @default(now())
+  status        String    @default("pending")
+  disputeText   String?
+  disputeImages String    @default("[]")
+  disputedAt    DateTime?
+  respondedAt   DateTime?
+  expiresAt     DateTime?
 
   reviewer     User     @relation("ReviewsWritten", fields: [reviewerId], references: [id])
   reviewerId   String
   target       User     @relation("ReviewsReceived", fields: [targetUserId], references: [id])
   targetUserId String
 
-  @@unique([reviewerId, targetUserId])
   @@index([targetUserId])
   @@index([reviewerId])
+  @@index([status])
 }
 
 model Image {

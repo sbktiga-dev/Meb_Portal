@@ -11,6 +11,7 @@ import RoleBadge from '@/components/RoleBadge';
 import ContactInfo from '@/components/ContactInfo';
 import ReviewCard from '@/components/ReviewCard';
 import ReviewForm from '@/components/ReviewForm';
+import ReviewApproval from '@/components/ReviewApproval';
 import StarRating from '@/components/StarRating';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import PageSEO from '@/components/PageSEO';
@@ -693,6 +694,11 @@ export default function ProfilePage() {
             {/* Tab: Reviews */}
             {activeTab === 'reviews' && (
               <div className="space-y-4">
+                {/* Pending reviews for owner */}
+                {isOwnProfile && (
+                  <ReviewApproval userId={user.id} />
+                )}
+
                 {/* Review form */}
                 {currentUserId && !isOwnProfile && (
                   <ReviewForm targetUserId={user.id} onSuccess={handleReviewSuccess} />

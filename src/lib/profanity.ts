@@ -125,7 +125,7 @@ export function checkProfanity(text: string): ProfanityCheckResult {
 
   return {
     hasProfanity: foundWords.length > 0,
-    foundWords: [...new Set(foundWords)],
+    foundWords: Array.from(new Set(foundWords)),
   };
 }
 

@@ -108,7 +108,7 @@ export default function ReviewApproval({ userId }: ReviewApprovalProps) {
                 <Link href={`/profile/${review.reviewer.id}`} className="shrink-0">
                   {review.reviewer.avatar ? (
                     <div className="w-9 h-9 rounded-full overflow-hidden relative">
-                      <Image src={review.reviewer.avatar} alt="" fill className="object-cover" sizes="36px" unoptimized />
+                      <Image src={review.reviewer.avatar} alt={review.reviewer.name || "Автор отзыва"} fill className="object-cover" sizes="36px" unoptimized />
                     </div>
                   ) : (
                     <div className="w-9 h-9 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-bold">

@@ -223,7 +223,7 @@ export default function HomeContent({
                   <div className="flex items-center gap-3 p-4 pb-0">
                     {post.author.avatar ? (
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 relative">
-                        <Image src={post.author.avatar} alt="" fill unoptimized sizes="40px" className="object-cover" />
+                        <Image src={post.author.avatar} alt={post.author.name || "Автор"} fill unoptimized sizes="40px" className="object-cover" />
                       </div>
                     ) : (
                       <div className={`w-10 h-10 bg-gradient-to-br ${avatarColor} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0`}>
@@ -248,7 +248,7 @@ export default function HomeContent({
                   {postImages.length > 0 && (
                     <Link href={`/feed/${post.id}`} className="block">
                       <div className="relative mx-4 mt-2 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700" style={{ paddingBottom: '60%' }}>
-                        <Image src={postImages[0]} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                        <Image src={postImages[0]} alt="Фото публикации" fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                         {postImages.length > 1 && (
                           <div className="absolute top-2 right-2 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-lg backdrop-blur-sm">
                             1/{postImages.length}

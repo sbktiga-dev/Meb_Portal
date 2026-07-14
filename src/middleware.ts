@@ -2,19 +2,14 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
-
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const protectedRoutes = ['/dashboard', '/admin'];
-const adminRoutes = ['/admin'];
+const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
 
-async function verifyJwt(token: string): Promise<{ userId: string; email: string; role: string } | null> {
+async function verifyToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return {
-      userId: payload.userId as string,
-      email: payload.email as string,
-      role: payload.role as string,
-    };
+    return payload as { userId: string; email: string; role: string };
   } catch {
     return null;
   }
@@ -24,24 +19,30 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
 
-  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  // Check protected routes
+  for (const route of protectedRoutes) {
+    if (pathname.startsWith(route)) {
+      if (!token) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
 
-    const payload = await verifyJwt(token);
-    if (!payload) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      const response = NextResponse.redirect(loginUrl);
-      response.cookies.delete('token');
-      return response;
-    }
+      const payload = await verifyToken(token);
+      if (!payload) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
 
-    if (adminRoutes.some((route) => pathname.startsWith(route))) {
-      if (payload.role !== 'ADMIN') {
+      // Admin routes require ADMIN role
+      if (pathname.startsWith('/admin') && payload.role !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    }
+  }
+
+  // Redirect logged-in users away from auth routes
+  if (authRoutes.some(route => pathname.startsWith(route))) {
+    if (token) {
+      const payload = await verifyToken(token);
+      if (payload) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
@@ -51,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/login', '/register', '/forgot-password', '/reset-password'],
 };

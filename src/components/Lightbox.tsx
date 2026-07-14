@@ -180,7 +180,7 @@ export default function Lightbox({ images, initialIndex = 0, onClose }: Lightbox
         <img
           ref={imgRef}
           src={images[current]}
-          alt=""
+          alt="Увеличенное изображение"
           onDoubleClick={handleDoubleClick}
           className="max-w-full max-h-full object-contain select-none transition-transform duration-100"
           style={{

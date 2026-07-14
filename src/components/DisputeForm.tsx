@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { checkProfanity, PROFANITY_WARNING } from '@/lib/profanity';
 
 interface DisputeFormProps {
   userId: string;
@@ -58,6 +59,14 @@ export default function DisputeForm({ userId, reviewId, onCancel, onSuccess }: D
       toast.error('Укажите причину оспаривания');
       return;
     }
+
+    // Проверка на нецензурную лексику
+    const profanityCheck = checkProfanity(disputeText);
+    if (profanityCheck.hasProfanity) {
+      toast.error(PROFANITY_WARNING, { duration: 5000 });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const token = localStorage.getItem('token');
@@ -101,7 +110,7 @@ export default function DisputeForm({ userId, reviewId, onCancel, onSuccess }: D
         <div className="flex flex-wrap gap-2">
           {images.map((img, idx) => (
             <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden">
-              <Image src={img} alt="" fill className="object-cover" sizes="64px" unoptimized />
+              <Image src={img} alt="Фото спора" fill className="object-cover" sizes="64px" unoptimized />
               <button
                 onClick={() => removeImage(idx)}
                 className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px]"

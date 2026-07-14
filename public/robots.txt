@@ -4,4 +4,11 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
 
-Sitemap: https://mebportal.ru/sitemap.xml
+# Яндекс
+User-agent: Yandex
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+
+Sitemap: https://mebportal.online/sitemap.xml

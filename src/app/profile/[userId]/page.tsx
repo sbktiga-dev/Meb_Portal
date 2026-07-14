@@ -640,7 +640,7 @@ export default function ProfilePage() {
                                       {isVideoUrl(img) ? (
                                         <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
                                       ) : (
-                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                        <Image src={img} alt="Фото публикации" fill className="object-cover" sizes="50vw" unoptimized />
                                       )}
                                     </div>
                                   ))}
@@ -651,7 +651,7 @@ export default function ProfilePage() {
                                     {isVideoUrl(postImages[0]) ? (
                                       <video src={postImages[0]} controls preload="metadata" className="w-full h-full object-cover" playsInline />
                                     ) : (
-                                      <Image src={postImages[0]} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                      <Image src={postImages[0]} alt="Фото публикации" fill className="object-cover" sizes="50vw" unoptimized />
                                     )}
                                   </div>
                                   {postImages.slice(1, 3).map((img, idx) => (
@@ -659,7 +659,7 @@ export default function ProfilePage() {
                                       {isVideoUrl(img) ? (
                                         <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
                                       ) : (
-                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                        <Image src={img} alt="Фото публикации" fill className="object-cover" sizes="50vw" unoptimized />
                                       )}
                                     </div>
                                   ))}
@@ -671,7 +671,7 @@ export default function ProfilePage() {
                                       {isVideoUrl(img) ? (
                                         <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
                                       ) : (
-                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                        <Image src={img} alt="Фото публикации" fill className="object-cover" sizes="50vw" unoptimized />
                                       )}
                                       {idx === 3 && postImages.length > 4 && (
                                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

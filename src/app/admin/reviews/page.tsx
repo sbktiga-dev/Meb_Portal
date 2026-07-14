@@ -139,7 +139,7 @@ export default function AdminReviewsPage() {
                     <Link href={`/profile/${review.reviewer.id}`} className="shrink-0">
                       {review.reviewer.avatar ? (
                         <div className="w-10 h-10 rounded-full overflow-hidden relative">
-                          <Image src={review.reviewer.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+                          <Image src={review.reviewer.avatar} alt={review.reviewer.name || "Автор отзыва"} fill className="object-cover" sizes="40px" unoptimized />
                         </div>
                       ) : (
                         <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
@@ -174,7 +174,7 @@ export default function AdminReviewsPage() {
                         <div className="flex flex-wrap gap-2 mt-3">
                           {disputeImages.map((img, idx) => (
                             <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden">
-                              <Image src={img} alt="" fill className="object-cover" sizes="80px" unoptimized />
+                              <Image src={img} alt="Фото спора" fill className="object-cover" sizes="80px" unoptimized />
                             </div>
                           ))}
                         </div>

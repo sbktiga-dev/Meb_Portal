@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import StarRating from './StarRating';
 import toast from 'react-hot-toast';
+import { checkProfanity, PROFANITY_WARNING } from '@/lib/profanity';
 
 interface ReviewFormProps {
   targetUserId: string;
@@ -19,6 +20,16 @@ export default function ReviewForm({ targetUserId, onSuccess }: ReviewFormProps)
       toast.error('Выберите оценку');
       return;
     }
+
+    // Проверка на нецензурную лексику на клиенте
+    if (comment.trim()) {
+      const profanityCheck = checkProfanity(comment);
+      if (profanityCheck.hasProfanity) {
+        toast.error(PROFANITY_WARNING, { duration: 5000 });
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       const token = localStorage.getItem('token');

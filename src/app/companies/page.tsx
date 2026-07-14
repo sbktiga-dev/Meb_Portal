@@ -1,147 +1,82 @@
-'use client';
+import { Metadata } from 'next';
+import { prisma } from '@/lib/prisma';
+import CompaniesContent from './CompaniesContent';
 
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { SkeletonGrid } from '@/components/Loading';
-import PageSEO from '@/components/PageSEO';
+export const metadata: Metadata = {
+  title: 'Мебельные компании',
+  description: 'Каталог мебельных компаний на МебПортал: производители, дизайнерские студии и мебельные фабрики. Найдите надёжного партнёра.',
+  keywords: ['мебельные компании', 'мебельные фирмы', 'мебельные студии', 'производители мебели', 'мебельный бизнес'],
+  openGraph: {
+    title: 'Мебельные компании — МебПортал',
+    description: 'Производители, дизайнерские студии и мебельные фабрики.',
+    type: 'website',
+    locale: 'ru_RU',
+  },
+};
 
-interface CompanyData {
-  id: string;
-  name: string;
-  description: string | null;
-  logo: string | null;
-  avatar: string | null;
-  displayName: string;
-  userId: string | null;
-  isPro: boolean;
-  isPremium: boolean;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-  website: string | null;
-  isVerified: boolean;
-  _count?: { products: number };
-}
+export const dynamic = 'force-dynamic';
 
-export default function CompaniesPage() {
-  const [companies, setCompanies] = useState<CompanyData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+export default async function CompaniesPage({
+  searchParams,
+}: {
+  searchParams: { category?: string; search?: string; sort?: string };
+}) {
+  const category = searchParams.category;
+  const search = searchParams.search;
+  const sort = searchParams.sort || 'newest';
 
-  const fetchCompanies = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      params.set('sort', sortBy);
-      const res = await fetch(`/api/companies?${params}`, { signal });
-      const data = await res.json();
-      setCompanies(data.companies || []);
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') return;
-      setCompanies([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, sortBy]);
+  const where: Record<string, unknown> = {};
+  if (category && category !== 'Все') where.categories = { contains: category };
+  if (search) {
+    where.OR = [
+      { name: { contains: search } },
+      { description: { contains: search } },
+    ];
+  }
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchCompanies(controller.signal);
-    return () => controller.abort();
-  }, [fetchCompanies]);
+  const orderBy = sort === 'verified'
+    ? { isVerified: 'desc' as const }
+    : sort === 'products'
+      ? { name: 'asc' as const }
+      : { createdAt: 'desc' as const };
 
-  if (loading) return <SkeletonGrid count={6} />;
+  const [companies, total] = await Promise.all([
+    prisma.company.findMany({
+      where,
+      take: 50,
+      include: {
+        _count: { select: { products: true } },
+        users: { select: { id: true, name: true, avatar: true } },
+      },
+      orderBy,
+    }),
+    prisma.company.count({ where }),
+  ]);
+
+  const userIds = companies.flatMap(c => c.users.map(u => u.id));
+  const proSubscriptions = await prisma.subscription.findMany({
+    where: { userId: { in: userIds }, status: 'active', plan: { in: ['PRO', 'PREMIUM'] } },
+    select: { userId: true, plan: true },
+  });
+  const proUserIds = new Set(proSubscriptions.map(s => s.userId));
+  const premiumUserIds = new Set(proSubscriptions.filter(s => s.plan === 'PREMIUM').map(s => s.userId));
+
+  const parsed = companies.map((c) => ({
+    ...c,
+    avatar: c.users?.[0]?.avatar || null,
+    displayName: c.users?.[0]?.name || c.name,
+    userId: c.users?.[0]?.id || null,
+    isPro: c.users?.[0]?.id ? proUserIds.has(c.users[0].id) : false,
+    isPremium: c.users?.[0]?.id ? premiumUserIds.has(c.users[0].id) : false,
+  }));
 
   return (
-    <div className="min-h-screen">
-      <PageSEO title="Компании" description="Каталог мебельных компаний на МебПортал: производители, дизайнерские студии и мебельные фабрики. Найдите надёжного партнёра." />
-      <div className="section-container py-10 md:py-14">
-        <div className="page-header">
-          <h1 className="page-title">Компании</h1>
-          <p className="page-subtitle">Мебельные компании, производители, дизайн-студии</p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" placeholder="Поиск по названию, адресу..." value={search} onChange={e => setSearch(e.target.value)} className="input-premium pl-11" />
-            </div>
-            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="input-premium !w-auto !py-2.5">
-              <option value="newest">Сначала новые</option>
-              <option value="verified">Верифицированные</option>
-              <option value="name">По названию</option>
-            </select>
-          </div>
-        </div>
-
-        {companies.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Компании не найдены</h3>
-            <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {companies.map(company => (
-              <a key={company.id} href={company.userId ? `/profile/${company.userId}` : `/companies/${company.id}`} className="card-base overflow-hidden hover-lift group">
-                <div className="h-40 relative overflow-hidden">
-                  {(company.logo || company.avatar) ? (
-                    <Image src={company.logo || company.avatar || ''} alt={company.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
-                      <div className="w-16 h-16 bg-white rounded-2xl shadow-card flex items-center justify-center text-brand-500 font-bold text-2xl group-hover:scale-110 transition-transform duration-300">
-                        {company.name.charAt(0)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-lg group-hover:text-brand-600 transition-colors">{company.displayName || company.name}</h3>
-                    <div className="flex items-center gap-1.5">
-                      {company.isPremium && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PREMIUM</span>}
-                      {company.isPro && !company.isPremium && <span className="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO</span>}
-                      {company.isVerified && <span className="badge-success">ИП</span>}
-                    </div>
-                  </div>
-                  {company.description && <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{company.description}</p>}
-                  <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                    {company.address && (
-                      <div className="flex items-center gap-2.5">
-                        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span className="truncate">{company.address}</span>
-                      </div>
-                    )}
-                    {company.phone && (
-                      <div className="flex items-center gap-2.5">
-                        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-                        <span>{company.phone}</span>
-                      </div>
-                    )}
-                    {company.email && (
-                      <div className="flex items-center gap-2.5">
-                        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                        <span className="truncate">{company.email}</span>
-                      </div>
-                    )}
-                  </div>
-                  {company._count?.products ? (
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                      {company._count.products} товаров
-                    </div>
-                  ) : null}
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <CompaniesContent
+      initialCompanies={parsed}
+      total={total}
+      initialCategory={category || 'Все'}
+      initialSort={sort}
+      initialSearch={search || ''}
+    />
   );
 }

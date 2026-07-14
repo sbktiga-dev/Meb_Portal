@@ -91,7 +91,7 @@ function MessagesContent() {
               >
                 {conv.otherUser?.avatar ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 relative">
-                    <Image src={conv.otherUser.avatar} alt="" fill unoptimized sizes="48px" className="object-cover" />
+                    <Image src={conv.otherUser.avatar} alt={conv.otherUser.name || "Собеседник"} fill unoptimized sizes="48px" className="object-cover" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">

@@ -40,7 +40,7 @@ export default function ProfileBackground({ theme, children }: ProfileBackground
     return (
       <div className="relative">
         <div className="absolute inset-0 h-40 md:h-64 overflow-hidden">
-          <Image src={parsed.value} alt="" fill className="object-cover" sizes="100vw" unoptimized />
+          <Image src={parsed.value} alt="Фон профиля" fill className="object-cover" sizes="100vw" unoptimized />
           <div className="absolute inset-0 bg-black/30" />
         </div>
         {children}

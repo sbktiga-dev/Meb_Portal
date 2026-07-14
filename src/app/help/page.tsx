@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 
-type Section = 'profile' | 'posts' | 'promotion' | 'portfolio' | 'messages' | 'catalog' | 'subscription';
+type Section = 'profile' | 'posts' | 'promotion' | 'portfolio' | 'messages' | 'catalog' | 'subscription' | 'reviews';
 
 const SECTIONS: { key: Section; label: string; icon: string }[] = [
   { key: 'profile', label: 'Мой профиль', icon: '👤' },
@@ -12,6 +12,7 @@ const SECTIONS: { key: Section; label: string; icon: string }[] = [
   { key: 'portfolio', label: 'Портфолио', icon: '🖼' },
   { key: 'catalog', label: 'Каталоги', icon: '📋' },
   { key: 'messages', label: 'Сообщения', icon: '💬' },
+  { key: 'reviews', label: 'Отзывы', icon: '⭐' },
   { key: 'subscription', label: 'Подписки и тарифы', icon: '💳' },
   { key: 'promotion', label: 'Продвижение', icon: '🚀' },
 ];
@@ -52,6 +53,7 @@ export default function HelpPage() {
             {activeSection === 'portfolio' && <PortfolioHelp />}
             {activeSection === 'catalog' && <CatalogHelp />}
             {activeSection === 'messages' && <MessagesHelp />}
+            {activeSection === 'reviews' && <ReviewsHelp />}
             {activeSection === 'subscription' && <SubscriptionHelp />}
             {activeSection === 'promotion' && <PromotionHelp />}
           </div>
@@ -110,7 +112,15 @@ function ProfileHelp() {
           <p>Укажите ссылки на Telegram, WhatsApp, VK, YouTube — посетители смогут связаться с вами</p>
         </Step>
 
-        <Tip>Заполненный профиль получает больше просмотров и подписчиков. Загрузите фото и добавьте описание!</Tip>
+        <Step num={4} title="Настройте баннеры и тему">
+          <ul className="list-disc list-inside space-y-1 mt-1">
+            <li><strong>Hero-баннер</strong> — широкий баннер в шапке профиля (1920×600)</li>
+            <li><strong>Боковые баннеры</strong> — до 10 слотов по бокам (500×400)</li>
+            <li><strong>Тема оформления</strong> — 8 готовых градиентов или загрузите своё фоновое изображение</li>
+          </ul>
+        </Step>
+
+        <Tip>Заполненный профиль получает больше просмотров и подписчиков. Загрузите фото, добавьте описание и настройте баннеры!</Tip>
       </div>
     </div>
   );
@@ -322,6 +332,46 @@ function PromotionHelp() {
         </Step>
 
         <Tip>Для Premium-подписчиков: создавайте рекламные посты (акции), которые отображаются на вашем профиле для посетителей.</Tip>
+      </div>
+    </div>
+  );
+}
+
+function ReviewsHelp() {
+  return (
+    <div className="space-y-6">
+      <SectionTitle>Система отзывов</SectionTitle>
+      <p className="text-gray-600 text-sm">Отзывы помогают�建立 репутацию и получить обратную связь от клиентов и коллег.</p>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <p className="text-amber-800 font-medium">Модерация отзывов</p>
+        <p className="text-amber-700 text-sm mt-1">Все отзывы проходят проверку перед публикацией. Это защищает от недобросовестных отзывов.</p>
+      </div>
+
+      <div className="space-y-4">
+        <Step num={1} title="Оставить отзыв">
+          <p>Перейдите на профиль пользователя и нажмите <strong>«Оставить отзыв»</strong></p>
+          <ul className="list-disc list-inside space-y-1 mt-1">
+            <li>Оцените работу от 1 до 5 звёзд</li>
+            <li>Напишите текст отзыва (обязательно)</li>
+            <li>Прикрепите фото работ (необязательно)</li>
+          </ul>
+        </Step>
+
+        <Step num={2} title="Модерация">
+          <p>Отзыв отправляется на проверку. Адресат уведомлён о новом отзыве.</p>
+          <ul className="list-disc list-inside space-y-1 mt-1">
+            <li><strong>Одобрение</strong> — адресат подтверждает отзыв, он публикуется</li>
+            <li><strong>Оспаривание</strong> — адресат не согласен, спор передаётся админу</li>
+            <li><strong>Авто-одобрение</strong> — если адресат не отреагировал за 24 часа</li>
+          </ul>
+        </Step>
+
+        <Step num={3} title="Публикация">
+          <p>Одобренный отзыв отображается на профиле автора и адресата. Оценки влияют на рейтинг.</p>
+        </Step>
+
+        <Tip>Пишите подробные отзывы с фото — они помогают другим пользователям做出 выбор и повышают ваш авторитет.</Tip>
       </div>
     </div>
   );

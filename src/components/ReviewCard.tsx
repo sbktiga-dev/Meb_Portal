@@ -36,7 +36,7 @@ export default function ReviewCard({ review, showStatus = false }: ReviewCardPro
         <Link href={`/profile/${reviewer.id}`} className="shrink-0">
           {reviewer.avatar ? (
             <div className="w-10 h-10 rounded-full overflow-hidden relative">
-              <Image src={reviewer.avatar} alt="" fill className="object-cover" sizes="40px" unoptimized />
+              <Image src={reviewer.avatar} alt={reviewer.name || "Автор отзыва"} fill className="object-cover" sizes="40px" unoptimized />
             </div>
           ) : (
             <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center text-white text-sm font-bold">

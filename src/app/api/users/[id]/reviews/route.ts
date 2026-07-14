@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
+import { checkProfanity, PROFANITY_WARNING } from '@/lib/profanity';
 
 const PUBLIC_STATUSES = ['approved', 'auto_approved'];
 
@@ -77,6 +78,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const trimmedComment = comment?.trim() || null;
     if (trimmedComment && trimmedComment.length > 1000) {
       return NextResponse.json({ error: 'Комментарий не может превышать 1000 символов' }, { status: 400 });
+    }
+
+    // Проверка на нецензурную лексику
+    if (trimmedComment) {
+      const profanityCheck = checkProfanity(trimmedComment);
+      if (profanityCheck.hasProfanity) {
+        return NextResponse.json({ error: PROFANITY_WARNING }, { status: 400 });
+      }
     }
 
     const sanitizedComment = trimmedComment ? sanitizeInput(trimmedComment) : null;

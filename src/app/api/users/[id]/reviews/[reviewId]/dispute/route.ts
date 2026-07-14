@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validation';
+import { checkProfanity, PROFANITY_WARNING } from '@/lib/profanity';
 
 export async function POST(
   request: Request,
@@ -45,6 +46,12 @@ export async function POST(
 
     if (!disputeText?.trim()) {
       return NextResponse.json({ error: 'Укажите причину оспаривания' }, { status: 400 });
+    }
+
+    // Проверка на нецензурную лексику
+    const profanityCheck = checkProfanity(disputeText);
+    if (profanityCheck.hasProfanity) {
+      return NextResponse.json({ error: PROFANITY_WARNING }, { status: 400 });
     }
 
     const sanitizedText = sanitizeInput(disputeText.trim());

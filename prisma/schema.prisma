@@ -420,7 +420,6 @@ model Message {
   reactions     String         @default("{}") // JSON {emoji: [userId, ...]}
   replyToId     String?        // ID сообщения на которое отвечаем
   createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
 
   author        User           @relation(fields: [authorId], references: [id])
   authorId      String

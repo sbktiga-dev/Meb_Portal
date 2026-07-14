@@ -15,7 +15,6 @@ interface CompanyData {
   userId: string | null;
   isPro: boolean;
   isPremium: boolean;
-  categories: string;
   isVerified: boolean;
   phone: string | null;
   email: string | null;
@@ -25,29 +24,23 @@ interface CompanyData {
 interface Props {
   initialCompanies: CompanyData[];
   total: number;
-  initialCategory: string;
   initialSort: string;
   initialSearch: string;
 }
 
-const categories = ['Все', 'Производители', 'Студии', 'Магазины', 'Мастерские'];
-
 export default function CompaniesContent({
   initialCompanies,
   total,
-  initialCategory,
   initialSort,
   initialSearch,
 }: Props) {
   const router = useRouter();
   const [companies] = useState(initialCompanies);
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState(initialSort);
 
-  const updateParams = useCallback((category: string, sort: string, searchValue: string) => {
+  const updateParams = useCallback((sort: string, searchValue: string) => {
     const params = new URLSearchParams();
-    if (category !== 'Все') params.set('category', category);
     if (sort !== 'newest') params.set('sort', sort);
     if (searchValue) params.set('search', searchValue);
     const query = params.toString();
@@ -72,37 +65,19 @@ export default function CompaniesContent({
                 value={search}
                 onChange={e => {
                   setSearch(e.target.value);
-                  updateParams(selectedCategory, sortBy, e.target.value);
+                  updateParams(sortBy, e.target.value);
                 }}
                 className="input-premium pl-11"
               />
             </div>
             <select value={sortBy} onChange={e => {
               setSortBy(e.target.value);
-              updateParams(selectedCategory, e.target.value, search);
+              updateParams(e.target.value, search);
             }} className="input-premium !w-auto !py-2.5">
               <option value="newest">Сначала новые</option>
               <option value="verified">Проверенные</option>
               <option value="products">По кол-ву товаров</option>
             </select>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-4">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  updateParams(cat, sortBy, search);
-                }}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-brand-500 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
           </div>
         </div>
 

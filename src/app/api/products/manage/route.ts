@@ -18,6 +18,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
+    // Admin sees all products
+    if (user.role === 'ADMIN') {
+      const products = await prisma.product.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          company: { select: { id: true, name: true } },
+          supplier: { select: { id: true, companyName: true } },
+          manufacturer: { select: { id: true, name: true } },
+          _count: { select: { reviews: true } },
+        },
+      });
+      return NextResponse.json({ products });
+    }
+
     // Find user's company/supplier/manufacturer
     const fullUser = await prisma.user.findUnique({
       where: { id: user.id },
@@ -65,17 +79,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const fullUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        companyId: true,
-        supplierId: true,
-        manufacturerId: true,
-      },
-    });
+    // Admin can create products without company link
+    let companyId: string | null = null;
+    let supplierId: string | null = null;
+    let manufacturerId: string | null = null;
 
-    if (!fullUser?.companyId && !fullUser?.supplierId && !fullUser?.manufacturerId) {
-      return NextResponse.json({ error: 'Нет привязки к компании/производству' }, { status: 400 });
+    if (user.role !== 'ADMIN') {
+      const fullUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          companyId: true,
+          supplierId: true,
+          manufacturerId: true,
+        },
+      });
+
+      if (!fullUser?.companyId && !fullUser?.supplierId && !fullUser?.manufacturerId) {
+        return NextResponse.json({ error: 'Нет привязки к компании/производству' }, { status: 400 });
+      }
+
+      companyId = fullUser.companyId;
+      supplierId = fullUser.supplierId;
+      manufacturerId = fullUser.manufacturerId;
     }
 
     const body = await request.json();
@@ -98,9 +123,9 @@ export async function POST(request: Request) {
         category,
         brand: brand ? sanitizeInput(brand.trim()) : null,
         specs: JSON.stringify(specs || []),
-        companyId: fullUser.companyId,
-        supplierId: fullUser.supplierId,
-        manufacturerId: fullUser.manufacturerId,
+        companyId,
+        supplierId,
+        manufacturerId,
       },
     });
 

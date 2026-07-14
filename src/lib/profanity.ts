@@ -67,7 +67,7 @@ function generateBypassPattern(word: string): RegExp {
   for (const char of word) {
     const alternatives = BYPASS_MAP[char.toLowerCase()];
     if (alternatives && alternatives.length > 0) {
-      const chars = [...new Set(alternatives.map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))];
+      const chars = Array.from(new Set(alternatives.map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))));
 
       pattern += `(?:${chars.join('|')})`;
     } else {

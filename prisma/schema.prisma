@@ -142,6 +142,8 @@ model Product {
   companyId     String?
   supplier      Supplier?       @relation(fields: [supplierId], references: [id])
   supplierId    String?
+  manufacturer  Manufacturer?   @relation(fields: [manufacturerId], references: [id])
+  manufacturerId String?
   reviews       ProductReview[]
 }
 
@@ -258,6 +260,7 @@ model Manufacturer {
   updatedAt     DateTime        @updatedAt
 
   users         User[]
+  products      Product[]
 }
 
 model Rating {

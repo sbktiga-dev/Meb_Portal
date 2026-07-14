@@ -29,12 +29,12 @@ export default function HelpPage() {
           <p className="text-gray-500 mb-6">Подробное руководство по использованию портала</p>
 
           {/* Навигация по секциям */}
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1">
+          <div className="flex flex-wrap gap-2 mb-6">
             {SECTIONS.map(s => (
               <button
                 key={s.key}
                 onClick={() => setActiveSection(s.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   activeSection === s.key
                     ? 'bg-brand-500 text-white shadow-sm'
                     : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
@@ -341,7 +341,7 @@ function ReviewsHelp() {
   return (
     <div className="space-y-6">
       <SectionTitle>Система отзывов</SectionTitle>
-      <p className="text-gray-600 text-sm">Отзывы помогают�建立 репутацию и получить обратную связь от клиентов и коллег.</p>
+      <p className="text-gray-600 text-sm">Отзывы помогают建立ить репутацию и получить обратную связь от клиентов и коллег.</p>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <p className="text-amber-800 font-medium">Модерация отзывов</p>

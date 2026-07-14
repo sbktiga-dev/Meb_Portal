@@ -45,7 +45,6 @@ export default async function ManufacturersPage({
       where,
       take: 50,
       include: {
-        _count: { select: { products: true } },
         users: { select: { id: true, name: true, avatar: true } },
       },
       orderBy,

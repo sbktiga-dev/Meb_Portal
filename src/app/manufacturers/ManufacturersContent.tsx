@@ -15,11 +15,9 @@ interface ManufacturerData {
   userId: string | null;
   isPro: boolean;
   isPremium: boolean;
-  categories: string;
   isVerified: boolean;
   phone: string | null;
   email: string | null;
-  _count?: { products: number };
 }
 
 interface Props {
@@ -148,17 +146,7 @@ export default function ManufacturersContent({
                 {m.description && <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{m.description}</p>}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                   <div className="flex items-center gap-4 text-sm text-gray-400 dark:text-gray-500">
-                    {m._count?.products ? (
-                      <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                        {m._count.products} товаров
-                      </span>
-                    ) : null}
-                    {m.categories && (
-                      <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">
-                        {m.categories.split(',')[0]}
-                      </span>
-                    )}
+                    {/* Manufacturer info */}
                   </div>
                 </div>
               </Link>

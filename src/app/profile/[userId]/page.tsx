@@ -267,7 +267,6 @@ export default function ProfilePage() {
   const interests: string[] = (() => { try { return JSON.parse(user.interests); } catch { return []; } })();
   const banners: Banner[] = (() => { try { return JSON.parse(user.profileBanners || '[]'); } catch { return []; } })();
   const isOwnProfile = currentUserId === user.id;
-  const isBusiness = ['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role);
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -328,17 +327,16 @@ export default function ProfilePage() {
       </ProfileBackground>
 
       {/* Side banners — на странице по краям */}
-      <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex gap-2">
-          {isBusiness && (
-            <>
-              <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">
-                <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
-                <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
-                <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
-              </div>
-            </>
-          )}
+      <div className="max-w-[1600px] mx-auto px-4">
+        <div className="flex gap-4">
+          {/* Left side banners (side-1 to side-5) */}
+          <div className="hidden xl:flex flex-col gap-3 w-64 flex-shrink-0">
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-1')} position="side-1" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-2')} position="side-2" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-3')} position="side-3" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
+          </div>
 
           <div className="flex-1 min-w-0">
         {/* Аналитика профиля */}
@@ -425,11 +423,9 @@ export default function ProfilePage() {
         )}
 
         {/* Hero Banner — full width */}
-        {(['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role)) && (
-          <div className="mb-2">
-            <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
-          </div>
-        )}
+        <div className="mb-2">
+          <ProfileHeroBanner banners={banners} theme={user.profileTheme} />
+        </div>
 
         <div className="flex gap-0">
 
@@ -801,7 +797,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Контентные баннеры — внизу страницы */}
-          {isBusiness && banners.filter(b => b.position.startsWith('content-') && b.active).length > 0 && (
+          {banners.filter(b => b.position.startsWith('content-') && b.active).length > 0 && (
             <div className="mt-6 space-y-4">
               {banners.filter(b => b.position.startsWith('content-') && b.active).sort((a, b) => a.position.localeCompare(b.position)).map(banner => (
                 <div key={banner.id} className="relative rounded-2xl overflow-hidden">
@@ -827,13 +823,14 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {isBusiness && (
-            <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-4')} position="side-4" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-5')} position="side-5" />
-              <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
-            </div>
-          )}
+          {/* Right side banners (side-6 to side-10) */}
+          <div className="hidden xl:flex flex-col gap-3 w-64 flex-shrink-0">
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-6')} position="side-6" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-7')} position="side-7" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-8')} position="side-8" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-9')} position="side-9" />
+            <ProfileSideBanner banner={banners.find(b => b.position === 'side-10')} position="side-10" />
+          </div>
         </div>
       </div>
     </div>

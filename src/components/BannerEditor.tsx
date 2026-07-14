@@ -23,11 +23,11 @@ interface BannerEditorProps {
 
 const POSITIONS = [
   { key: 'hero', label: 'Главный баннер', icon: '★', max: 3 },
-  { key: 'side', label: 'Боковые баннеры', icon: '◆', max: 6 },
+  { key: 'side', label: 'Боковые баннеры', icon: '◆', max: 10 },
   { key: 'content', label: 'Контентные баннеры', icon: '■', max: 10 },
 ];
 
-const SIDE_SLOTS = ['side-1', 'side-2', 'side-3', 'side-4', 'side-5', 'side-6'];
+const SIDE_SLOTS = ['side-1', 'side-2', 'side-3', 'side-4', 'side-5', 'side-6', 'side-7', 'side-8', 'side-9', 'side-10'];
 const CONTENT_MAX = 10;
 
 function generateId() {
@@ -37,10 +37,6 @@ function generateId() {
 export default function BannerEditor({ banners, onChange, role }: BannerEditorProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-
-  const canEdit = ['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(role);
-
-  if (!canEdit) return null;
 
   const heroBanners = banners.filter(b => b.position === 'hero');
   const sideBanners = banners.filter(b => b.position.startsWith('side-'));
@@ -171,10 +167,11 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
 
       {/* Side banners */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Боковые баннеры</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Боковые баннеры (5 слева + 5 справа)</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {SIDE_SLOTS.map(slot => {
             const banner = sideBanners.find(b => b.position === slot);
+            const sideLabel = parseInt(slot.split('-')[1]) <= 5 ? 'Л' : 'П';
             return (
               <button
                 key={slot}
@@ -189,6 +186,7 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
                 {banner?.imageUrl ? (
                   <>
                     <Image src={banner.imageUrl} alt={banner.title || slot} fill className="object-cover" sizes="200px" unoptimized />
+                    <div className="absolute top-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded">{sideLabel}</div>
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center">
                       <span className="text-white text-xs font-medium opacity-0 hover:opacity-100">Редактировать</span>
                     </div>
@@ -198,7 +196,7 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
                     <svg className="w-5 h-5 text-gray-300 dark:text-gray-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                       <path d="M12 5v14M5 12h14" />
                     </svg>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">{slot}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500">{slot} ({sideLabel})</span>
                   </div>
                 )}
               </button>

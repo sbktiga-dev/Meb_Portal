@@ -342,8 +342,8 @@ export default function DashboardProfilePage() {
               <ThemePicker value={profileTheme} onChange={setProfileTheme} />
             </div>
 
-            {/* Banner editor (business roles only) */}
-            {user && ['COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'].includes(user.role) && (
+            {/* Banner editor */}
+            {user && (
               <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Рекламные баннеры</h3>
                 <BannerEditor banners={profileBanners} onChange={setProfileBanners} role={user.role} />

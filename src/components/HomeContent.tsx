@@ -134,11 +134,11 @@ export default function HomeContent({
               <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Изображений</div>
             </div>
             <div className="text-center">
-              <AnimatedCounter value={stats.documents} />
-              <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Документов</div>
+              <AnimatedCounter value={stats.suppliers || 0} />
+              <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Поставщиков</div>
             </div>
             <div className="text-center">
-              <AnimatedCounter value={(stats.companies || 0) + (stats.suppliers || 0)} />
+              <AnimatedCounter value={stats.companies || 0} />
               <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Компаний</div>
             </div>
             <div className="text-center">

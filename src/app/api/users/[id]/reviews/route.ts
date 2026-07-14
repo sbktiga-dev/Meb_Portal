@@ -98,6 +98,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
       },
     });
 
+    // Create notification for target user
+    await prisma.notification.create({
+      data: {
+        type: 'review',
+        message: `${user.name || 'Пользователь'} оставил вам отзыв. Одобрите или оспорьте в течение 24 часов.`,
+        userId: params.id,
+        fromUserId: user.id,
+        link: `/profile/${params.id}`,
+      },
+    });
+
     return NextResponse.json({ review }, { status: 201 });
   } catch (e) {
     console.error('Reviews POST error:', e);

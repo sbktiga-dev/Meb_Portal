@@ -127,6 +127,18 @@ export async function POST(
       select: { userId: true },
     });
     if (otherParticipants.length > 0) {
+      // Create in-app notifications
+      await prisma.notification.createMany({
+        data: otherParticipants.map(p => ({
+          type: 'message',
+          message: `${user.name || 'Пользователь'} отправил вам сообщение`,
+          userId: p.userId,
+          fromUserId: user.id,
+          link: `/dashboard/messages/${params.id}`,
+        })),
+      });
+
+      // Send push notifications
       sendPushToUsers(
         otherParticipants.map(p => p.userId),
         { title: 'Новое сообщение', body: `${user.name || 'Пользователь'} написал вам`, url: `/dashboard/messages/${params.id}` }

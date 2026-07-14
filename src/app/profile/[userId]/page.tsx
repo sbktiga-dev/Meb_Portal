@@ -616,21 +616,73 @@ export default function ProfilePage() {
                             </div>
                           </div>
                           {postImages.length > 0 && (
-                            isVideoUrl(postImages[0]) ? (
-                              <div className="relative w-full">
-                                {isEmbedUrl(postImages[0]) ? (
-                                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                                    <iframe src={postImages[0]} className="absolute inset-0 w-full h-full rounded-b-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                            <div className="relative bg-gray-50 dark:bg-gray-800">
+                              {postImages.length === 1 ? (
+                                isVideoUrl(postImages[0]) ? (
+                                  <div className="relative w-full">
+                                    {isEmbedUrl(postImages[0]) ? (
+                                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                                        <iframe src={postImages[0]} className="absolute inset-0 w-full h-full rounded-b-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                                      </div>
+                                    ) : (
+                                      <video src={postImages[0]} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
+                                    )}
                                   </div>
                                 ) : (
-                                  <video src={postImages[0]} controls preload="metadata" className="w-full rounded-b-xl" playsInline />
-                                )}
-                              </div>
-                            ) : (
-                              <div className="relative w-full" style={{ paddingBottom: '50%' }}>
-                                <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
-                              </div>
-                            )
+                                  <div className="relative w-full" style={{ paddingBottom: '75%' }}>
+                                    <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                                  </div>
+                                )
+                              ) : postImages.length === 2 ? (
+                                <div className="grid grid-cols-2 gap-0.5">
+                                  {postImages.slice(0, 2).map((img, idx) => (
+                                    <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                      {isVideoUrl(img) ? (
+                                        <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
+                                      ) : (
+                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : postImages.length === 3 ? (
+                                <div className="grid grid-cols-2 gap-0.5">
+                                  <div className="relative row-span-2" style={{ paddingBottom: isVideoUrl(postImages[0]) ? '0' : '200%' }}>
+                                    {isVideoUrl(postImages[0]) ? (
+                                      <video src={postImages[0]} controls preload="metadata" className="w-full h-full object-cover" playsInline />
+                                    ) : (
+                                      <Image src={postImages[0]} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                    )}
+                                  </div>
+                                  {postImages.slice(1, 3).map((img, idx) => (
+                                    <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                      {isVideoUrl(img) ? (
+                                        <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
+                                      ) : (
+                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-2 gap-0.5">
+                                  {postImages.slice(0, 4).map((img, idx) => (
+                                    <div key={idx} className="relative" style={{ paddingBottom: isVideoUrl(img) ? '0' : '100%' }}>
+                                      {isVideoUrl(img) ? (
+                                        <video src={img} controls preload="metadata" className="w-full h-full object-cover" playsInline />
+                                      ) : (
+                                        <Image src={img} alt="" fill className="object-cover" sizes="50vw" unoptimized />
+                                      )}
+                                      {idx === 3 && postImages.length > 4 && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                          <span className="text-white text-xl font-bold">+{postImages.length - 4}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           )}
                         </Link>
                       );
@@ -664,26 +716,31 @@ export default function ProfilePage() {
 
                 <InfiniteScroll hasMore={portfolioHasMore} loading={portfolioLoading} onLoadMore={loadMorePortfolio}>
                   {portfolioItems.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {portfolioItems.map(item => {
-                        const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
-                        return (
-                          <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 group">
-                            {imgs[0] ? (
-                              <Image src={imgs[0]} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" unoptimized />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {portfolioItems.map(item => {
+                          const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
+                          return (
+                            <Link key={item.id} href={`/portfolio/${user.id}`} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 group block">
+                              {imgs[0] ? (
+                                <Image src={imgs[0]} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" unoptimized />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
+                                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                                <span className="text-white text-sm font-bold">{item.title}</span>
+                                {item.category && <span className="text-white/70 text-xs">{item.category}</span>}
                               </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                              <span className="text-white text-sm font-bold">{item.title}</span>
-                              {item.category && <span className="text-white/70 text-xs">{item.category}</span>}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                      <Link href={`/portfolio/${user.id}`} className="block text-center text-sm text-brand-500 hover:text-brand-600 font-medium mt-3">
+                        Смотреть все портфолио →
+                      </Link>
+                    </>
                   ) : (
                     !portfolioLoading && <div className="card-base p-10 text-center"><p className="text-gray-400 dark:text-gray-500">Пока нет работ в портфолио</p></div>
                   )}

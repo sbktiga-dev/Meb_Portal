@@ -30,6 +30,7 @@ model User {
   profileViews  Int            @default(0)
   profileBanners String        @default("[]") // JSON array: [{id, position, imageUrl, title, subtitle, linkUrl, buttonText, active}]
   profileTheme  String         @default("{}") // JSON: {type: "image"|"gradient"|"preset", value: string}
+  lastActiveAt  DateTime?      // Для отслеживания онлайн-статуса
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -415,12 +416,18 @@ model ConversationParticipant {
 model Message {
   id            String         @id @default(cuid())
   content       String
+  attachments   String         @default("[]") // JSON массив URL файлов
+  reactions     String         @default("{}") // JSON {emoji: [userId, ...]}
+  replyToId     String?        // ID сообщения на которое отвечаем
   createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   author        User           @relation(fields: [authorId], references: [id])
   authorId      String
   conversation  Conversation   @relation(fields: [conversationId], references: [id])
   conversationId String
+  replyTo       Message?       @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies       Message[]      @relation("MessageReplies")
 
   @@index([conversationId])
   @@index([authorId])

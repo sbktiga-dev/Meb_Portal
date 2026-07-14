@@ -42,10 +42,21 @@ export async function GET(
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'asc' },
-        include: { author: { select: { id: true, name: true, avatar: true } } },
+        include: {
+          author: { select: { id: true, name: true, avatar: true } },
+          replyTo: {
+            include: { author: { select: { id: true, name: true, avatar: true } } },
+          },
+        },
       }),
       prisma.message.count({ where: { conversationId: params.id } }),
     ]);
+
+    // Update user's lastActiveAt
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastActiveAt: new Date() },
+    });
 
     await prisma.conversationParticipant.updateMany({
       where: { userId: user.id, conversationId: params.id },
@@ -98,23 +109,40 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { content } = body;
+    const { content, attachments, replyToId } = body;
 
-    if (!content?.trim()) {
+    if (!content?.trim() && (!attachments || attachments.length === 0)) {
       return NextResponse.json({ error: 'Сообщение не может быть пустым' }, { status: 400 });
     }
 
-    if (content.trim().length > 5000) {
+    if (content && content.trim().length > 5000) {
       return NextResponse.json({ error: 'Сообщение не может превышать 5000 символов' }, { status: 400 });
+    }
+
+    if (attachments && attachments.length > 5) {
+      return NextResponse.json({ error: 'Максимум 5 вложений' }, { status: 400 });
     }
 
     const message = await prisma.message.create({
       data: {
-        content: content.trim(),
+        content: content?.trim() || '',
+        attachments: attachments ? JSON.stringify(attachments) : '[]',
+        replyToId: replyToId || null,
         authorId: user.id,
         conversationId: params.id,
       },
-      include: { author: { select: { id: true, name: true, avatar: true } } },
+      include: {
+        author: { select: { id: true, name: true, avatar: true } },
+        replyTo: {
+          include: { author: { select: { id: true, name: true, avatar: true } } },
+        },
+      },
+    });
+
+    // Update user's lastActiveAt
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastActiveAt: new Date() },
     });
 
     await prisma.conversation.update({

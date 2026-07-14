@@ -129,11 +129,6 @@ export default function CompaniesContent({
                         {c._count.products} товаров
                       </span>
                     ) : null}
-                    {c.categories && (
-                      <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">
-                        {c.categories.split(',')[0]}
-                      </span>
-                    )}
                   </div>
                 </div>
               </Link>

@@ -147,13 +147,14 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
     <div className="space-y-6">
       {/* Hero banners */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Главный баннер</h3>
           <button type="button" onClick={addHeroBanner} className="text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             Добавить
           </button>
         </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3">Рекомендуемый формат: <strong>1920 x 600 px</strong> (3:1), JPG/PNG, до 5 МБ</p>
         {heroBanners.length === 0 ? (
           <p className="text-xs text-gray-400 dark:text-gray-500">Нет главных баннеров. Нажмите «Добавить».</p>
         ) : (
@@ -167,7 +168,8 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
 
       {/* Side banners */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Боковые баннеры (5 слева + 5 справа)</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Боковые баннеры (5 слева + 5 справа)</h3>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3">Рекомендуемый формат: <strong>500 x 400 px</strong> (4:3), JPG/PNG, до 5 МБ</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {SIDE_SLOTS.map(slot => {
             const banner = sideBanners.find(b => b.position === slot);
@@ -207,13 +209,14 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
 
       {/* Content banners */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Контентные баннеры (внизу страницы)</h3>
           <button type="button" onClick={addContentBanner} className="text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             Добавить
           </button>
         </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3">Рекомендуемый формат: <strong>1200 x 500 px</strong> (2.4:1), JPG/PNG, до 5 МБ</p>
         {contentBanners.length === 0 ? (
           <p className="text-xs text-gray-400 dark:text-gray-500">Нет контентных баннеров. Нажмите «Добавить».</p>
         ) : (
@@ -242,6 +245,12 @@ export default function BannerEditor({ banners, onChange, role }: BannerEditorPr
               {/* Image */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Изображение</label>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-2">
+                  {editingBanner.position === 'hero' && 'Формат: 1920 x 600 px (3:1)'}
+                  {editingBanner.position.startsWith('side-') && 'Формат: 500 x 400 px (4:3)'}
+                  {editingBanner.position.startsWith('content-') && 'Формат: 1200 x 500 px (2.4:1)'}
+                  {' · '}JPG или PNG, до 5 МБ
+                </p>
                 {editingBanner.imageUrl ? (
                   <div className="relative rounded-lg overflow-hidden aspect-video">
                     <Image src={editingBanner.imageUrl} alt="Превью" fill className="object-cover" sizes="400px" unoptimized />

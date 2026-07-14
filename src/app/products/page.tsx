@@ -8,6 +8,7 @@ import InfiniteScroll from '@/components/InfiniteScroll';
 import PageSEO from '@/components/PageSEO';
 import { useCompare } from '@/components/CompareProvider';
 import { useDebounce } from '@/hooks/useDebounce';
+import FavoriteButton from '@/components/FavoriteButton';
 
 interface ProductData {
   id: string;
@@ -21,6 +22,7 @@ interface ProductData {
   createdAt: string;
   company: { id: string; name: string; logo: string | null } | null;
   supplier: { id: string; companyName: string; logo: string | null } | null;
+  manufacturer: { id: string; name: string; logo: string | null } | null;
   _count: { reviews: number };
   avgRating: number;
 }
@@ -208,12 +210,48 @@ export default function ProductsPage() {
                           {product.brand}
                         </span>
                       )}
+                      <div className="absolute top-3 right-3">
+                        <FavoriteButton itemType="product" itemId={product.id} compact />
+                      </div>
                     </div>
                   </Link>
                   <div className="p-4">
                     <Link href={`/products/${product.id}`}>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100 hover:text-brand-600 transition-colors line-clamp-2">{product.name}</h3>
                     </Link>
+                    {/* Поставщик / Производитель / Компания */}
+                    {(product.company || product.supplier || product.manufacturer) && (
+                      <div className="flex items-center gap-2 mt-2">
+                        {(product.company || product.manufacturer) && (
+                          <div className="flex items-center gap-1.5">
+                            {product.company?.logo || product.manufacturer?.logo ? (
+                              <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                                <Image src={product.company?.logo || product.manufacturer?.logo || ''} alt="" fill className="object-cover" sizes="20px" unoptimized />
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 bg-gradient-to-br from-brand-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">
+                                {(product.company?.name || product.manufacturer?.name || '').charAt(0)}
+                              </div>
+                            )}
+                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{product.company?.name || product.manufacturer?.name}</span>
+                          </div>
+                        )}
+                        {product.supplier && (
+                          <div className="flex items-center gap-1.5">
+                            {product.supplier.logo ? (
+                              <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                                <Image src={product.supplier.logo} alt="" fill className="object-cover" sizes="20px" unoptimized />
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">
+                                {product.supplier.companyName.charAt(0)}
+                              </div>
+                            )}
+                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{product.supplier.companyName}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 mt-2">
                       {product.avgRating > 0 && (
                         <div className="flex items-center gap-1">

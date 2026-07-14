@@ -38,19 +38,30 @@ export async function GET(request: Request) {
 
     const imageIds = favorites.filter(f => f.itemType === 'image').map(f => f.itemId);
     const docIds = favorites.filter(f => f.itemType === 'document').map(f => f.itemId);
+    const productIds = favorites.filter(f => f.itemType === 'product').map(f => f.itemId);
 
-    const [images, documents] = await Promise.all([
+    const [images, documents, products] = await Promise.all([
       imageIds.length > 0 ? prisma.image.findMany({ where: { id: { in: imageIds } } }) : [],
       docIds.length > 0 ? prisma.document.findMany({ where: { id: { in: docIds } } }) : [],
+      productIds.length > 0 ? prisma.product.findMany({
+        where: { id: { in: productIds } },
+        include: {
+          company: { select: { id: true, name: true, logo: true } },
+          supplier: { select: { id: true, companyName: true, logo: true } },
+          manufacturer: { select: { id: true, name: true, logo: true } },
+        },
+      }) : [],
     ]);
 
     const imageMap = new Map(images.map(i => [i.id, i]));
     const docMap = new Map(documents.map(d => [d.id, d]));
+    const productMap = new Map(products.map(p => [p.id, p]));
 
     const enriched = favorites.map(fav => ({
       ...fav,
       item: fav.itemType === 'image' ? imageMap.get(fav.itemId) || null
         : fav.itemType === 'document' ? docMap.get(fav.itemId) || null
+        : fav.itemType === 'product' ? productMap.get(fav.itemId) || null
         : null,
     }));
 

@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     const sort = searchParams.get('sort') || 'newest';
     const companyId = searchParams.get('companyId');
     const supplierId = searchParams.get('supplierId');
+    const manufacturerId = searchParams.get('manufacturerId');
 
     const where: Record<string, unknown> = { isPublished: true };
     if (search) {
@@ -32,6 +33,7 @@ export async function GET(request: Request) {
     if (brand) where.brand = brand;
     if (companyId) where.companyId = companyId;
     if (supplierId) where.supplierId = supplierId;
+    if (manufacturerId) where.manufacturerId = manufacturerId;
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) (where.price as Record<string, number>).gte = parseFloat(minPrice);
@@ -70,6 +72,7 @@ export async function GET(request: Request) {
         include: {
           company: { select: { id: true, name: true, logo: true } },
           supplier: { select: { id: true, companyName: true, logo: true } },
+          manufacturer: { select: { id: true, name: true, logo: true } },
           _count: { select: { reviews: true } },
         },
         orderBy,

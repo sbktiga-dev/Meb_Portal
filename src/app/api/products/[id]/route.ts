@@ -20,6 +20,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       include: {
         company: { select: { id: true, name: true, logo: true, phone: true, users: { select: { id: true } } } },
         supplier: { select: { id: true, companyName: true, logo: true, phone: true, users: { select: { id: true } } } },
+        manufacturer: { select: { id: true, name: true, logo: true, phone: true, users: { select: { id: true } } } },
         reviews: {
           include: {
             user: { select: { id: true, name: true, avatar: true } },

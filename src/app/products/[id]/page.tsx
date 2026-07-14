@@ -7,6 +7,7 @@ import { SkeletonPage } from '@/components/Loading';
 import Image from 'next/image';
 import StarRating from '@/components/StarRating';
 import PageSEO from '@/components/PageSEO';
+import FavoriteButton from '@/components/FavoriteButton';
 
 interface ProductData {
   id: string;
@@ -20,6 +21,7 @@ interface ProductData {
   createdAt: string;
   company: { id: string; name: string; logo: string | null; phone: string | null; email: string | null } | null;
   supplier: { id: string; companyName: string; logo: string | null; phone: string | null; email: string | null } | null;
+  manufacturer: { id: string; name: string; logo: string | null; phone: string | null; email: string | null } | null;
   reviews: { id: string; score: number; comment: string | null; createdAt: string; user: { id: string; name: string | null; avatar: string | null } }[];
   _count: { reviews: number };
   avgRating: number;
@@ -166,11 +168,26 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {(product.company || product.supplier) && (
+            {(product.company || product.supplier || product.manufacturer) && (
               <div className="card-base p-5">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">Поставщик</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">Производитель</h2>
+                {product.manufacturer && (
+                  <Link href={`/manufacturers/${product.manufacturer.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors">
+                    {product.manufacturer.logo ? (
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden">
+                        <Image src={product.manufacturer.logo} alt="Логотип" fill className="object-cover" sizes="48px" unoptimized />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold">{product.manufacturer.name.charAt(0)}</div>
+                    )}
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{product.manufacturer.name}</p>
+                      {product.manufacturer.phone && <p className="text-sm text-gray-500 dark:text-gray-400">{product.manufacturer.phone}</p>}
+                    </div>
+                  </Link>
+                )}
                 {product.company && (
-                  <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors">
+                  <Link href={`/companies/${product.company.id}`} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl p-2 -m-2 transition-colors mt-2">
                     {product.company.logo ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                         <Image src={product.company.logo} alt="Логотип" fill className="object-cover" sizes="48px" unoptimized />
@@ -191,7 +208,7 @@ export default function ProductDetailPage() {
                         <Image src={product.supplier.logo} alt="Логотип" fill className="object-cover" sizes="48px" unoptimized />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center text-white font-bold">{product.supplier.companyName.charAt(0)}</div>
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center text-white font-bold">{product.supplier.companyName.charAt(0)}</div>
                     )}
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-gray-100">{product.supplier.companyName}</p>
@@ -199,6 +216,9 @@ export default function ProductDetailPage() {
                     </div>
                   </Link>
                 )}
+                <div className="mt-4">
+                  <FavoriteButton itemType="product" itemId={product.id} />
+                </div>
               </div>
             )}
           </div>

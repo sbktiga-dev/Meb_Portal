@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 interface FavoriteButtonProps {
-  itemType: 'image' | 'document';
+  itemType: 'image' | 'document' | 'product';
   itemId: string;
   compact?: boolean;
 }

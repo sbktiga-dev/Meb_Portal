@@ -329,7 +329,7 @@ export default function ProfilePage() {
 
       {/* Side banners — на странице по краям */}
       <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex gap-6">
+        <div className="flex gap-2">
           {isBusiness && (
             <>
               <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">

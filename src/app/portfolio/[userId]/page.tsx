@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import SendMessageButton from '@/components/SendMessageButton';
+import Lightbox from '@/components/Lightbox';
 
 interface PortfolioItem {
   id: string;
@@ -54,6 +55,18 @@ export default function PublicPortfolioPage() {
   const [activeCategory, setActiveCategory] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(d => { if (d.user) setCurrentUserId(d.user.id); })
+        .catch(() => {});
+    }
+  }, []);
 
   const fetchPortfolio = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) setLoadingMore(true);
@@ -159,35 +172,51 @@ export default function PublicPortfolioPage() {
           </div>
         ) : (
           <InfiniteScroll hasMore={hasMore} loading={loadingMore} onLoadMore={loadMore}>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
               {items.map((item, i) => {
                 const tags: string[] = (() => { try { return JSON.parse(item.tags); } catch { return []; } })();
                 const images: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
+                const isOwner = currentUserId === params.userId;
                 return (
                   <div key={item.id} className="card-base overflow-hidden hover-lift animate-fade-in-up">
-                    <div className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-48 flex items-center justify-center relative group">
+                    <div
+                      className="h-40 sm:h-48 relative group cursor-pointer"
+                      onClick={() => images.length > 0 && setLightbox({ images, index: 0 })}
+                    >
                       {images.length > 0 ? (
-                        <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
+                        <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" unoptimized />
                       ) : (
-                        <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                      )}
-                      {images.length > 1 && (
-                        <span className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">+{images.length - 1}</span>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-bold text-gray-900 line-clamp-1">{item.title}</h3>
-                        {item.category && <span className={`text-[10px] px-2 py-0.5 rounded-full border shrink-0 ${categoryColors[item.category] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>{categoryLabels[item.category] || item.category}</span>}
-                      </div>
-                      {item.description && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{item.description}</p>}
-                      {tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {tags.slice(0, 3).map(tag => <span key={tag} className="text-[10px] text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">#{tag}</span>)}
+                        <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
+                          <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                         </div>
                       )}
-                      <div className="pt-3 border-t border-gray-100">
-                        <span className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString('ru-RU')}</span>
+                      {images.length > 1 && (
+                        <span className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-full">+{images.length - 1}</span>
+                      )}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-xl text-xs font-medium shadow-lg">
+                          {isOwner ? 'Редактировать' : 'Подробнее'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-3 sm:p-4">
+                      <div className="flex items-start justify-between mb-1.5">
+                        <h3 className="font-bold text-gray-900 line-clamp-1 text-sm">{item.title}</h3>
+                        {item.category && <span className={`text-[9px] px-1.5 py-0.5 rounded-full border shrink-0 ml-1 ${categoryColors[item.category] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>{categoryLabels[item.category] || item.category}</span>}
+                      </div>
+                      {tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {tags.slice(0, 2).map(tag => <span key={tag} className="text-[9px] text-brand-600 bg-brand-50 px-1 py-0.5 rounded">#{tag}</span>)}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <span className="text-[10px] text-gray-400">{new Date(item.createdAt).toLocaleDateString('ru-RU')}</span>
+                        {isOwner && (
+                          <Link href={`/dashboard/portfolio/${item.id}/edit`}
+                            className="text-[10px] text-brand-500 hover:text-brand-700 transition-colors font-medium">
+                            Изменить
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -197,6 +226,10 @@ export default function PublicPortfolioPage() {
           </InfiniteScroll>
         )}
       </div>
+
+      {lightbox && (
+        <Lightbox images={lightbox.images} initialIndex={lightbox.index} onClose={() => setLightbox(null)} />
+      )}
     </div>
   );
 }

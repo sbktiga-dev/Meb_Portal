@@ -10,6 +10,7 @@ import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
 import PromotionBadge from '@/components/PromotionBadge';
 import BannerAd from '@/components/BannerAd';
+import BannerPlaceholder from '@/components/BannerPlaceholder';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import PageSEO from '@/components/PageSEO';
 
@@ -317,16 +318,19 @@ export default function FeedPage() {
             <Link href="/feed/new" className="btn-primary">Создать первый пост</Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_240px] gap-6">
-            {/* Left sidebar — баннеры на десктопе */}
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[38px]">
+            {/* Left sidebar — баннеры или заглушки на десктопе */}
             <aside className="hidden lg:block">
-              {feedBanners.length > 0 && (
-                <div className="sticky top-20 space-y-4">
-                  {feedBanners.map((b) => (
-                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                  ))}
-                </div>
-              )}
+              <div className="sticky top-20 space-y-4">
+                {feedBanners.length > 0
+                  ? feedBanners.slice(0, 5).map((b) => (
+                      <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                    ))
+                  : Array.from({ length: 5 }, (_, i) => (
+                      <BannerPlaceholder key={`left-${i}`} />
+                    ))
+                }
+              </div>
             </aside>
 
             {/* Center — посты */}
@@ -572,15 +576,18 @@ export default function FeedPage() {
             </div>
           </div>
 
-            {/* Right sidebar — баннеры на десктопе */}
+            {/* Right sidebar — баннеры или заглушки на десктопе */}
             <aside className="hidden lg:block">
-              {feedBanners.length > 1 && (
-                <div className="sticky top-20 space-y-4">
-                  {feedBanners.slice(1).map((b) => (
-                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                  ))}
-                </div>
-              )}
+              <div className="sticky top-20 space-y-4">
+                {feedBanners.length > 5
+                  ? feedBanners.slice(5, 10).map((b) => (
+                      <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                    ))
+                  : Array.from({ length: 5 }, (_, i) => (
+                      <BannerPlaceholder key={`right-${i}`} />
+                    ))
+                }
+              </div>
             </aside>
           </div>
         )}

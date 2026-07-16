@@ -32,6 +32,7 @@ export default async function HomePage() {
       prisma.supplier.count(),
       prisma.company.count(),
       prisma.specialist.count(),
+      prisma.product.count(),
     ]),
     prisma.image.findMany({
       take: 6,
@@ -56,7 +57,7 @@ export default async function HomePage() {
     }),
   ]);
 
-  const [users, imagesCount, documentsCount, suppliers, companies, specialists] = statsResult;
+  const [users, imagesCount, documentsCount, suppliers, companies, specialists, products] = statsResult;
 
   const stats = {
     users,
@@ -65,6 +66,7 @@ export default async function HomePage() {
     suppliers,
     companies,
     specialists,
+    products,
   };
 
   const feedPosts = feedResult.map(p => ({

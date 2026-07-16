@@ -13,6 +13,7 @@ interface Stats {
   suppliers: number;
   companies: number;
   specialists: number;
+  products: number;
 }
 
 interface ImageData {
@@ -128,10 +129,14 @@ export default function HomeContent({
 
       <section className="relative -mt-10 z-10 section-container">
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-card p-8 md:p-10">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 md:gap-4">
             <div className="text-center">
-              <AnimatedCounter value={stats.images} />
+              <AnimatedCounter value={stats.images || 0} />
               <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Изображений</div>
+            </div>
+            <div className="text-center">
+              <AnimatedCounter value={stats.products || 0} />
+              <div className="text-[#717171] dark:text-gray-400 mt-2 font-medium">Товаров</div>
             </div>
             <div className="text-center">
               <AnimatedCounter value={stats.suppliers || 0} />

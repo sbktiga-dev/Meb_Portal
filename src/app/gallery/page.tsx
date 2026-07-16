@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
+import BannerPlaceholder from '@/components/BannerPlaceholder';
 import PageSEO from '@/components/PageSEO';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -238,8 +239,27 @@ export default function GalleryPage() {
             <BannerAd title={galleryBanners[0].title} imageUrl={galleryBanners[0].imageUrl} linkUrl={galleryBanners[0].linkUrl} />
           </div>
         )}
+      </div>
 
-        {/* Results */}
+      {/* 3-column layout with sidebars */}
+      <div className="px-[5mm]">
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
+          {/* Left sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 space-y-4">
+              {galleryBanners.length > 1
+                ? galleryBanners.slice(1, 3).map((b) => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))
+                : Array.from({ length: 2 }, (_, i) => (
+                    <BannerPlaceholder key={`gallery-left-${i}`} />
+                  ))
+              }
+            </div>
+          </aside>
+
+          {/* Center content */}
+          <div className="min-w-0">
         {loading ? (
           <SkeletonGrid count={8} />
         ) : images.length === 0 ? (
@@ -317,10 +337,26 @@ export default function GalleryPage() {
             })}
           </div>
         )}
+          </div>
 
-        {/* Infinite scroll */}
-        <InfiniteScroll hasMore={hasMore} loading={loadingMore} onLoadMore={loadMore} />
+          {/* Right sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 space-y-4">
+              {galleryBanners.length > 3
+                ? galleryBanners.slice(3, 5).map((b) => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))
+                : Array.from({ length: 2 }, (_, i) => (
+                    <BannerPlaceholder key={`gallery-right-${i}`} />
+                  ))
+              }
+            </div>
+          </aside>
+        </div>
       </div>
+
+      {/* Infinite scroll */}
+      <InfiniteScroll hasMore={hasMore} loading={loadingMore} onLoadMore={loadMore} />
     </div>
   );
 }

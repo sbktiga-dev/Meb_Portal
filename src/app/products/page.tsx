@@ -9,6 +9,7 @@ import PageSEO from '@/components/PageSEO';
 import { useCompare } from '@/components/CompareProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import FavoriteButton from '@/components/FavoriteButton';
+import BannerPlaceholder from '@/components/BannerPlaceholder';
 
 interface ProductData {
   id: string;
@@ -178,7 +179,22 @@ export default function ProductsPage() {
             </div>
           )}
         </div>
+      </div>
 
+      {/* 3-column layout with sidebars */}
+      <div className="px-[5mm]">
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
+          {/* Left sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 space-y-4">
+              {Array.from({ length: 3 }, (_, i) => (
+                <BannerPlaceholder key={`products-left-${i}`} />
+              ))}
+            </div>
+          </aside>
+
+          {/* Center content */}
+          <div className="min-w-0">
         {loading ? (
           <SkeletonGrid count={8} />
         ) : products.length === 0 ? (
@@ -277,9 +293,20 @@ export default function ProductsPage() {
             })}
           </div>
         )}
+          </div>
 
-        <InfiniteScroll hasMore={hasMore} loading={loadingMore} onLoadMore={loadMore} />
+          {/* Right sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 space-y-4">
+              {Array.from({ length: 3 }, (_, i) => (
+                <BannerPlaceholder key={`products-right-${i}`} />
+              ))}
+            </div>
+          </aside>
+        </div>
       </div>
+
+      <InfiniteScroll hasMore={hasMore} loading={loadingMore} onLoadMore={loadMore} />
     </div>
   );
 }

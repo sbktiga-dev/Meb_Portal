@@ -297,10 +297,14 @@ export default function FeedPage() {
             <option value="discussed">Обсуждаемые</option>
           </select>
         </div>
+      </div>
 
-        {loading ? (
+      {loading ? (
+        <div className="section-container">
           <SkeletonFeed count={3} />
-        ) : feedError ? (
+        </div>
+      ) : feedError ? (
+        <div className="section-container">
           <div className="text-center py-20 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
               <svg className="w-10 h-10 text-red-400 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
@@ -308,7 +312,9 @@ export default function FeedPage() {
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{feedError}</h3>
             <button onClick={() => { setFeedError(null); fetchPosts(1, false); }} className="btn-primary mt-4">Попробовать снова</button>
           </div>
-        ) : posts.length === 0 ? (
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="section-container">
           <div className="text-center py-20 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
               <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
@@ -317,8 +323,10 @@ export default function FeedPage() {
             <p className="text-gray-500 dark:text-gray-400 mb-6">Будьте первым — создайте пост!</p>
             <Link href="/feed/new" className="btn-primary">Создать первый пост</Link>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[38px]">
+        </div>
+      ) : (
+        <div className="px-[5mm]">
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
             {/* Left sidebar — баннеры или заглушки на десктопе */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
@@ -590,8 +598,8 @@ export default function FeedPage() {
               </div>
             </aside>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {lightbox && (
         <Lightbox images={lightbox.images} initialIndex={lightbox.index} onClose={() => setLightbox(null)} />

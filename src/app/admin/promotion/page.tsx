@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface PromotionData {
   id: string;
@@ -9,7 +10,7 @@ interface PromotionData {
   startDate: string;
   endDate: string;
   createdAt: string;
-  post: { id: string; title: string; category: string };
+  post: { id: string; title: string; category: string; content: string; images: string; tags: string; author: { name: string | null; avatar: string | null } };
   user: { id: string; name: string | null; email: string };
 }
 
@@ -19,6 +20,7 @@ interface BannerData {
   imageUrl: string;
   linkUrl: string;
   position: string;
+  targetCategory: string;
   status: string;
   startDate: string;
   endDate: string;
@@ -45,6 +47,8 @@ export default function AdminPromotionPage() {
   const [banners, setBanners] = useState<BannerData[]>([]);
   const [filter, setFilter] = useState('pending');
   const [updating, setUpdating] = useState<string | null>(null);
+  const [previewPromo, setPreviewPromo] = useState<PromotionData | null>(null);
+  const [previewBanner, setPreviewBanner] = useState<BannerData | null>(null);
 
   const loadData = async (status?: string, signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
@@ -90,6 +94,10 @@ export default function AdminPromotionPage() {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const parseImages = (imagesStr: string): string[] => {
+    try { return JSON.parse(imagesStr); } catch { return []; }
   };
 
   if (loading) return (
@@ -148,7 +156,7 @@ export default function AdminPromotionPage() {
                   const st = STATUS_LABELS[p.status] || STATUS_LABELS.pending;
                   const days = Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / 86400000);
                   return (
-                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" onClick={() => setPreviewPromo(p)}>
                       <td className="px-6 py-4 text-sm">
                         <div className="font-medium text-gray-900 dark:text-gray-100">{p.user.name || 'Без имени'}</div>
                         <div className="text-gray-500 dark:text-gray-400 text-xs">{p.user.email}</div>
@@ -156,7 +164,7 @@ export default function AdminPromotionPage() {
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{p.post.title}</td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{days} дн.</td>
                       <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-medium ${st.color}`}>{st.text}</span></td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
                         {p.status === 'pending' && (
                           <button
                             onClick={() => handleStatusChange('promotion', p.id, 'active')}
@@ -208,7 +216,7 @@ export default function AdminPromotionPage() {
                   const st = STATUS_LABELS[b.status] || STATUS_LABELS.pending;
                   const days = Math.ceil((new Date(b.endDate).getTime() - new Date(b.startDate).getTime()) / 86400000);
                   return (
-                    <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" onClick={() => setPreviewBanner(b)}>
                       <td className="px-6 py-4 text-sm">
                         <div className="font-medium text-gray-900 dark:text-gray-100">{b.user.name || 'Без имени'}</div>
                         <div className="text-gray-500 dark:text-gray-400 text-xs">{b.user.email}</div>
@@ -217,7 +225,7 @@ export default function AdminPromotionPage() {
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{POSITION_LABELS[b.position] || b.position}</td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{days} дн.</td>
                       <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-medium ${st.color}`}>{st.text}</span></td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
                         {b.status === 'pending' && (
                           <button
                             onClick={() => handleStatusChange('banner', b.id, 'active')}
@@ -245,6 +253,96 @@ export default function AdminPromotionPage() {
           )}
         </div>
       </div>
+
+      {/* Модал предпросмотра поста */}
+      {previewPromo && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setPreviewPromo(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100">Пост: {previewPromo.post.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Автор: {previewPromo.user.name || previewPromo.user.email}</p>
+              </div>
+              <button onClick={() => setPreviewPromo(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {previewPromo.post.images && parseImages(previewPromo.post.images).length > 0 && (
+                <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
+                  {parseImages(previewPromo.post.images).slice(0, 4).map((url, i) => (
+                    <div key={i} className="relative aspect-square bg-gray-100 dark:bg-gray-700">
+                      <Image src={url} alt="" fill className="object-cover" sizes="300px" unoptimized />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{previewPromo.post.title}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{previewPromo.post.content}</p>
+              </div>
+              {previewPromo.post.tags && (
+                <div className="flex flex-wrap gap-1.5">
+                  {(() => { try { return JSON.parse(previewPromo.post.tags); } catch { return []; } })().map((tag: string) => (
+                    <span key={tag} className="text-xs bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 px-2 py-0.5 rounded-full">#{tag}</span>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t dark:border-gray-700">
+                <span>Категория: {previewPromo.post.category}</span>
+                <span>Создан: {new Date(previewPromo.createdAt).toLocaleDateString('ru-RU')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модал предпросмотра баннера */}
+      {previewBanner && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setPreviewBanner(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100">Баннер: {previewBanner.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Автор: {previewBanner.user.name || previewBanner.user.email}</p>
+              </div>
+              <button onClick={() => setPreviewBanner(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {previewBanner.imageUrl && (
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+                  <Image src={previewBanner.imageUrl} alt={previewBanner.title} fill className="object-cover" sizes="(max-width: 600px) 100vw, 600px" unoptimized />
+                  <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Реклама</div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Название:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{previewBanner.title}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Позиция:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{POSITION_LABELS[previewBanner.position] || previewBanner.position}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Аудитория:</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{previewBanner.targetCategory === 'all' ? 'Все категории' : previewBanner.targetCategory}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Ссылка:</span>
+                  <a href={previewBanner.linkUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-600 hover:text-brand-700 truncate max-w-[250px]">{previewBanner.linkUrl}</a>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Создан:</span>
+                  <span className="text-sm text-gray-900 dark:text-gray-100">{new Date(previewBanner.createdAt).toLocaleDateString('ru-RU')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

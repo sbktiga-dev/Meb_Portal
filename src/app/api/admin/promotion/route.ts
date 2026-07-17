@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       prisma.promotion.findMany({
         where: promotionWhere,
         include: {
-          post: { select: { id: true, title: true, category: true } },
+          post: { select: { id: true, title: true, category: true, content: true, images: true, tags: true, author: { select: { name: true, avatar: true } } } },
           user: { select: { id: true, name: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },

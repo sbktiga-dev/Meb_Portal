@@ -3,6 +3,8 @@ export interface EditorBlock {
   type: 'heading' | 'text' | 'image' | 'gallery' | 'quote' | 'divider' | 'button' | 'video';
   content: Record<string, any>;
   order: number;
+  size?: 'full' | 'wide' | 'normal' | 'narrow';
+  fontSize?: 'sm' | 'base' | 'lg' | 'xl';
 }
 
 export interface PostTemplate {

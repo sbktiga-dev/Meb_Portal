@@ -12,6 +12,15 @@ interface PostEditorProps {
 }
 
 const DRAFT_KEY = 'mebportal_post_draft';
+const CUSTOM_TEMPLATES_KEY = 'mebportal_custom_templates';
+
+interface CustomTemplate {
+  id: string;
+  name: string;
+  blocks: EditorBlock[];
+  category: string;
+  createdAt: string;
+}
 
 export default function PostEditor({ userRole, onPublish, onCancel }: PostEditorProps) {
   const [blocks, setBlocks] = useState<EditorBlock[]>([]);
@@ -26,9 +35,51 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
   const [showPreview, setShowPreview] = useState(false);
   const [undoStack, setUndoStack] = useState<EditorBlock[][]>([]);
   const [redoStack, setRedoStack] = useState<EditorBlock[][]>([]);
+  const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>([]);
+  const [templateName, setTemplateName] = useState('');
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const templates = getTemplatesForRole(userRole);
+
+  // Load custom templates
+  useEffect(() => {
+    const saved = localStorage.getItem(CUSTOM_TEMPLATES_KEY);
+    if (saved) { try { setCustomTemplates(JSON.parse(saved)); } catch { /* ignore */ } }
+  }, []);
+
+  const saveCustomTemplate = () => {
+    if (!templateName.trim()) { toast.error('Введите название шаблона'); return; }
+    if (blocks.length === 0) { toast.error('Добавьте блоки'); return; }
+    const newTemplate: CustomTemplate = {
+      id: Date.now().toString(36),
+      name: templateName.trim(),
+      blocks: JSON.parse(JSON.stringify(blocks)),
+      category,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...customTemplates, newTemplate];
+    setCustomTemplates(updated);
+    localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(updated));
+    setTemplateName('');
+    setShowSaveTemplate(false);
+    toast.success('Шаблон сохранён!');
+  };
+
+  const deleteCustomTemplate = (id: string) => {
+    if (!confirm('Удалить шаблон?')) return;
+    const updated = customTemplates.filter(t => t.id !== id);
+    setCustomTemplates(updated);
+    localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(updated));
+    toast.success('Шаблон удалён');
+  };
+
+  const selectCustomTemplate = (template: CustomTemplate) => {
+    setBlocks(JSON.parse(JSON.stringify(template.blocks)));
+    setCategory(template.category || 'news');
+    setShowTemplates(false);
+    if (template.blocks.length > 0) setSelectedBlockId(template.blocks[0].id);
+  };
 
   // Load draft on mount
   useEffect(() => {
@@ -231,7 +282,9 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+        {/* Стандартные шаблоны */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
           {templates.map(template => (
             <button key={template.id} onClick={() => selectTemplate(template)}
               className="text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-400 hover:shadow-lg transition-all duration-200 group">
@@ -248,6 +301,38 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
             </button>
           ))}
         </div>
+
+        {/* Пользовательские шаблоны */}
+        {customTemplates.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Мои шаблоны</h3>
+              <span className="text-xs text-gray-400">{customTemplates.length} шт.</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {customTemplates.map(ct => (
+                <div key={ct.id} className="relative group text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-brand-100 dark:border-brand-900 hover:border-brand-400 hover:shadow-lg transition-all duration-200">
+                  <button onClick={(e) => { e.stopPropagation(); deleteCustomTemplate(ct.id); }}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                  <button onClick={() => selectCustomTemplate(ct)} className="w-full text-left">
+                    <div className="text-2xl mb-2">📝</div>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{ct.name}</h3>
+                    <p className="text-xs text-gray-400 mt-1">{ct.blocks.length} блоков</p>
+                    <div className="flex gap-1 mt-3">
+                      {ct.blocks.slice(0, 4).map((b, i) => (
+                        <span key={i} className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[10px] text-gray-400">
+                          {BLOCK_TYPES.find(bt => bt.type === b.type)?.icon || '?'}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -356,6 +441,10 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
             className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg">
             Черновик
           </button>
+          <button onClick={() => setShowSaveTemplate(true)}
+            className="px-3 py-1.5 text-sm text-brand-500 hover:text-brand-600 border border-brand-200 dark:border-brand-800 rounded-lg">
+            Сохранить шаблон
+          </button>
           <button onClick={handlePublish} disabled={publishing} className="px-5 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
             {publishing ? 'Публикация...' : 'Опубликовать'}
           </button>
@@ -417,6 +506,42 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
                       </div>
                     </div>
                     <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
+                      {/* Size controls when selected */}
+                      {selectedBlockId === block.id && block.type !== 'divider' && (
+                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
+                          {['narrow', 'normal', 'wide', 'full'].map(s => (
+                            <button key={s} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, size: s as any } : b)); }}
+                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.size === s || (!block.size && s === 'normal') ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
+                              title={s === 'narrow' ? 'Узкий' : s === 'wide' ? 'Широкий' : s === 'full' ? 'На всю ширину' : 'Обычный'}>
+                              {s === 'narrow' ? '◻' : s === 'wide' ? '▭' : s === 'full' ? '⬛' : '◻'}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {/* Font size for text blocks */}
+                      {selectedBlockId === block.id && block.type === 'text' && (
+                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
+                          {['sm', 'base', 'lg', 'xl'].map(fs => (
+                            <button key={fs} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, fontSize: fs as any } : b)); }}
+                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.fontSize === fs || (!block.fontSize && fs === 'base') ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
+                              title={fs === 'sm' ? 'Мелкий' : fs === 'lg' ? 'Большой' : fs === 'xl' ? 'Очень большой' : 'Обычный'}>
+                              {fs === 'sm' ? 'A' : fs === 'lg' ? '<u>A</u>' : fs === 'xl' ? '<b>A</b>' : 'A'}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {/* Gallery columns */}
+                      {selectedBlockId === block.id && block.type === 'gallery' && (
+                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
+                          {[2, 3, 4].map(cols => (
+                            <button key={cols} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, content: { ...b.content, columns: cols } } : b)); }}
+                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.content.columns === cols ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
+                              title={`${cols} колонки`}>
+                              {cols}×
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <button onClick={e => { e.stopPropagation(); duplicateBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600">
                         <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                       </button>
@@ -442,6 +567,24 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
           </div>
         </div>
       </div>
+
+      {/* Модал сохранения шаблона */}
+      {showSaveTemplate && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowSaveTemplate(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-4">Сохранить как шаблон</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Шаблон сохранится в вашем браузере и будет доступен при создании нового поста.</p>
+            <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)}
+              placeholder="Название шаблона" autoFocus
+              className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 text-gray-900 dark:text-gray-100"
+              onKeyDown={e => { if (e.key === 'Enter') saveCustomTemplate(); }} />
+            <div className="flex gap-2">
+              <button onClick={saveCustomTemplate} className="flex-1 py-2.5 bg-brand-500 text-white rounded-lg font-medium hover:bg-brand-600 transition">Сохранить</button>
+              <button onClick={() => setShowSaveTemplate(false)} className="px-5 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">Отмена</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -449,6 +592,17 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
 // Block Renderer
 function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (content: Record<string, any>) => void; isSelected: boolean }) {
   const textRef = useRef<HTMLDivElement>(null);
+
+  // Size classes
+  const sizeClass = block.size === 'narrow' ? 'max-w-md mx-auto'
+    : block.size === 'wide' ? 'max-w-4xl mx-auto'
+    : block.size === 'full' ? 'w-full'
+    : '';
+
+  const fontSizeClass = block.fontSize === 'sm' ? 'text-sm'
+    : block.fontSize === 'lg' ? 'text-lg'
+    : block.fontSize === 'xl' ? 'text-xl'
+    : '';
 
   useEffect(() => {
     if (textRef.current && block.type === 'text' && block.content.text !== undefined) {
@@ -461,14 +615,16 @@ function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (con
   switch (block.type) {
     case 'heading':
       return (
-        <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })}
-          placeholder="Заголовок"
-          className={`w-full font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none placeholder-gray-300 ${block.content.level === 1 ? 'text-3xl' : block.content.level === 3 ? 'text-lg' : 'text-2xl'}`} />
+        <div className={sizeClass}>
+          <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })}
+            placeholder="Заголовок"
+            className={`w-full font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none placeholder-gray-300 ${block.content.level === 1 ? 'text-3xl' : block.content.level === 3 ? 'text-lg' : 'text-2xl'}`} />
+        </div>
       );
 
     case 'text':
       return (
-        <div className="space-y-1">
+        <div className={`space-y-1 ${sizeClass}`}>
           <div className="flex gap-1 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={() => document.execCommand('bold')} className="p-1 text-xs font-bold text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600" title="Жирный">B</button>
             <button onClick={() => document.execCommand('italic')} className="p-1 text-xs italic text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600" title="Курсив">I</button>
@@ -476,16 +632,16 @@ function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (con
           </div>
           <div ref={textRef} contentEditable suppressContentEditableWarning
             onInput={e => onChange({ ...block.content, text: (e.target as HTMLDivElement).innerText })}
-            className="w-full text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none leading-relaxed min-h-[60px] empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300"
+            className={`w-full text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none leading-relaxed min-h-[60px] empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300 ${fontSizeClass}`}
             data-placeholder="Текст блока..." />
         </div>
       );
 
     case 'image':
       return (
-        <div className="space-y-2">
+        <div className={`space-y-2 ${sizeClass}`}>
           {block.content.url ? (
-            <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 aspect-video">
+            <div className={`relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 ${block.size === 'narrow' ? 'aspect-[4/3]' : block.size === 'wide' ? 'aspect-[21/9]' : 'aspect-video'}`}>
               <Image src={block.content.url} alt={block.content.caption || ''} fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
             </div>
           ) : (
@@ -509,9 +665,9 @@ function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (con
 
     case 'video':
       return (
-        <div className="space-y-2">
+        <div className={`space-y-2 ${sizeClass}`}>
           {block.content.embedUrl ? (
-            <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700" style={{ paddingBottom: '56.25%' }}>
+            <div className={`relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 ${block.size === 'narrow' ? 'aspect-[4/3]' : block.size === 'wide' ? 'aspect-[21/9]' : 'aspect-video'}`}>
               <iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
             </div>
           ) : (

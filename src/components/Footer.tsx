@@ -84,8 +84,7 @@ export default function Footer() {
           <p className="text-sm text-slate-500">&copy; 2026 МебПортал. Все права защищены.</p>
           <div className="flex gap-5 text-sm text-slate-500">
             <Link href="/shortcuts" className="hover:text-white transition-colors">Горячие клавиши</Link>
-            <a href="#" className="hover:text-white transition-colors">Политика</a>
-            <a href="#" className="hover:text-white transition-colors">Условия</a>
+            <Link href="/privacy" className="hover:text-white transition-colors">Политика конфиденциальности</Link>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PLAN_PREMIUM } from '@/lib/constants';
+import PostEditor from '@/components/PostEditor';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function NewPostPage() {
   const [videoUrl, setVideoUrl] = useState('');
   const [isProfilePromo, setIsProfilePromo] = useState(false);
   const [canCreatePromo, setCanCreatePromo] = useState(false);
+  const [useEditor, setUseEditor] = useState(false);
+  const [userRole, setUserRole] = useState('USER');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -25,6 +28,10 @@ export default function NewPostPage() {
       fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.json())
         .then(d => setCanCreatePromo(d.plan === PLAN_PREMIUM))
+        .catch(() => {});
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(d => { if (d.user?.role) setUserRole(d.user.role); })
         .catch(() => {});
     }
   }, []);
@@ -118,6 +125,27 @@ export default function NewPostPage() {
     { key: 'product', label: 'Товар', color: 'bg-amber-50 text-amber-600 border-amber-100', activeColor: 'bg-amber-500 text-white' },
   ];
 
+  const handleEditorPublish = async (data: { title: string; content: string; category: string; images: string[]; tags: string[] }) => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title: data.title, content: data.content, category: data.category, tags: data.tags, images: data.images }),
+      });
+      const result = await res.json();
+      if (res.ok) { router.push(`/feed/${result.post.id}`); }
+      else { setError(result.error || 'Ошибка'); setUseEditor(false); }
+    } catch { setError('Ошибка сети'); setUseEditor(false); }
+    finally { setSubmitting(false); }
+  };
+
+  if (useEditor) {
+    return <PostEditor userRole={userRole} onPublish={handleEditorPublish} onCancel={() => setUseEditor(false)} />;
+  }
+
   return (
     <div className="min-h-screen">
       <div className="section-container py-10 max-w-3xl">
@@ -127,14 +155,23 @@ export default function NewPostPage() {
         </button>
 
         <div className="card-base p-5 sm:p-8 animate-fade-in-up stagger-1">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Новый пост</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Поделитесь новостями с сообществом</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Новый пост</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Поделитесь новостями с сообществом</p>
-            </div>
+            <button
+              onClick={() => setUseEditor(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-brand-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
+              Конструктор
+            </button>
           </div>
 
           {error && (

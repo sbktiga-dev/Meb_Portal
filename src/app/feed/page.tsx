@@ -329,15 +329,22 @@ export default function FeedPage() {
         </div>
       ) : (
         <div className="px-[5mm]">
+          {/* Панорама сверху — большая как в каталоге */}
+          <div className="mb-6">
+            <BannerRotator banners={feedBanners} type="panorama" slots={1} />
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
-            {/* Left sidebar — баннеры или заглушки на десктопе */}
+            {/* Left sidebar — мини баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                <BannerRotator banners={feedBanners} type="panorama" slots={1} />
                 <BannerRotator banners={feedBanners} type="mini" slots={2} />
-                {feedBanners.length === 0 && Array.from({ length: 2 }, (_, i) => (
-                  <BannerPlaceholder key={`left-${i}`} />
-                ))}
+                {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                  <>
+                    <BannerPlaceholder key="left-0" />
+                    <BannerPlaceholder key="left-1" />
+                  </>
+                )}
               </div>
             </aside>
 
@@ -584,14 +591,16 @@ export default function FeedPage() {
             </div>
           </div>
 
-            {/* Right sidebar — баннеры или заглушки на десктопе */}
+            {/* Right sidebar — мини баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
                 <BannerRotator banners={feedBanners} type="mini" slots={2} />
-                <BannerRotator banners={feedBanners} type="panorama" slots={1} />
-                {feedBanners.length === 0 && Array.from({ length: 2 }, (_, i) => (
-                  <BannerPlaceholder key={`right-${i}`} />
-                ))}
+                {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                  <>
+                    <BannerPlaceholder key="right-0" />
+                    <BannerPlaceholder key="right-1" />
+                  </>
+                )}
               </div>
             </aside>
           </div>

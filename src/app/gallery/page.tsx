@@ -129,6 +129,11 @@ export default function GalleryPage() {
           <p className="page-subtitle">{total} изображений в коллекции</p>
         </div>
 
+        {/* Панорама над фильтрами */}
+        <div className="mb-6">
+          <BannerRotator banners={galleryBanners} type="panorama" slots={1} />
+        </div>
+
         {/* Search & Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
@@ -237,9 +242,6 @@ export default function GalleryPage() {
         </div>
 
         {/* Баннер в каталоге — панорама */}
-        <div className="mb-8">
-          <BannerRotator banners={galleryBanners} type="panorama" slots={1} />
-        </div>
       </div>
 
       {/* 3-column layout with sidebars */}

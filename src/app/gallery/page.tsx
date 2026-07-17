@@ -6,6 +6,7 @@ import { SkeletonGrid } from '@/components/Loading';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
+import BannerRotator from '@/components/BannerRotator';
 import PageSEO from '@/components/PageSEO';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -25,6 +26,8 @@ interface BannerData {
   title: string;
   imageUrl: string;
   linkUrl: string;
+  bannerType: string;
+  images: string;
 }
 
 export default function GalleryPage() {
@@ -233,12 +236,10 @@ export default function GalleryPage() {
           </div>
         </div>
 
-        {/* Баннер в каталоге */}
-        {galleryBanners.length > 0 && (
-          <div className="mb-8">
-            <BannerAd title={galleryBanners[0].title} imageUrl={galleryBanners[0].imageUrl} linkUrl={galleryBanners[0].linkUrl} />
-          </div>
-        )}
+        {/* Баннер в каталоге — панорама */}
+        <div className="mb-8">
+          <BannerRotator banners={galleryBanners} type="panorama" slots={1} />
+        </div>
       </div>
 
       {/* 3-column layout with sidebars */}
@@ -247,14 +248,13 @@ export default function GalleryPage() {
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {galleryBanners.length > 1
-                ? galleryBanners.slice(1, 3).map((b) => (
-                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                  ))
-                : Array.from({ length: 2 }, (_, i) => (
-                    <BannerPlaceholder key={`gallery-left-${i}`} />
-                  ))
-              }
+              <BannerRotator banners={galleryBanners} type="mini" slots={2} />
+              {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                <>
+                  <BannerPlaceholder key="gallery-left-0" />
+                  <BannerPlaceholder key="gallery-left-1" />
+                </>
+              )}
             </div>
           </aside>
 
@@ -342,14 +342,13 @@ export default function GalleryPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {galleryBanners.length > 3
-                ? galleryBanners.slice(3, 5).map((b) => (
-                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                  ))
-                : Array.from({ length: 2 }, (_, i) => (
-                    <BannerPlaceholder key={`gallery-right-${i}`} />
-                  ))
-              }
+              <BannerRotator banners={galleryBanners} type="mini" slots={2} />
+              {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                <>
+                  <BannerPlaceholder key="gallery-right-0" />
+                  <BannerPlaceholder key="gallery-right-1" />
+                </>
+              )}
             </div>
           </aside>
         </div>

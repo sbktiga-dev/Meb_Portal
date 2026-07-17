@@ -11,6 +11,7 @@ import RoleBadge from '@/components/RoleBadge';
 import PromotionBadge from '@/components/PromotionBadge';
 import BannerAd from '@/components/BannerAd';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
+import BannerRotator from '@/components/BannerRotator';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import PageSEO from '@/components/PageSEO';
 
@@ -34,6 +35,8 @@ interface BannerData {
   title: string;
   imageUrl: string;
   linkUrl: string;
+  bannerType: string;
+  images: string;
 }
 
 const categoryLabels: Record<string, { label: string; color: string; bg: string }> = {
@@ -330,14 +333,11 @@ export default function FeedPage() {
             {/* Left sidebar — баннеры или заглушки на десктопе */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                {feedBanners.length > 0
-                  ? feedBanners.slice(0, 5).map((b) => (
-                      <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                    ))
-                  : Array.from({ length: 5 }, (_, i) => (
-                      <BannerPlaceholder key={`left-${i}`} />
-                    ))
-                }
+                <BannerRotator banners={feedBanners} type="panorama" slots={1} />
+                <BannerRotator banners={feedBanners} type="mini" slots={2} />
+                {feedBanners.length === 0 && Array.from({ length: 2 }, (_, i) => (
+                  <BannerPlaceholder key={`left-${i}`} />
+                ))}
               </div>
             </aside>
 
@@ -587,14 +587,11 @@ export default function FeedPage() {
             {/* Right sidebar — баннеры или заглушки на десктопе */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                {feedBanners.length > 5
-                  ? feedBanners.slice(5, 10).map((b) => (
-                      <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                    ))
-                  : Array.from({ length: 5 }, (_, i) => (
-                      <BannerPlaceholder key={`right-${i}`} />
-                    ))
-                }
+                <BannerRotator banners={feedBanners} type="mini" slots={2} />
+                <BannerRotator banners={feedBanners} type="panorama" slots={1} />
+                {feedBanners.length === 0 && Array.from({ length: 2 }, (_, i) => (
+                  <BannerPlaceholder key={`right-${i}`} />
+                ))}
               </div>
             </aside>
           </div>

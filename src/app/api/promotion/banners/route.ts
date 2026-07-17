@@ -84,10 +84,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, imageUrl, linkUrl, position, duration, targetCategory } = body;
+    const { title, imageUrl, linkUrl, position, duration, targetCategory, bannerType, images } = body;
 
-    if (!title || !imageUrl || !linkUrl || !duration || !DURATION_DAYS[duration]) {
-      return NextResponse.json({ error: 'title, imageUrl, linkUrl и duration (7/14/30) обязательны' }, { status: 400 });
+    if (!title || !linkUrl || !duration || !DURATION_DAYS[duration]) {
+      return NextResponse.json({ error: 'title, linkUrl и duration (7/14/30) обязательны' }, { status: 400 });
+    }
+
+    if (!imageUrl && !(bannerType === 'panorama' && images && images.length === 5)) {
+      return NextResponse.json({ error: 'imageUrl обязателен (или 5 images для панорамы)' }, { status: 400 });
     }
 
     if (position && !['feed', 'gallery', 'both'].includes(position)) {
@@ -101,13 +105,19 @@ export async function POST(req: NextRequest) {
     const endDate = new Date(now);
     endDate.setDate(endDate.getDate() + DURATION_DAYS[duration]);
 
+    const validBannerTypes = ['standard', 'panorama', 'mini'];
+    const bType = validBannerTypes.includes(bannerType) ? bannerType : 'standard';
+    const imagesJson = images && Array.isArray(images) ? JSON.stringify(images) : '[]';
+
     const banner = await prisma.banner.create({
       data: {
         title,
-        imageUrl,
+        imageUrl: imageUrl || (images && images[0]) || '',
         linkUrl,
         position: position || 'both',
         targetCategory: category,
+        bannerType: bType,
+        images: imagesJson,
         userId: user.id,
         startDate: now,
         endDate,

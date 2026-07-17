@@ -16,6 +16,7 @@ interface PromotionData {
 
 interface BannerData {
   id: string; title: string; imageUrl: string; linkUrl: string; position: string;
+  bannerType: string; images: string;
   status: string; startDate: string; endDate: string; createdAt: string;
 }
 
@@ -37,6 +38,12 @@ const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   expired: { text: 'Истекло', color: 'bg-gray-100 text-gray-500' },
 };
 
+const BANNER_TYPES = [
+  { key: 'standard', label: 'Стандартный', desc: '1 картинка' },
+  { key: 'panorama', label: 'Панорама', desc: '5 картинок в ряд' },
+  { key: 'mini', label: 'Мини баннер', desc: 'Компактный баннер' },
+];
+
 export default function PromotionPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -46,8 +53,12 @@ export default function PromotionPage() {
   const [banners, setBanners] = useState<BannerData[]>([]);
 
   const [selectedPostId, setSelectedPostId] = useState('');
-  const [bannerForm, setBannerForm] = useState({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all' });
+  const [bannerForm, setBannerForm] = useState({
+    title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all',
+    bannerType: 'standard', images: ['', '', '', '', ''],
+  });
   const [submitting, setSubmitting] = useState(false);
+  const [editingBanner, setEditingBanner] = useState<BannerData | null>(null);
 
   const loadData = useCallback(async (signal?: AbortSignal) => {
     const token = localStorage.getItem('token');
@@ -106,22 +117,126 @@ export default function PromotionPage() {
   };
 
   const handleCreateBanner = async () => {
-    if (!bannerForm.title || !bannerForm.imageUrl || !bannerForm.linkUrl) { toast.error('Заполните все поля'); return; }
+    if (!bannerForm.title || !bannerForm.linkUrl) { toast.error('Заполните название и ссылку'); return; }
+    if (bannerForm.bannerType === 'standard' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
+    if (bannerForm.bannerType === 'panorama' && bannerForm.images.filter(Boolean).length < 5) { toast.error('Загрузите все 5 изображений для панорамы'); return; }
+    if (bannerForm.bannerType === 'mini' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
+
     const token = localStorage.getItem('token');
     if (!token) return;
     setSubmitting(true);
     try {
+      const body: Record<string, any> = {
+        title: bannerForm.title,
+        linkUrl: bannerForm.linkUrl,
+        position: bannerForm.position,
+        targetCategory: bannerForm.targetCategory,
+        bannerType: bannerForm.bannerType,
+        duration: 30,
+      };
+      if (bannerForm.bannerType === 'panorama') {
+        body.images = bannerForm.images.filter(Boolean);
+        body.imageUrl = bannerForm.images[0] || '';
+      } else {
+        body.imageUrl = bannerForm.imageUrl;
+      }
+
       const res = await fetch('/api/promotion/banners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ ...bannerForm, duration: 30 }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) { const data = await res.json(); toast.error(data.error); return; }
       toast.success('Заявка на баннер отправлена!');
-      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all' });
+      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] });
       loadData();
     } catch { toast.error('Ошибка сети'); }
     finally { setSubmitting(false); }
+  };
+
+  const handleDeleteBanner = async (id: string) => {
+    if (!confirm('Удалить баннер?')) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const res = await fetch(`/api/promotion/banners/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) { toast.error('Ошибка удаления'); return; }
+      toast.success('Баннер удалён');
+      loadData();
+    } catch { toast.error('Ошибка сети'); }
+  };
+
+  const handleEditBanner = (banner: BannerData) => {
+    const imgs = (() => { try { return JSON.parse(banner.images); } catch { return []; } })();
+    setEditingBanner(banner);
+    setBannerForm({
+      title: banner.title,
+      imageUrl: banner.imageUrl,
+      linkUrl: banner.linkUrl,
+      position: banner.position,
+      targetCategory: 'all',
+      bannerType: banner.bannerType || 'standard',
+      images: imgs.length >= 5 ? imgs : ['', '', '', '', ''],
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateBanner = async () => {
+    if (!editingBanner) return;
+    if (!bannerForm.title || !bannerForm.linkUrl) { toast.error('Заполните название и ссылку'); return; }
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setSubmitting(true);
+    try {
+      const body: Record<string, any> = {
+        title: bannerForm.title,
+        linkUrl: bannerForm.linkUrl,
+        position: bannerForm.position,
+        targetCategory: bannerForm.targetCategory,
+        bannerType: bannerForm.bannerType,
+      };
+      if (bannerForm.bannerType === 'panorama') {
+        body.images = bannerForm.images.filter(Boolean);
+        body.imageUrl = bannerForm.images[0] || '';
+      } else {
+        body.imageUrl = bannerForm.imageUrl;
+      }
+
+      const res = await fetch(`/api/promotion/banners/${editingBanner.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { const data = await res.json(); toast.error(data.error); return; }
+      toast.success('Баннер обновлён!');
+      setEditingBanner(null);
+      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] });
+      loadData();
+    } catch { toast.error('Ошибка сети'); }
+    finally { setSubmitting(false); }
+  };
+
+  const uploadPanoramaImage = async (index: number, file: File) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        const newImages = [...bannerForm.images];
+        newImages[index] = data.url;
+        setBannerForm({ ...bannerForm, images: newImages });
+      } else { toast.error('Ошибка загрузки'); }
+    } catch { toast.error('Ошибка сети'); }
+  };
+
+  const parseImages = (imagesStr: string): string[] => {
+    try { return JSON.parse(imagesStr); } catch { return []; }
   };
 
   if (loading) {
@@ -175,8 +290,27 @@ export default function PromotionPage() {
 
               {/* Баннер */}
               <div className="bg-white rounded-xl shadow-md p-6 mb-5">
-                <h2 className="text-lg font-bold text-gray-900 mb-1">Создать баннер</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">{editingBanner ? 'Редактировать баннер' : 'Создать баннер'}</h2>
                 <p className="text-sm text-gray-500 mb-4">Рекламный баннер в ленте и/или каталоге</p>
+
+                {/* Тип баннера */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Тип баннера</label>
+                  <div className="flex gap-2">
+                    {BANNER_TYPES.map(bt => (
+                      <button key={bt.key} type="button" onClick={() => setBannerForm({ ...bannerForm, bannerType: bt.key })}
+                        className={`flex-1 px-4 py-3 rounded-xl text-center transition-all border-2 ${
+                          bannerForm.bannerType === bt.key
+                            ? 'border-brand-500 bg-brand-50 text-brand-700'
+                            : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                        }`}>
+                        <div className="font-medium text-sm">{bt.label}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">{bt.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   <div className="grid md:grid-cols-2 gap-3">
                     <div>
@@ -188,36 +322,71 @@ export default function PromotionPage() {
                       <input type="url" value={bannerForm.linkUrl} onChange={e => setBannerForm({ ...bannerForm, linkUrl: e.target.value })} className="w-full border border-gray-200 rounded-lg px-4 py-2.5" placeholder="https://example.com" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Изображение баннера</label>
-                    {bannerForm.imageUrl ? (
-                      <div className="relative h-40">
-                        <Image src={bannerForm.imageUrl} alt="Превью" fill className="object-cover rounded-lg border border-gray-200" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
-                        <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} aria-label="Закрыть" className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
+
+                  {/* Изображение для стандартного/мини */}
+                  {bannerForm.bannerType !== 'panorama' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Изображение баннера</label>
+                      {bannerForm.imageUrl ? (
+                        <div className="relative h-40">
+                          <Image src={bannerForm.imageUrl} alt="Превью" fill className="object-cover rounded-lg border border-gray-200" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                          <button onClick={() => setBannerForm({ ...bannerForm, imageUrl: '' })} className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs hover:bg-red-600 transition">✕</button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 transition">
+                          <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                          <span className="text-sm text-gray-500">Нажмите или перетащите</span>
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const token = localStorage.getItem('token');
+                            if (!token) return;
+                            const fd = new FormData();
+                            fd.append('file', file);
+                            try {
+                              const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                              if (res.ok) { const data = await res.json(); setBannerForm({ ...bannerForm, imageUrl: data.url }); }
+                              else { toast.error('Ошибка загрузки'); }
+                            } catch { toast.error('Ошибка сети'); }
+                          }} />
+                        </label>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 5 изображений для панорамы */}
+                  {bannerForm.bannerType === 'panorama' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">5 изображений для панорамы</label>
+                      <div className="grid grid-cols-5 gap-2">
+                        {bannerForm.images.map((url, i) => (
+                          <div key={i} className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                            {url ? (
+                              <>
+                                <Image src={url} alt={`Фото ${i + 1}`} fill className="object-cover" sizes="100px" unoptimized />
+                                <button onClick={() => {
+                                  const newImages = [...bannerForm.images];
+                                  newImages[i] = '';
+                                  setBannerForm({ ...bannerForm, images: newImages });
+                                }} className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-[10px] hover:bg-red-600">✕</button>
+                              </>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-brand-50/50 transition">
+                                <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                <span className="text-[10px] text-gray-400">{i + 1}</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={e => {
+                                  const file = e.target.files?.[0];
+                                  if (file) uploadPanoramaImage(i, file);
+                                }} />
+                              </label>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 transition">
-                        <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                        <span className="text-sm text-gray-500">Нажмите или перетащите</span>
-                        <span className="text-xs text-gray-400">JPG, PNG, WebP до 10 МБ</span>
-                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const token = localStorage.getItem('token');
-                          if (!token) return;
-                          const fd = new FormData();
-                          fd.append('file', file);
-                          try {
-                            const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
-                            if (res.ok) { const data = await res.json(); setBannerForm({ ...bannerForm, imageUrl: data.url }); }
-                            else { toast.error('Ошибка загрузки'); }
-                          } catch { toast.error('Ошибка сети'); }
-                        }} />
-                      </label>
-                    )}
-                    <p className="text-xs text-gray-400 mt-1">Или вставьте URL:</p>
-                    <input type="url" value={bannerForm.imageUrl} onChange={e => setBannerForm({ ...bannerForm, imageUrl: e.target.value })} className="w-full border border-gray-200 rounded-lg px-4 py-2 mt-1 text-sm" placeholder="https://example.com/banner.jpg" />
-                  </div>
+                      <p className="text-xs text-gray-400 mt-1">Загрузите ровно 5 изображений. Они будут отображаться в ряд с тонкими полосками.</p>
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Размещение</label>
@@ -234,10 +403,26 @@ export default function PromotionPage() {
                       </select>
                     </div>
                   </div>
-                  <button onClick={handleCreateBanner} disabled={submitting}
-                    className="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-600 transition disabled:opacity-50">
-                    {submitting ? '...' : 'Создать баннер'}
-                  </button>
+
+                  <div className="flex gap-2">
+                    {editingBanner ? (
+                      <>
+                        <button onClick={handleUpdateBanner} disabled={submitting}
+                          className="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-600 transition disabled:opacity-50">
+                          {submitting ? '...' : 'Сохранить'}
+                        </button>
+                        <button onClick={() => { setEditingBanner(null); setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] }); }}
+                          className="px-5 py-2.5 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition">
+                          Отмена
+                        </button>
+                      </>
+                    ) : (
+                      <button onClick={handleCreateBanner} disabled={submitting}
+                        className="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-600 transition disabled:opacity-50">
+                        {submitting ? '...' : 'Создать баннер'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </>
@@ -256,6 +441,7 @@ export default function PromotionPage() {
                       <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Тип</th>
                       <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Детали</th>
                       <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Статус</th>
+                      <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">Действия</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -266,17 +452,26 @@ export default function PromotionPage() {
                           <td className="px-4 py-3 text-sm font-medium text-gray-900">Пост</td>
                           <td className="px-4 py-3 text-sm text-gray-600">{p.post.title}</td>
                           <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-medium ${st.color}`}>{st.text}</span></td>
+                          <td className="px-4 py-3 text-right"></td>
                         </tr>
                       );
                     })}
                     {banners.map(b => {
                       const st = STATUS_LABELS[b.status] || STATUS_LABELS.pending;
                       const posLabel = b.position === 'feed' ? 'Лента' : b.position === 'gallery' ? 'Каталог' : 'Лента + Каталог';
+                      const typeLabel = b.bannerType === 'panorama' ? 'Панорама' : b.bannerType === 'mini' ? 'Мини' : 'Стандарт';
                       return (
                         <tr key={b.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">Баннер</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                            Баннер
+                            <span className="text-xs text-gray-400 ml-1">({typeLabel})</span>
+                          </td>
                           <td className="px-4 py-3 text-sm text-gray-600">{b.title} ({posLabel})</td>
                           <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-medium ${st.color}`}>{st.text}</span></td>
+                          <td className="px-4 py-3 text-right space-x-2">
+                            <button onClick={() => handleEditBanner(b)} className="text-brand-600 hover:text-brand-700 text-sm font-medium">Редактировать</button>
+                            <button onClick={() => handleDeleteBanner(b.id)} className="text-red-500 hover:text-red-600 text-sm font-medium">Удалить</button>
+                          </td>
                         </tr>
                       );
                     })}

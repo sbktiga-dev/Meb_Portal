@@ -596,6 +596,8 @@ model Banner {
   linkUrl        String
   position       String   @default("both") // feed | gallery | both
   targetCategory String   @default("all") // all | kitchens | wardrobes | tables | shelves | sofas | beds | hardware | materials
+  bannerType     String   @default("standard") // standard | panorama | mini
+  images         String   @default("[]") // JSON массив URL для панорамы (5 фото)
   status         String   @default("pending") // pending | active | expired
   startDate      DateTime @default(now())
   endDate        DateTime

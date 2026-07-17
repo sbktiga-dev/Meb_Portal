@@ -1,6 +1,6 @@
 export interface EditorBlock {
   id: string;
-  type: 'heading' | 'text' | 'image' | 'gallery' | 'quote' | 'divider' | 'button';
+  type: 'heading' | 'text' | 'image' | 'gallery' | 'quote' | 'divider' | 'button' | 'video';
   content: Record<string, any>;
   order: number;
 }
@@ -19,6 +19,7 @@ export const BLOCK_TYPES = [
   { type: 'heading', label: 'Заголовок', icon: 'H' },
   { type: 'text', label: 'Текст', icon: 'T' },
   { type: 'image', label: 'Изображение', icon: '' },
+  { type: 'video', label: 'Видео', icon: '▶' },
   { type: 'gallery', label: 'Галерея', icon: '' },
   { type: 'quote', label: 'Цитата', icon: '"' },
   { type: 'divider', label: 'Разделитель', icon: '—' },
@@ -206,6 +207,7 @@ export function createBlockFromType(type: EditorBlock['type']): EditorBlock {
     heading: { text: 'Заголовок', level: 2 },
     text: { text: 'Текст' },
     image: { url: '', caption: '' },
+    video: { url: '' },
     gallery: { images: ['', ''], columns: 2 },
     quote: { text: 'Цитата', author: '' },
     divider: {},
@@ -217,4 +219,17 @@ export function createBlockFromType(type: EditorBlock['type']): EditorBlock {
     content: defaults[type] || {},
     order: 0,
   };
+}
+
+// Video URL utilities
+export function extractVideoEmbed(url: string): string | null {
+  const trimmed = url.trim();
+  if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(trimmed)) return trimmed;
+  const ytMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  const rtMatch = trimmed.match(/rutube\.ru\/video\/([a-zA-Z0-9]+)\//);
+  if (rtMatch) return `https://rutube.ru/embed/${rtMatch[1]}`;
+  const vkMatch = trimmed.match(/vk\.com\/video(-?\d+_\d+)/);
+  if (vkMatch) return `https://vk.com/video_ext.php?oid=${vkMatch[1].split('_')[0]}&id=${vkMatch[1].split('_')[1]}&hd=2`;
+  return null;
 }

@@ -21,7 +21,6 @@ export async function GET(request: Request) {
     const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
-    // Get all conversations with participants and last message
     const conversations = await prisma.conversation.findMany({
       skip: (page - 1) * limit,
       take: limit,
@@ -43,10 +42,10 @@ export async function GET(request: Request) {
             },
           },
         },
+        _count: { select: { messages: true } },
       },
     });
 
-    // Filter by search if provided
     let filtered = conversations;
     if (search) {
       const searchLower = search.toLowerCase();
@@ -58,10 +57,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get total count
     const total = await prisma.conversation.count();
 
-    // Format response
     const formatted = filtered.map(conv => ({
       id: conv.id,
       createdAt: conv.createdAt,
@@ -83,7 +80,7 @@ export async function GET(request: Request) {
           avatar: conv.messages[0].author.avatar,
         },
       } : null,
-      messageCount: await prisma.message.count({ where: { conversationId: conv.id } }),
+      messageCount: conv._count.messages,
     }));
 
     return NextResponse.json({

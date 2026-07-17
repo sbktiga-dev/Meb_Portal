@@ -203,7 +203,7 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
       {/* Top bar */}
       <div className="h-14 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowTemplates)} className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1">
+          <button onClick={() => setShowTemplates(true)} className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             Шаблоны
           </button>

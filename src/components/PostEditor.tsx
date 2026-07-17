@@ -111,6 +111,7 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     const h = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); handleUndo(); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); handleRedo(); }
+      if (e.key === 'Escape') { setSelectedBlockId(null); }
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
@@ -388,8 +389,7 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
           <div className="mx-auto" style={{ width: CANVAS_W }}>
             <div ref={canvasRef}
               className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700"
-              style={{ width: CANVAS_W, height: CANVAS_H, backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '16px 16px' }}
-              onClick={() => setSelectedBlockId(null)}>
+              style={{ width: CANVAS_W, height: CANVAS_H, backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '16px 16px' }}>
 
               {blocks.map(block => {
                 const isSelected = selectedBlockId === block.id;

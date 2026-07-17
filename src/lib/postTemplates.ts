@@ -5,7 +5,12 @@ export interface EditorBlock {
   order: number;
   size?: 'full' | 'wide' | 'normal' | 'narrow';
   fontSize?: 'sm' | 'base' | 'lg' | 'xl';
-  gridSpan?: number; // 1-4 колонки в grid
+  gridSpan?: number;
+  // Free positioning
+  x?: number; // позиция X в пикселях
+  y?: number; // позиция Y в пикселях
+  w?: number; // ширина в пикселях (по умолчанию 100%)
+  h?: number; // высота в пикселях (auto)
 }
 
 export interface PostTemplate {

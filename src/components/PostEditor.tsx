@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { EditorBlock, PostTemplate, getTemplatesForRole, createBlockFromType, BLOCK_TYPES, extractVideoEmbed } from '@/lib/postTemplates';
+import { EditorBlock, getTemplatesForRole, createBlockFromType, BLOCK_TYPES, extractVideoEmbed } from '@/lib/postTemplates';
 
 interface PostEditorProps {
   userRole: string;
@@ -13,6 +13,8 @@ interface PostEditorProps {
 
 const DRAFT_KEY = 'mebportal_post_draft';
 const CUSTOM_TEMPLATES_KEY = 'mebportal_custom_templates';
+const CANVAS_W = 800;
+const CANVAS_H = 1200;
 
 interface CustomTemplate {
   id: string;
@@ -30,8 +32,6 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
   const [category, setCategory] = useState('news');
   const [tags, setTags] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [draggedType, setDraggedType] = useState<string | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [undoStack, setUndoStack] = useState<EditorBlock[][]>([]);
   const [redoStack, setRedoStack] = useState<EditorBlock[][]>([]);
@@ -40,25 +40,23 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // Drag state
+  const [dragging, setDragging] = useState<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const [resizing, setResizing] = useState<{ id: string; startX: number; startY: number; origW: number; origH: number; origX: number; origY: number; corner: string } | null>(null);
+
   const templates = getTemplatesForRole(userRole);
 
   // Load custom templates
   useEffect(() => {
     const saved = localStorage.getItem(CUSTOM_TEMPLATES_KEY);
-    if (saved) { try { setCustomTemplates(JSON.parse(saved)); } catch { /* ignore */ } }
+    if (saved) { try { setCustomTemplates(JSON.parse(saved)); } catch { /* */ } }
   }, []);
 
   const saveCustomTemplate = () => {
-    if (!templateName.trim()) { toast.error('Введите название шаблона'); return; }
+    if (!templateName.trim()) { toast.error('Введите название'); return; }
     if (blocks.length === 0) { toast.error('Добавьте блоки'); return; }
-    const newTemplate: CustomTemplate = {
-      id: Date.now().toString(36),
-      name: templateName.trim(),
-      blocks: JSON.parse(JSON.stringify(blocks)),
-      category,
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [...customTemplates, newTemplate];
+    const t: CustomTemplate = { id: Date.now().toString(36), name: templateName.trim(), blocks: JSON.parse(JSON.stringify(blocks)), category, createdAt: new Date().toISOString() };
+    const updated = [...customTemplates, t];
     setCustomTemplates(updated);
     localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(updated));
     setTemplateName('');
@@ -71,7 +69,6 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     const updated = customTemplates.filter(t => t.id !== id);
     setCustomTemplates(updated);
     localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(updated));
-    toast.success('Шаблон удалён');
   };
 
   const selectCustomTemplate = (template: CustomTemplate) => {
@@ -81,7 +78,7 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     if (template.blocks.length > 0) setSelectedBlockId(template.blocks[0].id);
   };
 
-  // Load draft on mount
+  // Load draft
   useEffect(() => {
     const saved = localStorage.getItem(DRAFT_KEY);
     if (saved) {
@@ -96,11 +93,11 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
             setShowTemplates(false);
           }
         }
-      } catch { /* ignore */ }
+      } catch { /* */ }
     }
   }, []);
 
-  // Auto-save draft every 30 seconds
+  // Auto-save
   useEffect(() => {
     if (showTemplates || blocks.length === 0) return;
     const timer = setInterval(() => {
@@ -109,92 +106,69 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     return () => clearInterval(timer);
   }, [blocks, title, category, tags, showTemplates]);
 
-  // Keyboard shortcuts
+  // Undo/Redo
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        handleUndo();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
-        e.preventDefault();
-        handleRedo();
-      }
+    const h = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); handleUndo(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); handleRedo(); }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
   }, [undoStack, redoStack]);
 
-  const saveUndoState = useCallback(() => {
+  const saveUndo = useCallback(() => {
     setUndoStack(prev => [...prev.slice(-49), blocks]);
     setRedoStack([]);
   }, [blocks]);
 
-  const handleUndo = () => {
-    if (undoStack.length === 0) return;
-    const prev = undoStack[undoStack.length - 1];
-    setRedoStack(r => [...r, blocks]);
-    setBlocks(prev);
-    setUndoStack(u => u.slice(0, -1));
-  };
+  const handleUndo = () => { if (!undoStack.length) return; setRedoStack(r => [...r, blocks]); setBlocks(undoStack[undoStack.length - 1]); setUndoStack(u => u.slice(0, -1)); };
+  const handleRedo = () => { if (!redoStack.length) return; setUndoStack(u => [...u, blocks]); setBlocks(redoStack[redoStack.length - 1]); setRedoStack(r => r.slice(0, -1)); };
 
-  const handleRedo = () => {
-    if (redoStack.length === 0) return;
-    const next = redoStack[redoStack.length - 1];
-    setUndoStack(u => [...u, blocks]);
-    setBlocks(next);
-    setRedoStack(r => r.slice(0, -1));
-  };
-
-  const selectTemplate = (template: PostTemplate) => {
-    const newBlocks = template.blocks.map((b, i) => ({
-      ...b,
-      id: Math.random().toString(36).slice(2, 10),
-      order: i,
-    }));
+  const selectTemplate = (template: { blocks: Omit<EditorBlock, 'id' | 'order'>[]; category: string }) => {
+    const nextY = 20;
+    let curY = nextY;
+    const newBlocks = template.blocks.map((b, i) => {
+      const w = b.type === 'divider' ? CANVAS_W - 40 : CANVAS_W - 40;
+      const block: EditorBlock = {
+        ...b,
+        id: Math.random().toString(36).slice(2, 10),
+        order: i,
+        x: 20,
+        y: curY,
+        w: b.type === 'divider' ? CANVAS_W - 40 : 360,
+        h: undefined,
+      };
+      curY += (b.type === 'heading' ? 60 : b.type === 'text' ? 80 : b.type === 'image' || b.type === 'video' ? 250 : b.type === 'gallery' ? 200 : b.type === 'quote' ? 80 : b.type === 'button' ? 50 : 20) + 20;
+      return block;
+    });
     setBlocks(newBlocks);
     setCategory(template.category);
     setShowTemplates(false);
     if (newBlocks.length > 0) setSelectedBlockId(newBlocks[0].id);
   };
 
-  const addBlock = (type: EditorBlock['type'], index?: number) => {
-    saveUndoState();
+  const addBlock = (type: EditorBlock['type']) => {
+    saveUndo();
+    const lastBlock = blocks[blocks.length - 1];
+    const newY = lastBlock ? (lastBlock.y || 0) + (lastBlock.h || 80) + 20 : 20;
     const newBlock = createBlockFromType(type);
-    setBlocks(prev => {
-      const insertAt = index !== undefined ? index : prev.length;
-      const updated = [...prev];
-      updated.splice(insertAt, 0, newBlock);
-      return updated.map((b, i) => ({ ...b, order: i }));
-    });
+    newBlock.x = 20;
+    newBlock.y = newY;
+    newBlock.w = type === 'divider' ? CANVAS_W - 40 : 360;
+    newBlock.h = undefined;
+    setBlocks(prev => [...prev, newBlock]);
     setSelectedBlockId(newBlock.id);
   };
 
-  const removeBlock = (id: string) => {
-    saveUndoState();
-    setBlocks(prev => prev.filter(b => b.id !== id).map((b, i) => ({ ...b, order: i })));
-    if (selectedBlockId === id) setSelectedBlockId(null);
-  };
+  const removeBlock = (id: string) => { saveUndo(); setBlocks(prev => prev.filter(b => b.id !== id)); if (selectedBlockId === id) setSelectedBlockId(null); };
 
   const duplicateBlock = (id: string) => {
-    saveUndoState();
+    saveUndo();
     setBlocks(prev => {
-      const idx = prev.findIndex(b => b.id === id);
-      if (idx === -1) return prev;
-      const copy = { ...prev[idx], id: Math.random().toString(36).slice(2, 10) };
-      const updated = [...prev];
-      updated.splice(idx + 1, 0, copy);
-      return updated.map((b, i) => ({ ...b, order: i }));
-    });
-  };
-
-  const moveBlock = (fromIndex: number, toIndex: number) => {
-    saveUndoState();
-    setBlocks(prev => {
-      const updated = [...prev];
-      const [moved] = updated.splice(fromIndex, 1);
-      updated.splice(toIndex, 0, moved);
-      return updated.map((b, i) => ({ ...b, order: i }));
+      const b = prev.find(x => x.id === id);
+      if (!b) return prev;
+      const copy = { ...b, id: Math.random().toString(36).slice(2, 10), x: (b.x || 0) + 20, y: (b.y || 0) + 20 };
+      return [...prev, copy];
     });
   };
 
@@ -202,46 +176,62 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     setBlocks(prev => prev.map(b => b.id === id ? { ...b, content } : b));
   };
 
-  const handlePaletteDragStart = (e: React.DragEvent, type: string) => {
-    setDraggedType(type);
-    e.dataTransfer.effectAllowed = 'copy';
-    e.dataTransfer.setData('text/plain', type);
+  // Mouse handlers for drag & resize
+  const handleBlockMouseDown = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setSelectedBlockId(id);
+    const block = blocks.find(b => b.id === id);
+    if (!block) return;
+    setDragging({ id, startX: e.clientX, startY: e.clientY, origX: block.x || 0, origY: block.y || 0 });
   };
 
-  const handleCanvasDragStart = (e: React.DragEvent, index: number) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('application/block-index', String(index));
+  const handleResizeMouseDown = (e: React.MouseEvent, id: string, corner: string) => {
+    e.stopPropagation();
+    setSelectedBlockId(id);
+    const block = blocks.find(b => b.id === id);
+    if (!block) return;
+    setResizing({ id, startX: e.clientX, startY: e.clientY, origW: block.w || 360, origH: block.h || 80, origX: block.x || 0, origY: block.y || 0, corner });
   };
 
-  const handleCanvasDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = draggedType ? 'copy' : 'move';
-    setDragOverIndex(index);
-  };
-
-  const handleCanvasDrop = (e: React.DragEvent, toIndex: number) => {
-    e.preventDefault();
-    setDragOverIndex(null);
-    const fromIndex = e.dataTransfer.getData('application/block-index');
-    if (fromIndex !== '') {
-      moveBlock(parseInt(fromIndex), toIndex);
-    } else if (draggedType) {
-      addBlock(draggedType as EditorBlock['type'], toIndex);
-    }
-    setDraggedType(null);
-  };
-
-  const handleCanvasDragEnd = () => {
-    setDraggedType(null);
-    setDragOverIndex(null);
-  };
+  useEffect(() => {
+    if (!dragging && !resizing) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragging) {
+        const dx = e.clientX - dragging.startX;
+        const dy = e.clientY - dragging.startY;
+        setBlocks(prev => prev.map(b => b.id === dragging.id ? { ...b, x: Math.max(0, dragging.origX + dx), y: Math.max(0, dragging.origY + dy) } : b));
+      }
+      if (resizing) {
+        const dx = e.clientX - resizing.startX;
+        const dy = e.clientY - resizing.startY;
+        const corner = resizing.corner;
+        setBlocks(prev => prev.map(b => {
+          if (b.id !== resizing.id) return b;
+          let newW = resizing.origW;
+          let newH = resizing.origH;
+          let newX = resizing.origX;
+          let newY = resizing.origY;
+          if (corner.includes('e')) newW = Math.max(80, resizing.origW + dx);
+          if (corner.includes('w')) { newW = Math.max(80, resizing.origW - dx); newX = resizing.origX + (resizing.origW - newW); }
+          if (corner.includes('s')) newH = Math.max(40, resizing.origH + dy);
+          if (corner.includes('n')) { newH = Math.max(40, resizing.origH - dy); newY = resizing.origY + (resizing.origH - newH); }
+          return { ...b, w: newW, h: newH, x: newX, y: newY };
+        }));
+      }
+    };
+    const handleMouseUp = () => { setDragging(null); setResizing(null); };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
+  }, [dragging, resizing]);
 
   const handlePublish = async () => {
     if (!title.trim()) { toast.error('Введите заголовок'); return; }
     if (blocks.length === 0) { toast.error('Добавьте хотя бы один блок'); return; }
     setPublishing(true);
     try {
-      const contentParts = blocks.map(b => {
+      const sorted = [...blocks].sort((a, b) => (a.y || 0) - (b.y || 0));
+      const contentParts = sorted.map(b => {
         switch (b.type) {
           case 'heading': return `## ${b.content.text}`;
           case 'text': return b.content.text;
@@ -254,79 +244,43 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
           default: return '';
         }
       }).filter(Boolean).join('\n\n');
-
-      const images = blocks
-        .filter(b => b.type === 'image' && b.content.url)
-        .map(b => b.content.url)
-        .concat(
-          blocks.filter(b => b.type === 'gallery').flatMap(b => (b.content.images || []).filter(Boolean))
-        );
-
+      const images = blocks.filter(b => b.type === 'image' && b.content.url).map(b => b.content.url)
+        .concat(blocks.filter(b => b.type === 'gallery').flatMap(b => (b.content.images || []).filter(Boolean)));
       const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
       localStorage.removeItem(DRAFT_KEY);
       onPublish({ title, content: contentParts, category, images, tags: tagList });
-    } catch { toast.error('Ошибка публикации'); }
+    } catch { toast.error('Ошибка'); }
     finally { setPublishing(false); }
   };
 
-  // Template selection screen
+  // Template selection
   if (showTemplates) {
     return (
       <div className="max-w-4xl mx-auto p-4 md:p-8">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Выберите шаблон</h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Или начните с пустого холста</p>
-          </div>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
+          <div><h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Выберите шаблон</h2><p className="text-gray-500 mt-1">Или начните с пустого холста</p></div>
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
         </div>
-
-        {/* Стандартные шаблоны */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-          {templates.map(template => (
-            <button key={template.id} onClick={() => selectTemplate(template)}
-              className="text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-400 hover:shadow-lg transition-all duration-200 group">
-              <div className="text-3xl mb-3">{template.icon}</div>
-              <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{template.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{template.description}</p>
-              <div className="flex gap-1 mt-3">
-                {template.blocks.slice(0, 4).map((b, i) => (
-                  <span key={i} className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[10px] text-gray-400">
-                    {BLOCK_TYPES.find(bt => bt.type === b.type)?.icon || '?'}
-                  </span>
-                ))}
-              </div>
+          {templates.map(t => (
+            <button key={t.id} onClick={() => selectTemplate(t)} className="text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-400 hover:shadow-lg transition-all group">
+              <div className="text-3xl mb-3">{t.icon}</div>
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600">{t.name}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t.description}</p>
             </button>
           ))}
         </div>
-
-        {/* Пользовательские шаблоны */}
         {customTemplates.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Мои шаблоны</h3>
-              <span className="text-xs text-gray-400">{customTemplates.length} шт.</span>
-            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Мои шаблоны</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {customTemplates.map(ct => (
-                <div key={ct.id} className="relative group text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-brand-100 dark:border-brand-900 hover:border-brand-400 hover:shadow-lg transition-all duration-200">
-                  <button onClick={(e) => { e.stopPropagation(); deleteCustomTemplate(ct.id); }}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                  <button onClick={() => selectCustomTemplate(ct)} className="w-full text-left">
+                <div key={ct.id} className="relative group">
+                  <button onClick={() => deleteCustomTemplate(ct.id)} className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                  <button onClick={() => selectCustomTemplate(ct)} className="w-full text-left p-5 bg-white dark:bg-gray-800 rounded-2xl border-2 border-brand-100 dark:border-brand-900 hover:border-brand-400 hover:shadow-lg transition-all group">
                     <div className="text-2xl mb-2">📝</div>
-                    <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{ct.name}</h3>
+                    <h3 className="font-bold text-gray-900 group-hover:text-brand-600">{ct.name}</h3>
                     <p className="text-xs text-gray-400 mt-1">{ct.blocks.length} блоков</p>
-                    <div className="flex gap-1 mt-3">
-                      {ct.blocks.slice(0, 4).map((b, i) => (
-                        <span key={i} className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[10px] text-gray-400">
-                          {BLOCK_TYPES.find(bt => bt.type === b.type)?.icon || '?'}
-                        </span>
-                      ))}
-                    </div>
                   </button>
                 </div>
               ))}
@@ -337,73 +291,32 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     );
   }
 
-  // Preview mode
+  // Preview
   if (showPreview) {
+    const sorted = [...blocks].sort((a, b) => (a.y || 0) - (b.y || 0));
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="sticky top-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-4 py-3 flex items-center justify-between z-10">
-          <button onClick={() => setShowPreview(false)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            Назад к редактору
-          </button>
+          <button onClick={() => setShowPreview(false)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>Назад</button>
           <span className="text-sm font-medium text-gray-500">Предпросмотр</span>
-          <button onClick={handlePublish} disabled={publishing}
-            className="px-5 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-            {publishing ? 'Публикация...' : 'Опубликовать'}
-          </button>
+          <button onClick={handlePublish} disabled={publishing} className="px-5 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">{publishing ? '...' : 'Опубликовать'}</button>
         </div>
-        <div className="max-w-3xl mx-auto py-8 px-4">
+        <div className="max-w-2xl mx-auto py-8 px-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">{title || 'Без заголовка'}</h1>
-            <div className="grid grid-cols-4 gap-4">
-              {blocks.map(block => {
-                const span = block.gridSpan || 4;
-                const spanClass = span === 1 ? 'col-span-1' : span === 2 ? 'col-span-2' : span === 3 ? 'col-span-3' : 'col-span-4';
-                return (
-                  <div key={block.id} className={spanClass}>
-                {block.type === 'heading' && (
-                  block.content.level === 1 ? <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h1>
-                    : block.content.level === 3 ? <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h3>
-                    : <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h2>
-                )}
-                {block.type === 'text' && (
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{block.content.text}</p>
-                )}
-                {block.type === 'image' && block.content.url && (
-                  <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-                    <Image src={block.content.url} alt={block.content.caption || ''} width={600} height={400} className="w-full h-auto" unoptimized />
-                    {block.content.caption && <p className="text-sm text-gray-500 mt-2 text-center">{block.content.caption}</p>}
-                  </div>
-                )}
-                {block.type === 'video' && block.content.embedUrl && (
-                  <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700" style={{ paddingBottom: '56.25%' }}>
-                    <iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-                  </div>
-                )}
-                {block.type === 'gallery' && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {(block.content.images || []).filter(Boolean).map((url: string, i: number) => (
-                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
-                        <Image src={url} alt="" fill className="object-cover" sizes="300px" unoptimized />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {block.type === 'quote' && (
-                  <blockquote className="border-l-4 border-brand-400 pl-4 py-2">
-                    <p className="text-gray-700 dark:text-gray-300 italic">{block.content.text}</p>
-                    {block.content.author && <cite className="text-sm text-gray-500 mt-1 block">— {block.content.author}</cite>}
-                  </blockquote>
-                )}
-                {block.type === 'divider' && <hr className="border-gray-200 dark:border-gray-600 my-4" />}
-                {block.type === 'button' && (
-                  <a href={block.content.url || '#'} className="inline-block px-6 py-3 bg-brand-500 text-white rounded-xl font-medium hover:bg-brand-600 transition">
-                    {block.content.text}
-                  </a>
-                )}
-              </div>
-                );
-              })}
+            <div className="relative" style={{ minHeight: CANVAS_H }}>
+              {sorted.map(block => (
+                <div key={block.id} className="absolute" style={{ left: block.x, top: block.y, width: block.w || CANVAS_W - 40 }}>
+                  {block.type === 'heading' && <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h2>}
+                  {block.type === 'text' && <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{block.content.text}</p>}
+                  {block.type === 'image' && block.content.url && <div className="relative rounded-xl overflow-hidden"><Image src={block.content.url} alt="" width={600} height={400} className="w-full h-auto rounded-xl" unoptimized /></div>}
+                  {block.type === 'video' && block.content.embedUrl && <div className="relative rounded-xl overflow-hidden" style={{ paddingBottom: '56.25%' }}><iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full rounded-xl" allowFullScreen /></div>}
+                  {block.type === 'gallery' && <div className="grid grid-cols-2 gap-2">{(block.content.images || []).filter(Boolean).map((url: string, i: number) => <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100"><Image src={url} alt="" fill className="object-cover" sizes="200px" unoptimized /></div>)}</div>}
+                  {block.type === 'quote' && <blockquote className="border-l-4 border-brand-400 pl-4 py-2"><p className="text-gray-700 italic">{block.content.text}</p>{block.content.author && <cite className="text-sm text-gray-500 mt-1 block">— {block.content.author}</cite>}</blockquote>}
+                  {block.type === 'divider' && <hr className="border-gray-200 my-4" />}
+                  {block.type === 'button' && <a href={block.content.url || '#'} className="inline-block px-6 py-3 bg-brand-500 text-white rounded-xl font-medium">{block.content.text}</a>}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -411,194 +324,134 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
     );
   }
 
-  // Editor screen
+  // Editor
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Top bar */}
-      <div className="h-14 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-4 shrink-0">
+      <div className="h-14 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-4 shrink-0 z-20">
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowTemplates(true)} className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            Шаблоны
-          </button>
+          <button onClick={() => setShowTemplates(true)} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>Шаблоны</button>
           <div className="h-5 w-px bg-gray-200 dark:bg-gray-600" />
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="Заголовок поста..."
-            className="text-lg font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none w-64 md:w-96"
-          />
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Заголовок..." className="text-lg font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none w-64 md:w-96" />
         </div>
         <div className="flex items-center gap-2">
-          {/* Undo/Redo */}
-          <div className="flex items-center gap-1 mr-2">
-            <button onClick={handleUndo} disabled={undoStack.length === 0} className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Отменить (Ctrl+Z)">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-            </button>
-            <button onClick={handleRedo} disabled={redoStack.length === 0} className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Повторить (Ctrl+Shift+Z)">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" /></svg>
-            </button>
-          </div>
-          <button onClick={() => setShowPreview(true)} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg">
-            Предпросмотр
-          </button>
-          <button onClick={() => { localStorage.setItem(DRAFT_KEY, JSON.stringify({ blocks, title, category, tags })); toast.success('Черновик сохранён'); }}
-            className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg">
-            Черновик
-          </button>
-          <button onClick={() => setShowSaveTemplate(true)}
-            className="px-3 py-1.5 text-sm text-brand-500 hover:text-brand-600 border border-brand-200 dark:border-brand-800 rounded-lg">
-            Сохранить шаблон
-          </button>
-          <button onClick={handlePublish} disabled={publishing} className="px-5 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-            {publishing ? 'Публикация...' : 'Опубликовать'}
-          </button>
+          <button onClick={handleUndo} disabled={!undoStack.length} className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg></button>
+          <button onClick={handleRedo} disabled={!redoStack.length} className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" /></svg></button>
+          <button onClick={() => setShowPreview(true)} className="px-3 py-1.5 text-sm text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50">Предпросмотр</button>
+          <button onClick={() => { localStorage.setItem(DRAFT_KEY, JSON.stringify({ blocks, title, category, tags })); toast.success('Сохранено'); }} className="px-3 py-1.5 text-sm text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50">Черновик</button>
+          <button onClick={() => setShowSaveTemplate(true)} className="px-3 py-1.5 text-sm text-brand-500 border border-brand-200 rounded-lg hover:bg-brand-50">Шаблон</button>
+          <button onClick={handlePublish} disabled={publishing} className="px-5 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">Опубликовать</button>
         </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left: Block palette */}
-        <div className="w-56 bg-white dark:bg-gray-800 border-r dark:border-gray-700 p-3 overflow-y-auto shrink-0">
+        {/* Left panel */}
+        <div className="w-52 bg-white dark:bg-gray-800 border-r dark:border-gray-700 p-3 overflow-y-auto shrink-0">
           <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Блоки</h3>
           <div className="space-y-1.5">
             {BLOCK_TYPES.map(bt => (
-              <div key={bt.type} draggable onDragStart={e => handlePaletteDragStart(e, bt.type)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-brand-50 dark:hover:bg-brand-500/10 cursor-grab active:cursor-grabbing transition-colors text-sm text-gray-700 dark:text-gray-300">
-                <span className="w-7 h-7 rounded-md bg-white dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-brand-500 shrink-0 border border-gray-200 dark:border-gray-500">{bt.icon}</span>
+              <button key={bt.type} onClick={() => addBlock(bt.type)}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors text-sm text-gray-700 dark:text-gray-300 text-left">
+                <span className="w-7 h-7 rounded-md bg-white dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-brand-500 shrink-0 border border-gray-200">{bt.icon}</span>
                 {bt.label}
-              </div>
+              </button>
             ))}
           </div>
-          <div className="mt-6">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Категория</h3>
-            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option value="news">Новость</option>
-              <option value="project">Проект</option>
-              <option value="article">Статья</option>
-              <option value="product">Товар</option>
-            </select>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Теги</h3>
-            <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="Через запятую"
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-          </div>
+          <div className="mt-6"><h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Категория</h3>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+              <option value="news">Новость</option><option value="project">Проект</option><option value="article">Статья</option><option value="product">Товар</option>
+            </select></div>
+          <div className="mt-4"><h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Теги</h3>
+            <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="Через запятую" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700" /></div>
+          {selectedBlockId && (
+            <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Размер</h3>
+              <div className="space-y-1.5">
+                {[
+                  { w: 200, h: 150, label: 'Маленький' },
+                  { w: 360, h: 200, label: 'Средний' },
+                  { w: 500, h: 300, label: 'Большой' },
+                  { w: CANVAS_W - 40, h: 200, label: 'На всю ширину' },
+                  { w: 200, h: 400, label: 'Вертикальный' },
+                  { w: 360, h: 500, label: 'Высокий' },
+                ].map(s => (
+                  <button key={s.label} onClick={() => setBlocks(prev => prev.map(b => b.id === selectedBlockId ? { ...b, w: s.w, h: s.h } : b))}
+                    className="w-full text-left px-3 py-1.5 text-xs rounded-lg hover:bg-white dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors">{s.label}</button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Center: Canvas */}
-        <div className="flex-1 overflow-y-auto p-6" ref={canvasRef}>
-          <div className="max-w-3xl mx-auto">
-            {blocks.length === 0 ? (
-              <div onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
-                onDrop={e => { e.preventDefault(); const type = e.dataTransfer.getData('text/plain'); if (type) addBlock(type as EditorBlock['type'], 0); }}
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-12 text-center text-gray-400"
-                style={{ backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-                <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                <p className="font-medium">Перетащите блок сюда</p>
-                <p className="text-sm mt-1">или выберите шаблон</p>
-              </div>
-            ) : (
-              <div className="relative rounded-xl p-4 min-h-[400px]"
-                style={{ backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '16px 16px', backgroundColor: 'rgba(249,250,251,0.5)' }}>
-                {/* Grid column guides */}
-                <div className="absolute inset-0 flex pointer-events-none opacity-20">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="flex-1 border-r border-dashed border-gray-300 dark:border-gray-600 last:border-r-0" />
-                  ))}
-                </div>
+        {/* Canvas */}
+        <div className="flex-1 overflow-auto p-6">
+          <div className="mx-auto" style={{ width: CANVAS_W }}>
+            <div ref={canvasRef}
+              className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700"
+              style={{ width: CANVAS_W, height: CANVAS_H, backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+              onClick={() => setSelectedBlockId(null)}>
 
-                <div className="relative grid grid-cols-4 gap-3 auto-rows-auto">
-                  {blocks.map((block, index) => {
-                    const span = block.gridSpan || 4;
-                    const spanClass = span === 1 ? 'col-span-1' : span === 2 ? 'col-span-2' : span === 3 ? 'col-span-3' : 'col-span-4';
-                    return (
-                      <div key={block.id} draggable onDragStart={e => handleCanvasDragStart(e, index)}
-                        onDragOver={e => handleCanvasDragOver(e, index)} onDrop={e => handleCanvasDrop(e, index)}
-                        onDragEnd={handleCanvasDragEnd} onClick={() => setSelectedBlockId(block.id)}
-                        className={`group relative rounded-xl border-2 transition-all duration-150 cursor-pointer min-h-[80px] ${
-                          selectedBlockId === block.id ? 'border-brand-400 shadow-lg bg-white dark:bg-gray-800 ring-2 ring-brand-200 dark:ring-brand-800' : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md'
-                        } ${spanClass}`}>
-                        {/* Resize handle */}
-                        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                          <div className="flex flex-col gap-0.5 bg-white dark:bg-gray-700 rounded-full shadow-md p-1">
-                            {[1,2,3,4].map(s => (
-                              <button key={s} onClick={e => {
-                                e.stopPropagation();
-                                setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, gridSpan: s } : b));
-                              }} className={`w-3 h-3 rounded-full transition-all ${span === s ? 'bg-brand-500 scale-125' : 'bg-gray-300 dark:bg-gray-600 hover:bg-brand-400'}`} title={`${s} колон${s === 1 ? 'ка' : s < 5 ? 'ки' : 'ок'}`} />
-                            ))}
-                          </div>
-                        </div>
+              {blocks.map(block => {
+                const isSelected = selectedBlockId === block.id;
+                return (
+                  <div key={block.id}
+                    className={`absolute group ${isSelected ? 'z-10' : 'z-0'}`}
+                    style={{ left: block.x, top: block.y, width: block.w || 360, minHeight: block.h || 60 }}
+                    onMouseDown={e => handleBlockMouseDown(e, block.id)}>
 
-                        {/* Block type badge */}
-                        <div className="absolute top-1.5 left-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                          <span className="bg-brand-100 dark:bg-brand-900/50 text-[10px] text-brand-600 dark:text-brand-400 px-2 py-0.5 rounded-full font-medium shadow-sm">
-                            {BLOCK_TYPES.find(bt => bt.type === block.type)?.label || block.type}
-                          </span>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-20">
-                          <button onClick={e => { e.stopPropagation(); duplicateBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                          </button>
-                          <button onClick={e => { e.stopPropagation(); removeBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:bg-red-50 dark:hover:bg-red-500/10">
-                            <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                          </button>
-                        </div>
-
-                        {/* Block content */}
-                        <div className="p-3 h-full">
-                          <BlockRenderer block={block} onChange={content => updateBlockContent(block.id, content)} isSelected={selectedBlockId === block.id} />
-                        </div>
+                    {/* Block content */}
+                    <div className={`w-full h-full rounded-xl border-2 overflow-hidden transition-shadow ${isSelected ? 'border-brand-400 shadow-lg ring-2 ring-brand-200' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 shadow-sm'}`}
+                      style={{ minHeight: block.h || 60 }}>
+                      <div className="p-3 h-full">
+                        <BlockRenderer block={block} onChange={c => updateBlockContent(block.id, c)} />
                       </div>
-                    );
-                  })}
+                    </div>
 
-                  {/* Add block button */}
-                  <div onDragOver={e => { e.preventDefault(); }}
-                    onDrop={e => { e.preventDefault(); const type = e.dataTransfer.getData('text/plain'); if (type) addBlock(type as EditorBlock['type']); }}
-                    className="col-span-4 py-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-500/5 transition-all cursor-pointer"
-                    onClick={() => addBlock('text')}>
-                    <span className="text-sm text-gray-400 hover:text-brand-500 font-medium">+ Добавить блок</span>
+                    {/* Resize handles — 4 corners + 4 edges */}
+                    {isSelected && (
+                      <>
+                        {/* Corners */}
+                        <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border-2 border-brand-400 rounded-sm cursor-nw-resize shadow" onMouseDown={e => handleResizeMouseDown(e, block.id, 'nw')} />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border-2 border-brand-400 rounded-sm cursor-ne-resize shadow" onMouseDown={e => handleResizeMouseDown(e, block.id, 'ne')} />
+                        <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border-2 border-brand-400 rounded-sm cursor-sw-resize shadow" onMouseDown={e => handleResizeMouseDown(e, block.id, 'sw')} />
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border-2 border-brand-400 rounded-sm cursor-se-resize shadow" onMouseDown={e => handleResizeMouseDown(e, block.id, 'se')} />
+                        {/* Edges */}
+                        <div className="absolute -top-1 left-3 right-3 h-1.5 cursor-n-resize" onMouseDown={e => handleResizeMouseDown(e, block.id, 'n')} />
+                        <div className="absolute -bottom-1 left-3 right-3 h-1.5 cursor-s-resize" onMouseDown={e => handleResizeMouseDown(e, block.id, 's')} />
+                        <div className="absolute top-3 bottom-3 -left-1.5 w-1.5 cursor-w-resize" onMouseDown={e => handleResizeMouseDown(e, block.id, 'w')} />
+                        <div className="absolute top-3 bottom-3 -right-1.5 w-1.5 cursor-e-resize" onMouseDown={e => handleResizeMouseDown(e, block.id, 'e')} />
+                      </>
+                    )}
+
+                    {/* Type badge */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                      <span className="bg-brand-100 dark:bg-brand-900/50 text-[9px] text-brand-600 px-2 py-0.5 rounded-full font-medium shadow">{BLOCK_TYPES.find(bt => bt.type === block.type)?.label}</span>
+                    </div>
+
+                    {/* Actions */}
+                    {isSelected && (
+                      <div className="absolute -top-3 right-0 flex gap-1 z-20">
+                        <button onClick={e => { e.stopPropagation(); duplicateBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded shadow hover:bg-gray-100"><svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></button>
+                        <button onClick={e => { e.stopPropagation(); removeBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded shadow hover:bg-red-50"><svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Layout guide */}
-            {blocks.length > 0 && (
-              <div className="mt-4 flex items-center justify-center gap-3 text-[11px] text-gray-400">
-                <span className="font-medium">Размер:</span>
-                {[
-                  { span: 1, label: '1/4', icon: '◻' },
-                  { span: 2, label: '1/2', icon: '◻◻' },
-                  { span: 3, label: '3/4', icon: '◻◻◻' },
-                  { span: 4, label: 'Полный', icon: '◻◻◻◻' },
-                ].map(s => (
-                  <span key={s.span} className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg font-mono">{s.icon} {s.label}</span>
-                ))}
-                <span>— точки справа на блоке</span>
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Модал сохранения шаблона */}
+      {/* Save template modal */}
       {showSaveTemplate && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowSaveTemplate(false)}>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowSaveTemplate(false)}>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-4">Сохранить как шаблон</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Шаблон сохранится в вашем браузере и будет доступен при создании нового поста.</p>
-            <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)}
-              placeholder="Название шаблона" autoFocus
-              className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 text-gray-900 dark:text-gray-100"
-              onKeyDown={e => { if (e.key === 'Enter') saveCustomTemplate(); }} />
+            <h3 className="font-bold text-lg mb-4">Сохранить как шаблон</h3>
+            <input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Название шаблона" autoFocus className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg mb-4" onKeyDown={e => { if (e.key === 'Enter') saveCustomTemplate(); }} />
             <div className="flex gap-2">
-              <button onClick={saveCustomTemplate} className="flex-1 py-2.5 bg-brand-500 text-white rounded-lg font-medium hover:bg-brand-600 transition">Сохранить</button>
-              <button onClick={() => setShowSaveTemplate(false)} className="px-5 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">Отмена</button>
+              <button onClick={saveCustomTemplate} className="flex-1 py-2.5 bg-brand-500 text-white rounded-lg font-medium hover:bg-brand-600">Сохранить</button>
+              <button onClick={() => setShowSaveTemplate(false)} className="px-5 py-2.5 border border-gray-200 rounded-lg font-medium hover:bg-gray-50">Отмена</button>
             </div>
           </div>
         </div>
@@ -608,159 +461,19 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
 }
 
 // Block Renderer
-function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (content: Record<string, any>) => void; isSelected: boolean }) {
+function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (c: Record<string, any>) => void }) {
   const textRef = useRef<HTMLDivElement>(null);
-
-  // Size classes
-  const sizeClass = block.size === 'narrow' ? 'max-w-md mx-auto'
-    : block.size === 'wide' ? 'max-w-4xl mx-auto'
-    : block.size === 'full' ? 'w-full'
-    : '';
-
-  const fontSizeClass = block.fontSize === 'sm' ? 'text-sm'
-    : block.fontSize === 'lg' ? 'text-lg'
-    : block.fontSize === 'xl' ? 'text-xl'
-    : '';
-
-  useEffect(() => {
-    if (textRef.current && block.type === 'text' && block.content.text !== undefined) {
-      if (textRef.current.innerText !== block.content.text) {
-        textRef.current.innerText = block.content.text || '';
-      }
-    }
-  }, [block.content.text, block.type]);
+  useEffect(() => { if (textRef.current && block.type === 'text' && textRef.current.innerText !== (block.content.text || '')) textRef.current.innerText = block.content.text || ''; }, [block.content.text, block.type]);
 
   switch (block.type) {
-    case 'heading':
-      return (
-        <div className={sizeClass}>
-          <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })}
-            placeholder="Заголовок"
-            className={`w-full font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none placeholder-gray-300 ${block.content.level === 1 ? 'text-3xl' : block.content.level === 3 ? 'text-lg' : 'text-2xl'}`} />
-        </div>
-      );
-
-    case 'text':
-      return (
-        <div className={`space-y-1 ${sizeClass}`}>
-          <div className="flex gap-1 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => document.execCommand('bold')} className="p-1 text-xs font-bold text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600" title="Жирный">B</button>
-            <button onClick={() => document.execCommand('italic')} className="p-1 text-xs italic text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600" title="Курсив">I</button>
-            <button onClick={() => { const url = prompt('Введите ссылку:'); if (url) document.execCommand('createLink', false, url); }} className="p-1 text-xs text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600" title="Ссылка">🔗</button>
-          </div>
-          <div ref={textRef} contentEditable suppressContentEditableWarning
-            onInput={e => onChange({ ...block.content, text: (e.target as HTMLDivElement).innerText })}
-            className={`w-full text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none leading-relaxed min-h-[60px] empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300 ${fontSizeClass}`}
-            data-placeholder="Текст блока..." />
-        </div>
-      );
-
-    case 'image':
-      return (
-        <div className={`space-y-2 ${sizeClass}`}>
-          {block.content.url ? (
-            <div className={`relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 ${block.size === 'narrow' ? 'aspect-[4/3]' : block.size === 'wide' ? 'aspect-[21/9]' : 'aspect-video'}`}>
-              <Image src={block.content.url} alt={block.content.caption || ''} fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
-            </div>
-          ) : (
-            <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-500/5 transition-all">
-              <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-              <span className="text-sm text-gray-500">Нажмите или перетащите</span>
-              <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                const file = e.target.files?.[0]; if (!file) return;
-                const formData = new FormData(); formData.append('file', file);
-                const token = localStorage.getItem('token');
-                const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
-                const data = await res.json();
-                if (res.ok && data.url) onChange({ ...block.content, url: data.url });
-              }} />
-            </label>
-          )}
-          <input type="text" value={block.content.caption || ''} onChange={e => onChange({ ...block.content, caption: e.target.value })}
-            placeholder="Подпись к фото (необязательно)" className="w-full text-sm text-gray-500 bg-transparent border-none outline-none placeholder-gray-300" />
-        </div>
-      );
-
-    case 'video':
-      return (
-        <div className={`space-y-2 ${sizeClass}`}>
-          {block.content.embedUrl ? (
-            <div className={`relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 ${block.size === 'narrow' ? 'aspect-[4/3]' : block.size === 'wide' ? 'aspect-[21/9]' : 'aspect-video'}`}>
-              <iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-            </div>
-          ) : (
-            <div>
-              <input type="url" value={block.content.url || ''} onChange={e => {
-                const url = e.target.value;
-                const embed = extractVideoEmbed(url);
-                onChange({ ...block.content, url, embedUrl: embed || '' });
-              }} placeholder="Вставьте ссылку на видео (YouTube, Rutube, VK)" className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-              {!block.content.embedUrl && block.content.url && (
-                <p className="text-xs text-red-500 mt-1">Не удалось распознать ссылку</p>
-              )}
-            </div>
-          )}
-        </div>
-      );
-
-    case 'gallery': {
-      const cols = block.content.columns || 2;
-      const gridCols = cols === 3 ? 'grid-cols-3' : cols === 4 ? 'grid-cols-4' : 'grid-cols-2';
-      return (
-        <div className="space-y-2">
-          <div className={`grid gap-2 ${gridCols}`}>
-            {(block.content.images || []).map((url: string, i: number) => (
-              <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
-                {url ? (
-                  <Image src={url} alt="" fill className="object-cover" sizes="200px" unoptimized />
-                ) : (
-                  <label className="flex flex-col items-center justify-center h-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-brand-400 transition-all">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                      const file = e.target.files?.[0]; if (!file) return;
-                      const formData = new FormData(); formData.append('file', file);
-                      const token = localStorage.getItem('token');
-                      const res = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
-                      const data = await res.json();
-                      if (res.ok && data.url) {
-                        const newImages = [...(block.content.images || [])]; newImages[i] = data.url;
-                        onChange({ ...block.content, images: newImages });
-                      }
-                    }} />
-                  </label>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    case 'quote':
-      return (
-        <div className="border-l-4 border-brand-400 pl-4 space-y-2">
-          <textarea value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })}
-            placeholder="Текст цитаты..." rows={2}
-            className="w-full text-gray-700 dark:text-gray-300 italic bg-transparent border-none outline-none resize-none placeholder-gray-300" />
-          <input type="text" value={block.content.author || ''} onChange={e => onChange({ ...block.content, author: e.target.value })}
-            placeholder="Автор" className="w-full text-sm text-gray-500 bg-transparent border-none outline-none placeholder-gray-300" />
-        </div>
-      );
-
-    case 'divider':
-      return <hr className="border-gray-200 dark:border-gray-600 my-2" />;
-
-    case 'button':
-      return (
-        <div className="flex gap-2">
-          <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })}
-            placeholder="Текст кнопки" className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-          <input type="url" value={block.content.url || ''} onChange={e => onChange({ ...block.content, url: e.target.value })}
-            placeholder="https://..." className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-        </div>
-      );
-
-    default:
-      return <div className="text-gray-400 text-sm">Неизвестный блок</div>;
+    case 'heading': return <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })} placeholder="Заголовок" className="w-full font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none text-xl" />;
+    case 'text': return <div ref={textRef} contentEditable suppressContentEditableWarning onInput={e => onChange({ ...block.content, text: (e.target as HTMLDivElement).innerText })} className="w-full text-sm text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none min-h-[40px]" data-placeholder="Текст..." />;
+    case 'image': return block.content.url ? <div className="relative rounded-lg overflow-hidden h-full"><Image src={block.content.url} alt="" fill className="object-cover" unoptimized /></div> : <label className="flex flex-col items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400"><svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg><span className="text-xs text-gray-400">Фото</span><input type="file" accept="image/*" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; const fd = new FormData(); fd.append('file', f); const t = localStorage.getItem('token'); const r = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${t}` }, body: fd }); const d = await r.json(); if (r.ok && d.url) onChange({ ...block.content, url: d.url }); }} /></label>;
+    case 'video': return block.content.embedUrl ? <div className="relative rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}><iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full" allowFullScreen /></div> : <input type="url" value={block.content.url || ''} onChange={e => { const url = e.target.value; onChange({ ...block.content, url, embedUrl: extractVideoEmbed(url) || '' }); }} placeholder="Ссылка на видео..." className="w-full px-2 py-1.5 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700" />;
+    case 'gallery': return <div className="grid grid-cols-2 gap-1 h-full">{(block.content.images || []).map((url: string, i: number) => <div key={i} className="relative aspect-square rounded bg-gray-100 overflow-hidden">{url ? <Image src={url} alt="" fill className="object-cover" unoptimized /> : <label className="flex items-center justify-center h-full cursor-pointer"><svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg><input type="file" accept="image/*" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; const fd = new FormData(); fd.append('file', f); const t = localStorage.getItem('token'); const r = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${t}` }, body: fd }); const d = await r.json(); if (r.ok && d.url) { const imgs = [...(block.content.images || [])]; imgs[i] = d.url; onChange({ ...block.content, images: imgs }); } }} /></label>}</div>)}</div>;
+    case 'quote': return <div className="border-l-3 border-brand-400 pl-3"><textarea value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })} placeholder="Цитата..." rows={2} className="w-full text-sm italic text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none resize-none" /><input type="text" value={block.content.author || ''} onChange={e => onChange({ ...block.content, author: e.target.value })} placeholder="Автор" className="w-full text-xs text-gray-500 bg-transparent border-none outline-none" /></div>;
+    case 'divider': return <hr className="border-gray-200 dark:border-gray-600 my-2" />;
+    case 'button': return <div className="flex gap-1"><input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })} placeholder="Текст" className="flex-1 px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700" /><input type="url" value={block.content.url || ''} onChange={e => onChange({ ...block.content, url: e.target.value })} placeholder="URL" className="flex-1 px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700" /></div>;
+    default: return <div className="text-gray-400 text-xs">?</div>;
   }
 }

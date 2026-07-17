@@ -304,34 +304,119 @@ function PromotionHelp() {
   return (
     <div className="space-y-6">
       <SectionTitle>Продвижение</SectionTitle>
-      <p className="text-gray-600 text-sm">Продвижение помогает вашему контенту увидеть больше людей.</p>
+      <p className="text-gray-600 text-sm">Продвижение помогает вашему контенту увидеть больше людей. Сейчас все функции доступны бесплатно до 30 сентября 2026 года.</p>
+
+      {/* Блок: Как получить доступ */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <h4 className="font-bold text-blue-800 mb-2">Как получить доступ к продвижению</h4>
+        <ol className="list-decimal list-inside space-y-2 text-sm text-blue-700">
+          <li>Перейдите в <strong>Личный кабинет → Тарифы</strong></li>
+          <li>Выберите любой тариф (Lite, Pro или Premium) и нажмите «Оформить»</li>
+          <li>Перейдите в <strong>Админ-панель → Подписки</strong> и активируйте свою заявку</li>
+          <li>После активации перейдите в <strong>Личный кабинет → Продвижение</strong></li>
+        </ol>
+      </div>
 
       <div className="space-y-4">
-        <Step num={1} title="Перейдите в продвижение">
-          <p><strong>Личный кабинет → Продвижение</strong></p>
-        </Step>
+        <Step num={1} title="Продвижение поста">
+          <p>Пост закрепляется вверху ленты новостей с меткой <strong>«Рекомендовано»</strong>. Все пользователи увидят его первым при входе на сайт.</p>
 
-        <Step num={2} title="Продвижение поста">
-          <p>Выберите пост из списка и нажмите «Продвинуть». Пост закрепится вверху ленты с меткой <strong>«Рекомендовано»</strong>.</p>
-          <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-            <span className="font-medium">Метка «Рекомендовано»</span> — заметная, но не выглядит как реклама. Пользователи видят ваш пост первым.
+          <div className="mt-3 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h5 className="font-medium text-gray-900 mb-1">Как это работает:</h5>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                <li>Выбираете пост из списка ваших опубликованных постов</li>
+                <li>Нажимаете кнопку «Продвинуть»</li>
+                <li>Пост автоматически закрепляется в верхней части ленты</li>
+                <li>К посту добавляется заметная метка «Рекомендовано»</li>
+                <li>Срок действия: 30 дней с момента активации</li>
+              </ul>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
+              <span className="font-medium">Лимиты по тарифам:</span>
+              <ul className="list-disc list-inside mt-1 space-y-0.5">
+                <li><strong>Lite</strong> — 1 пост в продвижении одновременно</li>
+                <li><strong>Pro</strong> — до 2 постов в неделю</li>
+                <li><strong>Premium</strong> — до 4 постов в неделю</li>
+              </ul>
+            </div>
           </div>
         </Step>
 
-        <Step num={3} title="Создание баннера">
-          <p>Загрузите картинку, укажите ссылку и выберите размещение:</p>
-          <ul className="list-disc list-inside space-y-1 mt-1">
-            <li><strong>Лента</strong> — баннер между постами (мобильная версия)</li>
-            <li><strong>Каталог</strong> — баннер над галереей изображений</li>
-            <li><strong>Лента + Каталог</strong> — оба размещения</li>
-          </ul>
+        <Step num={2} title="Создание баннера">
+          <p>Рекламный баннер отображается между постами в ленте или над каталогом изображений. Помогает привлечь внимание к вашему продукту или акции.</p>
+
+          <div className="mt-3 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h5 className="font-medium text-gray-900 mb-1">Параметры баннера:</h5>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                <li><strong>Название</strong> — краткое описание баннера (видно только вам в списке заявок)</li>
+                <li><strong>Изображение</strong> — загрузите картинку или укажите URL. Рекомендуемый размер: 1200×400 пикселей</li>
+                <li><strong>Ссылка</strong> — URL, куда перейдёт пользователь при клике на баннер</li>
+                <li><strong>Размещение</strong> — где будет показываться баннер (см. ниже)</li>
+                <li><strong>Аудитория</strong> — категория пользователей, которым показывается баннер</li>
+              </ul>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h5 className="font-medium text-gray-900 mb-1">Размещение баннера:</h5>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className="text-xs font-medium text-gray-500 mb-1">Лента</div>
+                  <div className="text-xs text-gray-600">Баннер между постами в ленте новостей. Пользователи видят его при прокрутке.</div>
+                </div>
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className="text-xs font-medium text-gray-500 mb-1">Каталог</div>
+                  <div className="text-xs text-gray-600">Баннер над сеткой изображений в каталоге. Пользователи видят его при входе в раздел.</div>
+                </div>
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className="text-xs font-medium text-gray-500 mb-1">Лента + Каталог</div>
+                  <div className="text-xs text-gray-600">Баннер показывается одновременно в обоих разделах. Максимальный охват.</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h5 className="font-medium text-gray-900 mb-1">Целевая аудитория:</h5>
+              <p className="text-sm text-gray-600 mb-2">Выберите категорию товаров, соответствующую вашему баннеру. Баннер будет показываться пользователям, которые просматривают соответствующий контент.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                {['Все категории', 'Кухни', 'Гардеробные', 'Столы', 'Стеллажи', 'Диваны', 'Кровати', 'Фурнитура', 'Материалы'].map(cat => (
+                  <div key={cat} className="bg-white rounded px-2 py-1 text-xs text-center border border-gray-200">{cat}</div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h5 className="font-medium text-gray-900 mb-1">Лимиты баннеров:</h5>
+              <ul className="list-disc list-inside space-y-0.5 text-sm text-gray-600">
+                <li><strong>Lite</strong> — 1 баннер одновременно</li>
+                <li><strong>Pro</strong> — до 2 баннеров в неделю</li>
+                <li><strong>Premium</strong> — до 4 баннеров в неделю</li>
+              </ul>
+            </div>
+          </div>
         </Step>
 
-        <Step num={4} title="Оплата">
-          <p>После создания заявки позвоните для оплаты. Администратор активирует продвижение.</p>
+        <Step num={3} title="Статус заявки">
+          <p>После создания заявки она получает статус <strong>«Ожидает»</strong>. Администратор проверяет и активирует продвижение.</p>
+          <div className="mt-2 space-y-1">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 text-xs font-medium">Ожидает</span>
+              <span className="text-gray-600">— заявка создана, ожидает активации администратором</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium">Активно</span>
+              <span className="text-gray-600">— продвижение работает, контент продвигается</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-500 text-xs font-medium">Истекло</span>
+              <span className="text-gray-600">— срок действия продвижения закончился</span>
+            </div>
+          </div>
         </Step>
 
-        <Tip>Для Premium-подписчиков: создавайте рекламные посты (акции), которые отображаются на вашем профиле для посетителей.</Tip>
+        <Tip>Для Premium-подписчиков: создавайте рекламные посты (акции), которые отображаются на вашем профиле для посетителей. Это помогает продавать товары и привлекать клиентов напрямую.</Tip>
       </div>
     </div>
   );
@@ -341,7 +426,7 @@ function ReviewsHelp() {
   return (
     <div className="space-y-6">
       <SectionTitle>Система отзывов</SectionTitle>
-      <p className="text-gray-600 text-sm">Отзывы помогают建立ить репутацию и получить обратную связь от клиентов и коллег.</p>
+      <p className="text-gray-600 text-sm">Отзывы помогают установить репутацию и получить обратную связь от клиентов и коллег.</p>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <p className="text-amber-800 font-medium">Модерация отзывов</p>
@@ -371,7 +456,7 @@ function ReviewsHelp() {
           <p>Одобренный отзыв отображается на профиле автора и адресата. Оценки влияют на рейтинг.</p>
         </Step>
 
-        <Tip>Пишите подробные отзывы с фото — они помогают другим пользователям做出 выбор и повышают ваш авторитет.</Tip>
+        <Tip>Пишите подробные отзывы с фото — они помогают другим пользователям сделать выбор и повышают ваш авторитет.</Tip>
       </div>
     </div>
   );

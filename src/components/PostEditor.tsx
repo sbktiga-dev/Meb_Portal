@@ -467,7 +467,66 @@ function BlockRenderer({ block, onChange }: { block: EditorBlock; onChange: (c: 
 
   switch (block.type) {
     case 'heading': return <input type="text" value={block.content.text || ''} onChange={e => onChange({ ...block.content, text: e.target.value })} placeholder="Заголовок" className="w-full font-bold text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none text-xl" />;
-    case 'text': return <div ref={textRef} contentEditable suppressContentEditableWarning onInput={e => onChange({ ...block.content, text: (e.target as HTMLDivElement).innerText })} className="w-full text-sm text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none min-h-[40px]" data-placeholder="Текст..." />;
+    case 'text': {
+      const fontFamily = block.content.fontFamily || 'sans';
+      const textEffect = block.content.textEffect || 'none';
+      const fontClasses: Record<string, string> = {
+        sans: 'font-sans', serif: 'font-serif', mono: 'font-mono',
+        hand: 'font-["Caveat",cursive]', display: 'font-["Playfair_Display",serif]',
+      };
+      const effectStyles: Record<string, React.CSSProperties> = {
+        none: {},
+        arc: { borderRadius: '50%', transform: 'rotate(-3deg)', padding: '10px 0' },
+        wave: { letterSpacing: '2px', transform: 'skewX(-3deg)' },
+        line: { borderLeft: '3px solid #f97316', paddingLeft: '12px' },
+      };
+      return (
+        <div className="space-y-1">
+          {/* Text toolbar */}
+          <div className="flex gap-1 mb-1 opacity-0 group-hover:opacity-100 transition-opacity flex-wrap">
+            <button onClick={() => document.execCommand('bold')} className="p-1 text-xs font-bold text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100" title="Жирный">B</button>
+            <button onClick={() => document.execCommand('italic')} className="p-1 text-xs italic text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100" title="Курсив">I</button>
+            <button onClick={() => document.execCommand('underline')} className="p-1 text-xs underline text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100" title="Подчёркнутый">U</button>
+            <div className="w-px h-5 bg-gray-200 mx-0.5" />
+            <select onChange={e => {
+              const sel = window.getSelection();
+              if (sel && sel.rangeCount) {
+                document.execCommand('fontName', false, e.target.value);
+              }
+              onChange({ ...block.content, fontFamily: e.target.value });
+            }} value={fontFamily} className="text-[10px] border border-gray-200 rounded px-1 bg-white dark:bg-gray-700 text-gray-600" title="Шрифт">
+              <option value="sans">Sans</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Mono</option>
+              <option value="hand">Рукописный</option>
+              <option value="display">Дисплейный</option>
+            </select>
+            <select onChange={e => onChange({ ...block.content, fontSize: e.target.value })} value={block.content.fontSize || 'sm'} className="text-[10px] border border-gray-200 rounded px-1 bg-white dark:bg-gray-700 text-gray-600" title="Размер">
+              <option value="xs">XS</option>
+              <option value="sm">SM</option>
+              <option value="base">MD</option>
+              <option value="lg">LG</option>
+              <option value="xl">XL</option>
+              <option value="2xl">2XL</option>
+            </select>
+            <div className="w-px h-5 bg-gray-200 mx-0.5" />
+            <select onChange={e => onChange({ ...block.content, textEffect: e.target.value })} value={textEffect} className="text-[10px] border border-gray-200 rounded px-1 bg-white dark:bg-gray-700 text-gray-600" title="Эффект">
+              <option value="none">Обычный</option>
+              <option value="line">По линии</option>
+              <option value="arc">По дуге</option>
+              <option value="wave">По волне</option>
+            </select>
+          </div>
+          <div ref={textRef} contentEditable suppressContentEditableWarning
+            onInput={e => onChange({ ...block.content, text: (e.target as HTMLDivElement).innerText })}
+            className={`w-full text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none min-h-[40px] break-words whitespace-pre-wrap ${fontClasses[fontFamily] || 'font-sans'} ${
+              block.content.fontSize === 'xs' ? 'text-xs' : block.content.fontSize === 'lg' ? 'text-lg' : block.content.fontSize === 'xl' ? 'text-xl' : block.content.fontSize === '2xl' ? 'text-2xl' : 'text-sm'
+            }`}
+            style={effectStyles[textEffect] || {}}
+            data-placeholder="Текст..." />
+        </div>
+      );
+    }
     case 'image': return block.content.url ? <div className="relative rounded-lg overflow-hidden h-full"><Image src={block.content.url} alt="" fill className="object-cover" unoptimized /></div> : <label className="flex flex-col items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-400"><svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg><span className="text-xs text-gray-400">Фото</span><input type="file" accept="image/*" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; const fd = new FormData(); fd.append('file', f); const t = localStorage.getItem('token'); const r = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${t}` }, body: fd }); const d = await r.json(); if (r.ok && d.url) onChange({ ...block.content, url: d.url }); }} /></label>;
     case 'video': return block.content.embedUrl ? <div className="relative rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}><iframe src={block.content.embedUrl} className="absolute inset-0 w-full h-full" allowFullScreen /></div> : <input type="url" value={block.content.url || ''} onChange={e => { const url = e.target.value; onChange({ ...block.content, url, embedUrl: extractVideoEmbed(url) || '' }); }} placeholder="Ссылка на видео..." className="w-full px-2 py-1.5 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700" />;
     case 'gallery': return <div className="grid grid-cols-2 gap-1 h-full">{(block.content.images || []).map((url: string, i: number) => <div key={i} className="relative aspect-square rounded bg-gray-100 overflow-hidden">{url ? <Image src={url} alt="" fill className="object-cover" unoptimized /> : <label className="flex items-center justify-center h-full cursor-pointer"><svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg><input type="file" accept="image/*" className="hidden" onChange={async e => { const f = e.target.files?.[0]; if (!f) return; const fd = new FormData(); fd.append('file', f); const t = localStorage.getItem('token'); const r = await fetch('/api/upload', { method: 'POST', headers: { Authorization: `Bearer ${t}` }, body: fd }); const d = await r.json(); if (r.ok && d.url) { const imgs = [...(block.content.images || [])]; imgs[i] = d.url; onChange({ ...block.content, images: imgs }); } }} /></label>}</div>)}</div>;

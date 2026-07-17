@@ -5,6 +5,7 @@ export interface EditorBlock {
   order: number;
   size?: 'full' | 'wide' | 'normal' | 'narrow';
   fontSize?: 'sm' | 'base' | 'lg' | 'xl';
+  gridSpan?: number; // 1-4 колонки в grid
 }
 
 export interface PostTemplate {

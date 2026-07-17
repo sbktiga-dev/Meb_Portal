@@ -352,11 +352,15 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
             {publishing ? 'Публикация...' : 'Опубликовать'}
           </button>
         </div>
-        <div className="max-w-2xl mx-auto py-8 px-4">
+        <div className="max-w-3xl mx-auto py-8 px-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">{title || 'Без заголовка'}</h1>
-            {blocks.map(block => (
-              <div key={block.id} className="mb-6">
+            <div className="grid grid-cols-4 gap-4">
+              {blocks.map(block => {
+                const span = block.gridSpan || 4;
+                const spanClass = span === 1 ? 'col-span-1' : span === 2 ? 'col-span-2' : span === 3 ? 'col-span-3' : 'col-span-4';
+                return (
+                  <div key={block.id} className={spanClass}>
                 {block.type === 'heading' && (
                   block.content.level === 1 ? <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h1>
                     : block.content.level === 3 ? <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{block.content.text}</h3>
@@ -398,7 +402,9 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
                   </a>
                 )}
               </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -482,86 +488,98 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
 
         {/* Center: Canvas */}
         <div className="flex-1 overflow-y-auto p-6" ref={canvasRef}>
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             {blocks.length === 0 ? (
               <div onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
                 onDrop={e => { e.preventDefault(); const type = e.dataTransfer.getData('text/plain'); if (type) addBlock(type as EditorBlock['type'], 0); }}
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-12 text-center text-gray-400">
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-12 text-center text-gray-400"
+                style={{ backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
                 <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                 <p className="font-medium">Перетащите блок сюда</p>
                 <p className="text-sm mt-1">или выберите шаблон</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {blocks.map((block, index) => (
-                  <div key={block.id} draggable onDragStart={e => handleCanvasDragStart(e, index)}
-                    onDragOver={e => handleCanvasDragOver(e, index)} onDrop={e => handleCanvasDrop(e, index)}
-                    onDragEnd={handleCanvasDragEnd} onClick={() => setSelectedBlockId(block.id)}
-                    className={`group relative rounded-xl border-2 transition-all duration-150 cursor-pointer ${
-                      selectedBlockId === block.id ? 'border-brand-400 shadow-md' : 'border-transparent hover:border-gray-200 dark:hover:border-gray-600'
-                    } ${dragOverIndex === index ? 'border-t-2 border-t-brand-400' : ''}`}>
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="cursor-grab text-gray-400 hover:text-gray-600 p-1">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+              <div className="relative rounded-xl p-4 min-h-[400px]"
+                style={{ backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '16px 16px', backgroundColor: 'rgba(249,250,251,0.5)' }}>
+                {/* Grid column guides */}
+                <div className="absolute inset-0 flex pointer-events-none opacity-20">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="flex-1 border-r border-dashed border-gray-300 dark:border-gray-600 last:border-r-0" />
+                  ))}
+                </div>
+
+                <div className="relative grid grid-cols-4 gap-3 auto-rows-auto">
+                  {blocks.map((block, index) => {
+                    const span = block.gridSpan || 4;
+                    const spanClass = span === 1 ? 'col-span-1' : span === 2 ? 'col-span-2' : span === 3 ? 'col-span-3' : 'col-span-4';
+                    return (
+                      <div key={block.id} draggable onDragStart={e => handleCanvasDragStart(e, index)}
+                        onDragOver={e => handleCanvasDragOver(e, index)} onDrop={e => handleCanvasDrop(e, index)}
+                        onDragEnd={handleCanvasDragEnd} onClick={() => setSelectedBlockId(block.id)}
+                        className={`group relative rounded-xl border-2 transition-all duration-150 cursor-pointer min-h-[80px] ${
+                          selectedBlockId === block.id ? 'border-brand-400 shadow-lg bg-white dark:bg-gray-800 ring-2 ring-brand-200 dark:ring-brand-800' : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md'
+                        } ${spanClass}`}>
+                        {/* Resize handle */}
+                        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                          <div className="flex flex-col gap-0.5 bg-white dark:bg-gray-700 rounded-full shadow-md p-1">
+                            {[1,2,3,4].map(s => (
+                              <button key={s} onClick={e => {
+                                e.stopPropagation();
+                                setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, gridSpan: s } : b));
+                              }} className={`w-3 h-3 rounded-full transition-all ${span === s ? 'bg-brand-500 scale-125' : 'bg-gray-300 dark:bg-gray-600 hover:bg-brand-400'}`} title={`${s} колон${s === 1 ? 'ка' : s < 5 ? 'ки' : 'ок'}`} />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Block type badge */}
+                        <div className="absolute top-1.5 left-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                          <span className="bg-brand-100 dark:bg-brand-900/50 text-[10px] text-brand-600 dark:text-brand-400 px-2 py-0.5 rounded-full font-medium shadow-sm">
+                            {BLOCK_TYPES.find(bt => bt.type === block.type)?.label || block.type}
+                          </span>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-20">
+                          <button onClick={e => { e.stopPropagation(); duplicateBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                          </button>
+                          <button onClick={e => { e.stopPropagation(); removeBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:bg-red-50 dark:hover:bg-red-500/10">
+                            <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </div>
+
+                        {/* Block content */}
+                        <div className="p-3 h-full">
+                          <BlockRenderer block={block} onChange={content => updateBlockContent(block.id, content)} isSelected={selectedBlockId === block.id} />
+                        </div>
                       </div>
-                    </div>
-                    <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
-                      {/* Size controls when selected */}
-                      {selectedBlockId === block.id && block.type !== 'divider' && (
-                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
-                          {['narrow', 'normal', 'wide', 'full'].map(s => (
-                            <button key={s} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, size: s as any } : b)); }}
-                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.size === s || (!block.size && s === 'normal') ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
-                              title={s === 'narrow' ? 'Узкий' : s === 'wide' ? 'Широкий' : s === 'full' ? 'На всю ширину' : 'Обычный'}>
-                              {s === 'narrow' ? '◻' : s === 'wide' ? '▭' : s === 'full' ? '⬛' : '◻'}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {/* Font size for text blocks */}
-                      {selectedBlockId === block.id && block.type === 'text' && (
-                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
-                          {['sm', 'base', 'lg', 'xl'].map(fs => (
-                            <button key={fs} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, fontSize: fs as any } : b)); }}
-                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.fontSize === fs || (!block.fontSize && fs === 'base') ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
-                              title={fs === 'sm' ? 'Мелкий' : fs === 'lg' ? 'Большой' : fs === 'xl' ? 'Очень большой' : 'Обычный'}>
-                              {fs === 'sm' ? 'A' : fs === 'lg' ? '<u>A</u>' : fs === 'xl' ? '<b>A</b>' : 'A'}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {/* Gallery columns */}
-                      {selectedBlockId === block.id && block.type === 'gallery' && (
-                        <div className="flex items-center gap-1 bg-white dark:bg-gray-700 rounded shadow-sm px-1 py-0.5 mr-1">
-                          {[2, 3, 4].map(cols => (
-                            <button key={cols} onClick={e => { e.stopPropagation(); setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, content: { ...b.content, columns: cols } } : b)); }}
-                              className={`px-1.5 py-0.5 text-[10px] rounded ${block.content.columns === cols ? 'bg-brand-100 text-brand-600 font-medium' : 'text-gray-400 hover:text-gray-600'}`}
-                              title={`${cols} колонки`}>
-                              {cols}×
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <button onClick={e => { e.stopPropagation(); duplicateBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                      </button>
-                      <button onClick={e => { e.stopPropagation(); removeBlock(block.id); }} className="p-1 bg-white dark:bg-gray-700 rounded shadow-sm hover:bg-red-50 dark:hover:bg-red-500/10">
-                        <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                      </button>
-                    </div>
-                    <div className="p-4">
-                      <BlockRenderer block={block} onChange={content => updateBlockContent(block.id, content)} isSelected={selectedBlockId === block.id} />
-                    </div>
-                  </div>
-                ))}
-                <div onDragOver={e => { e.preventDefault(); }}
-                  onDrop={e => { e.preventDefault(); const type = e.dataTransfer.getData('text/plain'); if (type) addBlock(type as EditorBlock['type']); }}
-                  className="py-4 text-center">
-                  <div className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-brand-500 cursor-pointer transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    Добавить блок
+                    );
+                  })}
+
+                  {/* Add block button */}
+                  <div onDragOver={e => { e.preventDefault(); }}
+                    onDrop={e => { e.preventDefault(); const type = e.dataTransfer.getData('text/plain'); if (type) addBlock(type as EditorBlock['type']); }}
+                    className="col-span-4 py-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-500/5 transition-all cursor-pointer"
+                    onClick={() => addBlock('text')}>
+                    <span className="text-sm text-gray-400 hover:text-brand-500 font-medium">+ Добавить блок</span>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Layout guide */}
+            {blocks.length > 0 && (
+              <div className="mt-4 flex items-center justify-center gap-3 text-[11px] text-gray-400">
+                <span className="font-medium">Размер:</span>
+                {[
+                  { span: 1, label: '1/4', icon: '◻' },
+                  { span: 2, label: '1/2', icon: '◻◻' },
+                  { span: 3, label: '3/4', icon: '◻◻◻' },
+                  { span: 4, label: 'Полный', icon: '◻◻◻◻' },
+                ].map(s => (
+                  <span key={s.span} className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg font-mono">{s.icon} {s.label}</span>
+                ))}
+                <span>— точки справа на блоке</span>
               </div>
             )}
           </div>

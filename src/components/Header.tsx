@@ -113,7 +113,7 @@ export default function Header() {
             {navLinks.map(link => {
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
               return (
-                <Tooltip key={link.href} content={link.tip}>
+                <Tooltip key={link.href} content={link.tip} position="bottom">
                   <Link
                     href={link.href}
                     className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
@@ -130,7 +130,7 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-2 shrink-0 relative" ref={catalogRef}>
-            <Tooltip content="Каталог участников платформы">
+            <Tooltip content="Каталог участников платформы" position="bottom">
               <button
                 onClick={() => setCatalogOpen(!catalogOpen)}
                 className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap flex items-center gap-1 ${

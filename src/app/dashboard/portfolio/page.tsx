@@ -38,7 +38,7 @@ export default function PortfolioPage() {
     const controller = new AbortController();
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
-    fetch('/api/portfolio?page=1&limit=50', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
+    fetch('/api/portfolio?mine=1&page=1&limit=50', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
       .then(d => setItems(d.items || []))
       .catch(() => setItems([]))

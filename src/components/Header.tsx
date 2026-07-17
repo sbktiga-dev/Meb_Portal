@@ -9,6 +9,7 @@ import NotificationsDropdown from './NotificationsDropdown';
 import SearchModal from './SearchModal';
 import RoleBadge from './RoleBadge';
 import { useTheme } from './ThemeProvider';
+import Tooltip from './Tooltip';
 
 interface UserData {
   id: string;
@@ -19,20 +20,20 @@ interface UserData {
 }
 
 const navLinks = [
-  { href: '/feed', label: 'Лента' },
-  { href: '/gallery', label: 'Каталог' },
-  { href: '/products', label: 'Товары' },
-  { href: '/groups', label: 'Группы' },
-  { href: '/events', label: 'События' },
-  { href: '/documents', label: 'Документы' },
-  { href: '/refs', label: 'Справочники' },
+  { href: '/feed', label: 'Лента', tip: 'Новости и публикации участников' },
+  { href: '/gallery', label: 'Каталог', tip: 'Библиотека изображений мебели' },
+  { href: '/products', label: 'Товары', tip: 'Каталог мебели и фурнитуры' },
+  { href: '/groups', label: 'Группы', tip: 'Сообщества по интересам' },
+  { href: '/events', label: 'События', tip: 'Встречи, выставки, мероприятия' },
+  { href: '/documents', label: 'Документы', tip: 'Шаблоны, справочники, нормативы' },
+  { href: '/refs', label: 'Справочники', tip: 'Технические таблицы и ГОСТы' },
 ];
 
 const participantsLinks = [
-  { href: '/specialists', label: 'Специалисты' },
-  { href: '/suppliers', label: 'Поставщики' },
-  { href: '/manufacturers', label: 'Производства' },
-  { href: '/companies', label: 'Компании' },
+  { href: '/specialists', label: 'Специалисты', tip: 'Дизайнеры, технологи, инженеры' },
+  { href: '/suppliers', label: 'Поставщики', tip: 'Поставщики фурнитуры и материалов' },
+  { href: '/manufacturers', label: 'Производства', tip: 'Мебельные производства' },
+  { href: '/companies', label: 'Компании', tip: 'Мебельные компании' },
 ];
 
 export default function Header() {
@@ -112,33 +113,36 @@ export default function Header() {
             {navLinks.map(link => {
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
               return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
-                    isActive
-                      ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  {link.label}
-                </Link>
+                <Tooltip key={link.href} content={link.tip}>
+                  <Link
+                    href={link.href}
+                    className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
+                      isActive
+                        ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </Tooltip>
               );
             })}
           </nav>
 
           <div className="hidden lg:flex items-center gap-2 shrink-0 relative" ref={catalogRef}>
-            <button
-              onClick={() => setCatalogOpen(!catalogOpen)}
-              className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap flex items-center gap-1 ${
-                participantsLinks.some(l => pathname === l.href || pathname?.startsWith(l.href + '/'))
-                  ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
-            >
-              Участники
-              <svg className={`w-3 h-3 transition-transform ${catalogOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
+            <Tooltip content="Каталог участников платформы">
+              <button
+                onClick={() => setCatalogOpen(!catalogOpen)}
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap flex items-center gap-1 ${
+                  participantsLinks.some(l => pathname === l.href || pathname?.startsWith(l.href + '/'))
+                    ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
+              >
+                Участники
+                <svg className={`w-3 h-3 transition-transform ${catalogOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </Tooltip>
             {catalogOpen && (
               <div className="absolute left-0 top-full mt-1 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 dark:border-gray-700 py-2 animate-fade-in-down z-[100]">
                 {participantsLinks.map(link => {

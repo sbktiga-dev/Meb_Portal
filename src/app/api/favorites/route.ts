@@ -104,14 +104,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'itemType и itemId обязательны' }, { status: 400 });
     }
 
-    if (!['image', 'document'].includes(itemType)) {
+    if (!['image', 'document', 'product'].includes(itemType)) {
       return NextResponse.json({ error: 'Недопустимый тип элемента' }, { status: 400 });
     }
 
     // Check if the item exists
     const itemExists = itemType === 'image'
       ? await prisma.image.findUnique({ where: { id: itemId }, select: { id: true } })
-      : await prisma.document.findUnique({ where: { id: itemId }, select: { id: true } });
+      : itemType === 'document'
+      ? await prisma.document.findUnique({ where: { id: itemId }, select: { id: true } })
+      : await prisma.product.findUnique({ where: { id: itemId }, select: { id: true } });
     if (!itemExists) {
       return NextResponse.json({ error: 'Элемент не найден' }, { status: 404 });
     }

@@ -49,7 +49,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
       _avg: { score: true },
     });
 
-    return NextResponse.json({ product: { ...product, avgRating: agg._avg.score || 0 } });
+    // Find owner user ID from company/supplier/manufacturer
+    const ownerUserId = product.company?.users?.[0]?.id
+      || product.supplier?.users?.[0]?.id
+      || product.manufacturer?.users?.[0]?.id
+      || null;
+
+    return NextResponse.json({ product: { ...product, avgRating: agg._avg.score || 0, ownerUserId } });
   } catch (e) {
     console.error('Product GET error:', e);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

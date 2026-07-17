@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
+import { getUserFromToken } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
@@ -9,8 +10,27 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
     const category = searchParams.get('category');
+    const mine = searchParams.get('mine') === '1';
 
-    const where: Record<string, unknown> = { isPublished: true };
+    const where: Record<string, unknown> = {};
+
+    if (mine) {
+      // "My portfolio" — filter by authenticated user
+      const authHeader = request.headers.get('authorization');
+      if (!authHeader?.startsWith('Bearer ')) {
+        return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+      }
+      const token = authHeader.split(' ')[1];
+      const user = await getUserFromToken(token);
+      if (!user) {
+        return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+      }
+      where.userId = user.id;
+    } else {
+      // Public — only published
+      where.isPublished = true;
+    }
+
     if (category) where.category = category;
 
     const [items, total] = await Promise.all([

@@ -72,6 +72,20 @@ export async function POST(req: NextRequest) {
         select: { id: true, email: true, name: true, role: true, inn: true },
       });
 
+      // Generate unique referral code for new user
+      const referralCode = `MP-${u.id.slice(-8).toUpperCase()}`;
+      await tx.user.update({ where: { id: u.id }, data: { referralCode } });
+
+      // Handle referral if code provided
+      if (body.referralCode) {
+        const referrer = await tx.user.findUnique({ where: { referralCode: body.referralCode } });
+        if (referrer && referrer.id !== u.id) {
+          await tx.referral.create({
+            data: { referrerId: referrer.id, referredId: u.id },
+          });
+        }
+      }
+
       if (userRole === 'COMPANY') {
         const company = await tx.company.create({
           data: { name: name || email.split('@')[0] },

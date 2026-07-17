@@ -16,7 +16,7 @@ interface DocumentData {
   fileUrl: string;
 }
 
-const categories = ['Все', 'Договоры', 'Акты', 'Спецификации', 'Счета', 'ТЗ'];
+const categories = ['Все', 'Договоры', 'Акты', 'ТЗ'];
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -122,11 +122,11 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen">
-      <PageSEO title="Документы" description="Библиотека мебельных документов на МебПортал: договоры, акты, спецификации, счета и технические задания." />
+      <PageSEO title="Документы" description="Библиотека мебельных документов на МебПортал: договоры, акты и технические задания." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Документы</h1>
-          <p className="page-subtitle">Шаблоны договоров, актов, спецификаций для мебельщиков</p>
+          <p className="page-subtitle">Шаблоны договоров, актов и технических заданий для мебельщиков</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 md:p-6 mb-8">

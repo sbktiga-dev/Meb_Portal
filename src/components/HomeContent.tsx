@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRef, useEffect, useState } from 'react';
 import { getDisplayName, getDisplayInitial } from '@/lib/displayName';
 import FollowButton from '@/components/FollowButton';
+import WelcomeModal from '@/components/WelcomeModal';
+import Tooltip from '@/components/Tooltip';
 
 interface Stats {
   users: number;
@@ -94,6 +96,7 @@ export default function HomeContent({
 }) {
   return (
     <div>
+      <WelcomeModal />
       <section className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(160deg, #111827 0%, #1f2937 50%, #374151 100%)' }}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
@@ -114,13 +117,17 @@ export default function HomeContent({
               Тысячи изображений мебели, шаблоны документов, технические справочники и каталог поставщиков — всё бесплатно для профессионалов
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up stagger-3">
-              <Link href="/gallery" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white text-gray-900 dark:bg-gray-700 dark:text-gray-100 font-semibold rounded-2xl shadow-float hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                Смотреть каталог
-              </Link>
-              <Link href="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white/10 text-white border border-white/20 font-semibold rounded-2xl hover:bg-white/20 backdrop-blur-sm active:scale-[0.98] transition-all duration-200">
-                Зарегистрироваться бесплатно
-              </Link>
+              <Tooltip content="Открыть библиотеку изображений мебели">
+                <Link href="/gallery" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white text-gray-900 dark:bg-gray-700 dark:text-gray-100 font-semibold rounded-2xl shadow-float hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  Смотреть каталог
+                </Link>
+              </Tooltip>
+              <Tooltip content="Создать бесплатный аккаунт">
+                <Link href="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white/10 text-white border border-white/20 font-semibold rounded-2xl hover:bg-white/20 backdrop-blur-sm active:scale-[0.98] transition-all duration-200">
+                  Зарегистрироваться бесплатно
+                </Link>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -304,27 +311,32 @@ export default function HomeContent({
                 icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>,
                 title: 'Библиотека изображений',
                 desc: 'Тысячи качественных фото мебели в разных стилях. Скачивайте бесплатно в высоком разрешении.',
+                tooltip: 'Перейти в каталог изображений',
               },
               {
                 href: '/documents',
                 icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
                 title: 'Документы и справочники',
                 desc: 'Шаблоны договоров, технические таблицы, паспорта фурнитуры, нормы расхода материалов.',
+                tooltip: 'Скачать шаблоны и справочники',
               },
               {
                 href: '/suppliers',
                 icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>,
                 title: 'Каталог поставщиков',
                 desc: 'Поставщики фурнитуры, ЛДСП, техники. Прайс-листы, отзывы, прямые контакты.',
+                tooltip: 'Найти поставщиков',
               },
             ].map((feature, i) => (
-              <Link key={feature.href} href={feature.href} className="card-base p-8 text-center hover-lift">
+              <Tooltip key={feature.href} content={feature.tooltip}>
+                <Link href={feature.href} className="card-base p-8 text-center hover-lift block h-full">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-500 dark:text-brand-400 mb-5">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{feature.title}</h3>
                 <p className="text-[#6B6B6B] dark:text-gray-400 leading-relaxed">{feature.desc}</p>
               </Link>
+              </Tooltip>
             ))}
           </div>
         </div>

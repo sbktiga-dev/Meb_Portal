@@ -10,10 +10,14 @@ interface RefData {
   title: string;
   description: string | null;
   category: string;
-  content: Record<string, string[]>;
+  content: Record<string, string[]> | { _type: string; sections: { title: string; text: string }[] };
 }
 
-const categories = ['Все', 'Размеры', 'Нормы', 'Фурнитура', 'Материалы'];
+const categories = ['Все', 'Размеры', 'Нормы', 'Фурнитура', 'Материалы', 'ГОСТ'];
+
+function isTextContent(content: RefData['content']): content is { _type: string; sections: { title: string; text: string }[] } {
+  return typeof content === 'object' && content !== null && '_type' in content && (content as Record<string, unknown>)._type === 'text';
+}
 
 export default function RefsPage() {
   const [refs, setRefs] = useState<RefData[]>([]);
@@ -46,11 +50,11 @@ export default function RefsPage() {
 
   return (
     <div className="min-h-screen dark:bg-gray-900">
-      <PageSEO title="Справочники" description="Справочники мебельной индустрии на МебПортал: размеры, нормы, фурнитура, материалы. Полезная информация для специалистов." />
+      <PageSEO title="Справочники" description="Справочники мебельной индустрии на МебПортал: размеры, нормы, фурнитура, материалы, ГОСТы. Полезная информация для специалистов." />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Справочники</h1>
-          <p className="page-subtitle">Технические таблицы, нормы, паспорта фурнитуры</p>
+          <p className="page-subtitle">Технические таблицы, нормы, паспорта фурнитуры, ГОСТы</p>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-8">
@@ -74,7 +78,10 @@ export default function RefsPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{ref.title}</h3>
-                    <span className="badge-neutral text-[10px] mt-1">{ref.category}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="badge-neutral text-[10px]">{ref.category}</span>
+                      {ref.description && <span className="text-xs text-gray-400 dark:text-gray-500">{ref.description}</span>}
+                    </div>
                   </div>
                 </div>
                 <svg className={`w-5 h-5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${expandedId === ref.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -85,11 +92,16 @@ export default function RefsPage() {
                   <div className="flex justify-end mb-3">
                     <button
                       onClick={() => {
-                        const sections = Object.entries(ref.content).map(([key, values]) => ({
-                          heading: key,
-                          content: Array.isArray(values) ? values.join(' / ') : String(values),
-                        }));
-                        downloadPdf(ref.title, sections);
+                        if (isTextContent(ref.content)) {
+                          const sections = ref.content.sections.map(s => ({ heading: s.title, content: s.text }));
+                          downloadPdf(ref.title, sections);
+                        } else {
+                          const sections = Object.entries(ref.content).map(([key, values]) => ({
+                            heading: key,
+                            content: Array.isArray(values) ? values.join(' / ') : String(values),
+                          }));
+                          downloadPdf(ref.title, sections);
+                        }
                       }}
                       className="btn-secondary text-xs !px-3 !py-1.5"
                     >
@@ -97,24 +109,42 @@ export default function RefsPage() {
                       PDF
                     </button>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-gray-50/80 dark:bg-gray-700/50">
-                          <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">Наименование</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">Значение</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(ref.content).map(([key, values], i) => (
-                          <tr key={i} className="border-t border-gray-50 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
-                            <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{key}</td>
-                            <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{Array.isArray(values) ? values.join(' / ') : String(values)}</td>
+
+                  {/* Text content (GOST, articles, etc.) */}
+                  {isTextContent(ref.content) ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      {ref.content.sections.map((section, i) => (
+                        <div key={i} className="mb-6 last:mb-0">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            {section.title}
+                          </h3>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                            {section.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Table content (traditional references) */
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-50/80 dark:bg-gray-700/50">
+                            <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">Наименование</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">Значение</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {Object.entries(ref.content).map(([key, values], i) => (
+                            <tr key={i} className="border-t border-gray-50 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                              <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{key}</td>
+                              <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{Array.isArray(values) ? values.join(' / ') : String(values)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

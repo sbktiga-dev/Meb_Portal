@@ -22,6 +22,7 @@ interface ProductData {
   company: { id: string; name: string; logo: string | null; phone: string | null; email: string | null } | null;
   supplier: { id: string; companyName: string; logo: string | null; phone: string | null; email: string | null } | null;
   manufacturer: { id: string; name: string; logo: string | null; phone: string | null; email: string | null } | null;
+  ownerUserId: string | null;
   reviews: { id: string; score: number; comment: string | null; createdAt: string; user: { id: string; name: string | null; avatar: string | null } }[];
   _count: { reviews: number };
   avgRating: number;
@@ -36,6 +37,7 @@ export default function ProductDetailPage() {
   const [reviewScore, setReviewScore] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [wantLoading, setWantLoading] = useState(false);
 
   const fetchProduct = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -79,6 +81,44 @@ export default function ProductDetailPage() {
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleWant = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) { router.push('/login'); return; }
+    if (!product?.ownerUserId) { alert('Не удалось определить владельца товара'); return; }
+
+    setWantLoading(true);
+    try {
+      // Create or find conversation
+      const convRes = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ userId: product.ownerUserId }),
+      });
+      const convData = await convRes.json();
+      if (!convRes.ok) throw new Error(convData.error || 'Ошибка создания чата');
+
+      const conversationId = convData.conversation.id;
+
+      // Send message with product attached
+      const productImage = (() => { try { const imgs = JSON.parse(product.images); return imgs[0] || null; } catch { return null; } })();
+      const msgRes = await fetch(`/api/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          content: `Хочу этот товар: ${product.name}${product.price ? ` (${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(product.price)})` : ''}`,
+          attachments: productImage ? [productImage] : [],
+        }),
+      });
+      if (!msgRes.ok) throw new Error('Ошибка отправки сообщения');
+
+      router.push(`/dashboard/messages/${conversationId}`);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Ошибка');
+    } finally {
+      setWantLoading(false);
     }
   };
 
@@ -216,8 +256,22 @@ export default function ProductDetailPage() {
                     </div>
                   </Link>
                 )}
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <FavoriteButton itemType="product" itemId={product.id} />
+                  {product.ownerUserId && (
+                    <button
+                      onClick={handleWant}
+                      disabled={wantLoading}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 transition-all disabled:opacity-50"
+                    >
+                      {wantLoading ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                      )}
+                      Хочу
+                    </button>
+                  )}
                 </div>
               </div>
             )}

@@ -62,7 +62,7 @@ export default function PromotionPage() {
       ]);
 
       const me = await meRes.json();
-      const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'];
+      const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'];
       if (!allowedRoles.includes(me.user?.role)) { router.push('/dashboard'); return; }
 
       const subData = await subRes.json();

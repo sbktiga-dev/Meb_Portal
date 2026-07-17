@@ -72,6 +72,21 @@ model User {
   feedback        Feedback[]
   activityLogs    ActivityLog[]
   documents       Document[]
+  referralCode    String?   @unique
+  referredBy      Referral? @relation("ReferredUser")
+  referralsMade   Referral[] @relation("ReferrerUser")
+}
+
+model Referral {
+  id          String   @id @default(cuid())
+  referrerId  String
+  referredId  String   @unique
+  createdAt   DateTime @default(now())
+
+  referrer    User     @relation("ReferrerUser", fields: [referrerId], references: [id])
+  referred    User     @relation("ReferredUser", fields: [referredId], references: [id])
+
+  @@index([referrerId])
 }
 
 model Specialist {

@@ -179,26 +179,25 @@ export default function PublicPortfolioPage() {
                 const isOwner = currentUserId === params.userId;
                 return (
                   <div key={item.id} className="card-base overflow-hidden hover-lift animate-fade-in-up">
-                    <div
-                      className="h-40 sm:h-48 relative group cursor-pointer"
-                      onClick={() => images.length > 0 && setLightbox({ images, index: 0 })}
-                    >
-                      {images.length > 0 ? (
-                        <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" unoptimized />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
-                          <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <Link href={`/portfolio/${params.userId}/${item.id}`} className="block">
+                      <div className="h-40 sm:h-48 relative group cursor-pointer">
+                        {images.length > 0 ? (
+                          <Image src={images[0]} alt={item.title} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" unoptimized />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                          </div>
+                        )}
+                        {images.length > 1 && (
+                          <span className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-full">+{images.length - 1}</span>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-xl text-xs font-medium shadow-lg">
+                            {isOwner ? 'Редактировать' : 'Подробнее'}
+                          </span>
                         </div>
-                      )}
-                      {images.length > 1 && (
-                        <span className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-full">+{images.length - 1}</span>
-                      )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-xl text-xs font-medium shadow-lg">
-                          {isOwner ? 'Редактировать' : 'Подробнее'}
-                        </span>
                       </div>
-                    </div>
+                    </Link>
                     <div className="p-3 sm:p-4">
                       <div className="flex items-start justify-between mb-1.5">
                         <h3 className="font-bold text-gray-900 line-clamp-1 text-sm">{item.title}</h3>

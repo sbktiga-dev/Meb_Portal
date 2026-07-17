@@ -1,16 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'USER', inn: '' });
+  const searchParams = useSearchParams();
+  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'USER', inn: '', referralCode: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [verifyUrl, setVerifyUrl] = useState('');
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setForm(prev => ({ ...prev, referralCode: ref }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +99,10 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ИНН <span className="font-normal text-gray-400">(для ИП/компаний)</span></label>
               <input type="text" value={form.inn} onChange={e => setForm({ ...form, inn: e.target.value })} className="input-premium" placeholder="Необязательно" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Реферальный код <span className="font-normal text-gray-400">(необязательно)</span></label>
+              <input type="text" value={form.referralCode} onChange={e => setForm({ ...form, referralCode: e.target.value })} className="input-premium" placeholder="MP-XXXXXXXX" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Вы</label>

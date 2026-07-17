@@ -4,6 +4,9 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
 import { sanitizeInput } from '@/lib/validation';
+import { getUserFromToken } from '@/lib/auth';
+
+const RESTRICTED_CATEGORIES = ['Договоры', 'Акты', 'ТЗ'];
 
 export async function GET(request: Request) {
   try {
@@ -15,6 +18,15 @@ export async function GET(request: Request) {
 
     const sort = searchParams.get('sort') || 'newest';
 
+    // Check user role for restricted categories
+    let userRole: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const user = await getUserFromToken(token);
+      if (user) userRole = user.role;
+    }
+
     const where: Record<string, unknown> = {};
     if (category) where.category = category;
     if (search) {
@@ -22,6 +34,13 @@ export async function GET(request: Request) {
         { title: { contains: search } },
         { description: { contains: search } },
       ];
+    }
+
+    // CLIENT role cannot see restricted categories
+    if (userRole === 'CLIENT') {
+      where.category = { notIn: RESTRICTED_CATEGORIES };
+    } else if (!category) {
+      // No category filter — exclude restricted for CLIENT
     }
 
     const orderBy = sort === 'popular'

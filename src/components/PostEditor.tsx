@@ -401,10 +401,12 @@ function BlockRenderer({ block, onChange, isSelected }: { block: EditorBlock; on
         </div>
       );
 
-    case 'gallery':
+    case 'gallery': {
+      const cols = block.content.columns || 2;
+      const gridCols = cols === 3 ? 'grid-cols-3' : cols === 4 ? 'grid-cols-4' : 'grid-cols-2';
       return (
         <div className="space-y-2">
-          <div className={`grid gap-2 grid-cols-${block.content.columns || 2}`}>
+          <div className={`grid gap-2 ${gridCols}`}>
             {(block.content.images || []).map((url: string, i: number) => (
               <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
                 {url ? (
@@ -433,6 +435,7 @@ function BlockRenderer({ block, onChange, isSelected }: { block: EditorBlock; on
           </div>
         </div>
       );
+    }
 
     case 'quote':
       return (

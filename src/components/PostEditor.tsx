@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { EditorBlock, PostTemplate, POST_TEMPLATES, getTemplatesForRole, createBlockFromType, BLOCK_TYPES } from '@/lib/postTemplates';
@@ -24,7 +24,6 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const templates = getTemplatesForRole(userRole);
-  const selectedBlock = blocks.find(b => b.id === selectedBlockId);
 
   const selectTemplate = (template: PostTemplate) => {
     const newBlocks = template.blocks.map((b, i) => ({

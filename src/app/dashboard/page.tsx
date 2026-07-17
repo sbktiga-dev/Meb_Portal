@@ -6,6 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import Image from 'next/image';
 import { pluralizeLikes, pluralizeComments, pluralizeNew } from '@/lib/pluralize';
 import ReferralBanner from '@/components/ReferralBanner';
+import OnboardingTooltip from '@/components/OnboardingTooltip';
 
 interface UserData {
   id: string;
@@ -130,6 +131,7 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
+      <OnboardingTooltip pageKey="dashboard" title="Личный кабинет" text="Здесь вы управляете своим профилем, товарами и продвижением." icon="⚙" position="top-right" />
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
         {/* Welcome */}
         <div className="relative overflow-hidden gradient-hero rounded-3xl p-8 md:p-10 text-white mb-8">

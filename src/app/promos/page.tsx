@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Sidebar from '@/components/Sidebar';
 import toast from 'react-hot-toast';
+import OnboardingTooltip from '@/components/OnboardingTooltip';
 
 interface Promo {
   key: string;
@@ -121,6 +122,7 @@ export default function PromosPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
+      <OnboardingTooltip pageKey="promos" title="Акции от МебПортал" text="Участвуйте в акциях и получайте бонусы: скидки, бесплатные баннеры, Premium-подписку." icon="🎁" />
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
         <div className="max-w-5xl">
           <div className="mb-8">

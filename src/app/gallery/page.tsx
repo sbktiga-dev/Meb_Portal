@@ -7,6 +7,7 @@ import InfiniteScroll from '@/components/InfiniteScroll';
 import BannerAd from '@/components/BannerAd';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
 import BannerRotator from '@/components/BannerRotator';
+import OnboardingTooltip from '@/components/OnboardingTooltip';
 import PageSEO from '@/components/PageSEO';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -123,6 +124,7 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <PageSEO title="Каталог изображений" description="Каталог изображений мебельных интерьеров и проектов на МебПортал. Вдохновляйтесь идеями дизайна мебели и интерьеров." />
+      <OnboardingTooltip pageKey="gallery" title="Каталог изображений" text="Скачивайте фото мебели бесплатно. Используйте фильтры по стилям и категориям." icon="🖼" />
       <div className="section-container py-10 md:py-14">
         <div className="page-header">
           <h1 className="page-title">Каталог изображений</h1>

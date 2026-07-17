@@ -10,6 +10,7 @@ import { useCompare } from '@/components/CompareProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import FavoriteButton from '@/components/FavoriteButton';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
+import OnboardingTooltip from '@/components/OnboardingTooltip';
 
 interface ProductData {
   id: string;
@@ -110,6 +111,7 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen">
       <PageSEO title="Каталог товаров" description="Каталог мебельных товаров на МебПортал: кухни, шкафы, столы, стеллажи, диваны, кровати, фурнитура и материалы от лучших производителей." />
+      <OnboardingTooltip pageKey="products" title="Каталог товаров" text="Просматривайте товары от поставщиков. Используйте фильтры и добавляйте в сравнение." icon="📦" />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>

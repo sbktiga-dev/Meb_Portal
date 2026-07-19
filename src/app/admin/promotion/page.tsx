@@ -314,7 +314,6 @@ export default function AdminPromotionPage() {
               {previewBanner.imageUrl && (
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
                   <Image src={previewBanner.imageUrl} alt={previewBanner.title} fill className="object-cover" sizes="(max-width: 600px) 100vw, 600px" unoptimized />
-                  <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Реклама</div>
                 </div>
               )}
               <div className="space-y-2">

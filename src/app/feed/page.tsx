@@ -8,7 +8,7 @@ import { SkeletonFeed } from '@/components/Loading';
 import FollowButton from '@/components/FollowButton';
 import Lightbox from '@/components/Lightbox';
 import RoleBadge from '@/components/RoleBadge';
-import PromotionBadge from '@/components/PromotionBadge';
+
 import BannerAd from '@/components/BannerAd';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
 import BannerRotator from '@/components/BannerRotator';
@@ -374,10 +374,7 @@ export default function FeedPage() {
               const timeAgo = getTimeAgo(post.createdAt);
 
               return (
-                <article key={`promoted-${post.id}`} className="card-base overflow-hidden animate-fade-in-up border-amber-200">
-                  <div className="bg-amber-50 dark:bg-amber-900/20 px-5 py-2 border-b border-amber-100 dark:border-amber-800">
-                    <PromotionBadge />
-                  </div>
+                <article key={`promoted-${post.id}`} className="card-base overflow-hidden animate-fade-in-up">
                   <div className="flex items-center gap-3 p-5 pb-0">
                     <div className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (

@@ -15,9 +15,6 @@ export default function BannerPanorama({ images, title, linkUrl }: BannerPanoram
   return (
     <Link href={linkUrl} target="_blank" rel="noopener noreferrer">
       <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700">
-        <div className="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-          Реклама
-        </div>
         <div className="flex gap-1 p-1">
           {validImages.map((url, i) => (
             <div key={i} className="flex-1 relative aspect-[4/3] rounded-sm overflow-hidden bg-gray-200 dark:bg-gray-700">

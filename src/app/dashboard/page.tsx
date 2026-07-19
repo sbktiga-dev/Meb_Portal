@@ -178,9 +178,9 @@ export default function DashboardPage() {
             <div key={i} className="card-base p-5">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center">{stat.icon}</div>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
               </div>
-              <div className="text-sm text-gray-500 font-medium">{stat.label}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -191,23 +191,23 @@ export default function DashboardPage() {
             <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center mb-3">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <div className="text-sm font-semibold text-gray-900 group-hover:text-brand-600 transition-colors">Документы</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">Документы</div>
           </Link>
           <Link href="/dashboard/followers" className="card-base p-5 hover-lift group">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
               </div>
-              <div className="text-2xl font-bold text-gray-900">{stats.followers}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.followers}</div>
             </div>
-            <div className="text-sm font-semibold text-gray-900 group-hover:text-brand-600 transition-colors">Подписчики</div>
-            <p className="text-xs text-gray-400 mt-1">Кто подписался на вас</p>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">Подписчики</div>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Кто подписался на вас</p>
           </Link>
           <Link href="/gallery" className="card-base p-5 hover-lift group">
             <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center mb-3">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
             </div>
-            <div className="text-sm font-semibold text-gray-900 group-hover:text-brand-600 transition-colors">Каталог изображений</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">Каталог изображений</div>
           </Link>
         </div>
 
@@ -222,8 +222,8 @@ export default function DashboardPage() {
           ].map(item => (
             <Link key={item.href} href={item.href} className="card-base p-6 hover-lift group">
               <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
-              <h3 className="font-bold text-gray-900 group-hover:text-brand-600 transition-colors mb-1">{item.title}</h3>
-              <p className="text-sm text-gray-500">{item.desc}</p>
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors mb-1">{item.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
             </Link>
           ))}
         </div>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
         {/* Downloads */}
         <div className="card-base p-6 mb-8">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900">Последние загрузки</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Последние загрузки</h2>
             {downloads.length > 0 && (
               <Link href="/gallery" className="text-brand-600 hover:text-brand-700 text-sm font-semibold flex items-center gap-1">
                 Каталог
@@ -250,20 +250,20 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {downloads.slice(0, 10).map(dl => (
-                <div key={dl.id} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 transition-colors">
+                <div key={dl.id} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-center gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-400 flex items-center justify-center">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 text-sm">{dl.image.title}</p>
-                      <div className="flex gap-2 text-xs text-gray-400 mt-0.5">
+                      <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{dl.image.title}</p>
+                      <div className="flex gap-2 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                         {dl.image.style && <span>{dl.image.style}</span>}
                         {dl.image.category && <span>· {dl.image.category}</span>}
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-400">{new Date(dl.createdAt).toLocaleDateString('ru-RU')}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(dl.createdAt).toLocaleDateString('ru-RU')}</span>
                 </div>
               ))}
             </div>
@@ -274,12 +274,12 @@ export default function DashboardPage() {
         {notifications.length > 0 && (
           <div className="card-base p-6 mb-8">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-gray-900">Уведомления</h2>
-              <span className="text-sm text-gray-400">{pluralizeNew(notifications.length)}</span>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Уведомления</h2>
+              <span className="text-sm text-gray-400 dark:text-gray-500">{pluralizeNew(notifications.length)}</span>
             </div>
             <div className="space-y-2">
               {notifications.slice(0, 5).map(n => (
-                <div key={n.id} className={`flex items-start gap-3 p-3.5 rounded-xl transition-colors ${n.read ? 'bg-white' : 'bg-brand-50/50'}`}>
+                <div key={n.id} className={`flex items-start gap-3 p-3.5 rounded-xl transition-colors ${n.read ? 'bg-white dark:bg-gray-800' : 'bg-brand-50/50 dark:bg-brand-900/20'}`}>
                   {n.fromUser?.avatar ? (
                     <div className="relative w-9 h-9 rounded-full flex-shrink-0">
                       <Image src={n.fromUser.avatar} alt={n.fromUser.name || 'Аватар'} fill className="object-cover" sizes="36px" unoptimized />
@@ -290,8 +290,8 @@ export default function DashboardPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-700 leading-relaxed">{n.message}</p>
-                    <span className="text-xs text-gray-400 mt-0.5 block">{new Date(n.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{n.message}</p>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 block">{new Date(n.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   {!n.read && <div className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-2" />}
                 </div>
@@ -303,14 +303,14 @@ export default function DashboardPage() {
         {/* My Posts */}
         <div className="card-base p-6 mb-8">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900">Мои посты</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Мои посты</h2>
             <div className="flex gap-3">
               <Link href="/feed/new" className="text-brand-600 hover:text-brand-700 text-sm font-semibold flex items-center gap-1">
                 Новый пост
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
               </Link>
               {stats.posts > 5 && (
-                <Link href="/feed" className="text-gray-500 hover:text-gray-700 text-sm font-semibold flex items-center gap-1">
+                <Link href="/feed" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-semibold flex items-center gap-1">
                   Все посты
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
                 </Link>
@@ -319,30 +319,30 @@ export default function DashboardPage() {
           </div>
           {posts.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
               </div>
-              <p className="text-gray-400 mb-2">Пока нет постов</p>
+              <p className="text-gray-400 dark:text-gray-500 mb-2">Пока нет постов</p>
               <Link href="/feed/new" className="text-brand-600 hover:text-brand-700 text-sm font-semibold">Опубликовать первый пост →</Link>
             </div>
           ) : (
             <div className="space-y-2">
               {posts.map(post => (
-                <Link key={post.id} href={`/feed/${post.id}`} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                <Link key={post.id} href={`/feed/${post.id}`} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
                   <div className="flex items-center gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-400 flex items-center justify-center group-hover:bg-brand-100 transition-colors">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 text-sm group-hover:text-brand-600 transition-colors">{post.title}</p>
-                      <div className="flex gap-3 text-xs text-gray-400 mt-0.5">
+                      <p className="font-medium text-gray-900 dark:text-gray-100 text-sm group-hover:text-brand-600 transition-colors">{post.title}</p>
+                      <div className="flex gap-3 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                         {post.category && <span>{post.category}</span>}
                         <span>{pluralizeLikes(post.likes)}</span>
                         <span>{pluralizeComments(post._count.comments)}</span>
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(post.createdAt).toLocaleDateString('ru-RU')}</span>
                 </Link>
               ))}
             </div>

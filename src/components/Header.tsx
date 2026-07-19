@@ -137,7 +137,7 @@ export default function Header() {
                         }
                       }
                     }}
-                    className={`relative overflow-visible px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
+                    className={`relative z-10 overflow-visible px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
                       isActive
                         ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'

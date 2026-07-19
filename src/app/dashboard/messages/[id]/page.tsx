@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
+import Sidebar from '@/components/Sidebar';
 import Image from 'next/image';
 import EmojiPicker from '@/components/EmojiPicker';
 import MessageAttachments from '@/components/MessageAttachments';
@@ -200,7 +201,9 @@ export default function ChatPage() {
   if (loading) return <Loading text="Загрузка чата..." />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 flex flex-col">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
         <div className="section-container py-3 flex items-center gap-3">
@@ -426,6 +429,7 @@ export default function ChatPage() {
             )}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

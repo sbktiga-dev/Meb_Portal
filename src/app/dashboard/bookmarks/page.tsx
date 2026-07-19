@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Sidebar from '@/components/Sidebar';
 import { useRouter } from 'next/navigation';
 
 interface BookmarkData {
@@ -72,8 +73,10 @@ export default function BookmarksPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="section-container py-10">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+        <div className="section-container py-10">
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Мои закладки</h1>
@@ -136,6 +139,7 @@ export default function BookmarksPage() {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

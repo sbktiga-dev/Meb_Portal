@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
+import Sidebar from '@/components/Sidebar';
 
 interface Follower {
   id: string;
@@ -43,6 +44,7 @@ export default function FollowersPage() {
 
   return (
     <div className="flex min-h-screen">
+      <Sidebar />
       <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
         <div className="max-w-3xl">
           <Link href="/dashboard" className="text-sm text-gray-400 hover:text-brand-500 transition-colors mb-6 inline-flex items-center gap-1">

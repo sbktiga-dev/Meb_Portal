@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Sidebar from '@/components/Sidebar';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from '@/components/Loading';
 
@@ -60,8 +61,10 @@ function MessagesContent() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="section-container py-10 max-w-3xl">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+        <div className="section-container py-10 max-w-3xl">
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Сообщения</h1>
@@ -118,6 +121,7 @@ function MessagesContent() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Sidebar from '@/components/Sidebar';
 
 interface AnalyticsData {
   user: { id: string; name: string | null; role: string };
@@ -98,8 +99,10 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen py-10">
-      <div className="section-container">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+        <div className="section-container">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Аналитика</h1>
@@ -209,6 +212,7 @@ export default function AnalyticsPage() {
               </Link>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

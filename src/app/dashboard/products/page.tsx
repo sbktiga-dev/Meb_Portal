@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Sidebar from '@/components/Sidebar';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 import toast from 'react-hot-toast';
@@ -78,8 +79,10 @@ export default function DashboardProductsPage() {
   if (loading) return <Loading text="Загрузка товаров..." />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
-      <div className="section-container py-10 md:py-14">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+        <div className="section-container py-10 md:py-14">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Мои товары</h1>
@@ -183,6 +186,7 @@ export default function DashboardProductsPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

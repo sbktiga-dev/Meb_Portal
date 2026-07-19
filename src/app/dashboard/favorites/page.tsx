@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
 import Image from 'next/image';
 
@@ -81,8 +82,10 @@ export default function FavoritesPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="section-container py-10">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+        <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Избранное</h1>
@@ -170,6 +173,7 @@ export default function FavoritesPage() {
             })}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -111,7 +111,7 @@ export default function Header() {
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span className="text-lg font-bold text-gray-900 hidden sm:block">
+            <span className="text-lg font-bold text-gray-900 dark:text-gray-100 hidden sm:block">
               Меб<span className="text-brand-500">Портал</span>
             </span>
           </Link>

@@ -145,7 +145,7 @@ export default function Header() {
                   >
                     {link.label}
                     {badgeCount > 0 && (
-                      <span className="absolute top-0.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
+                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
                     )}
                   </Link>
                 </Tooltip>
@@ -153,7 +153,7 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-2 shrink-0 relative z-0" ref={catalogRef}>
+          <div className="hidden lg:flex items-center gap-2 shrink-0 relative z-0 ml-2" ref={catalogRef}>
             <Tooltip content="Каталог участников платформы" position="bottom">
               <button
                 onClick={() => setCatalogOpen(!catalogOpen)}

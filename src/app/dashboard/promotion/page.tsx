@@ -57,7 +57,7 @@ export default function PromotionPage() {
   const [selectedPostId, setSelectedPostId] = useState('');
   const [bannerForm, setBannerForm] = useState({
     title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all',
-    bannerType: 'standard', images: ['', '', '', '', ''],
+    bannerType: 'standard', images: ['', ''],
   });
   const [submitting, setSubmitting] = useState(false);
   const [editingBanner, setEditingBanner] = useState<BannerData | null>(null);
@@ -130,6 +130,7 @@ export default function PromotionPage() {
     if (!bannerForm.title || !bannerForm.linkUrl) { toast.error('Заполните название и ссылку'); return; }
     if (bannerForm.bannerType === 'standard' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
     if (bannerForm.bannerType === 'panorama' && bannerForm.images.filter(Boolean).length < 5) { toast.error('Загрузите все 5 изображений для панорамы'); return; }
+    if (bannerForm.bannerType === 'mini' && bannerForm.images.filter(Boolean).length < 2) { toast.error('Загрузите 2 изображения для мини баннера (левое и правое)'); return; }
     if (bannerForm.bannerType === 'mini' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
 
     const token = localStorage.getItem('token');
@@ -158,7 +159,7 @@ export default function PromotionPage() {
       });
       if (!res.ok) { const data = await res.json(); toast.error(data.error); return; }
       toast.success('Заявка на баннер отправлена!');
-      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] });
+      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', ''] });
       loadData();
     } catch { toast.error('Ошибка сети'); }
     finally { setSubmitting(false); }
@@ -189,7 +190,7 @@ export default function PromotionPage() {
       position: banner.position,
       targetCategory: 'all',
       bannerType: banner.bannerType || 'standard',
-      images: imgs.length >= 5 ? imgs : ['', '', '', '', ''],
+      images: imgs.length >= 2 ? imgs : ['', ''],
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -223,7 +224,7 @@ export default function PromotionPage() {
       if (!res.ok) { const data = await res.json(); toast.error(data.error); return; }
       toast.success('Баннер обновлён!');
       setEditingBanner(null);
-      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] });
+      setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', ''] });
       loadData();
     } catch { toast.error('Ошибка сети'); }
     finally { setSubmitting(false); }

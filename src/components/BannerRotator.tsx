@@ -18,13 +18,14 @@ interface BannerRotatorProps {
   type: 'mini' | 'panorama';
   slots?: number;
   interval?: number;
+  side?: 'left' | 'right';
 }
 
 function parseImages(imagesStr: string): string[] {
   try { return JSON.parse(imagesStr); } catch { return []; }
 }
 
-export default function BannerRotator({ banners, type, slots = 1, interval = 10000 }: BannerRotatorProps) {
+export default function BannerRotator({ banners, type, slots = 1, interval = 10000, side }: BannerRotatorProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const activeBanners = banners.filter(b => b.bannerType === type || (type === 'panorama' && b.bannerType === 'standard'));
@@ -65,14 +66,18 @@ export default function BannerRotator({ banners, type, slots = 1, interval = 100
           </div>
         ) : (
           <div className="space-y-3">
-            {visibleBanners.map(b => (
-              <BannerMini
-                key={b.id}
-                imageUrl={b.imageUrl}
-                title={b.title}
-                linkUrl={b.linkUrl}
-              />
-            ))}
+            {visibleBanners.map(b => {
+              const imgs = parseImages(b.images);
+              const imgUrl = side === 'right' && imgs[1] ? imgs[1] : (imgs[0] || b.imageUrl);
+              return (
+                <BannerMini
+                  key={b.id}
+                  imageUrl={imgUrl}
+                  title={b.title}
+                  linkUrl={b.linkUrl}
+                />
+              );
+            })}
           </div>
         )}
       </div>

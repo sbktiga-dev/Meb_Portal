@@ -153,7 +153,7 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-2 shrink-0 relative" ref={catalogRef}>
+          <div className="hidden lg:flex items-center gap-2 shrink-0 relative z-0" ref={catalogRef}>
             <Tooltip content="Каталог участников платформы" position="bottom">
               <button
                 onClick={() => setCatalogOpen(!catalogOpen)}

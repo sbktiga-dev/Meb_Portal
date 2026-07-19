@@ -20,13 +20,13 @@ interface UserData {
 }
 
 const navLinks = [
-  { href: '/feed', label: 'Лента', tip: 'Новости и публикации участников' },
-  { href: '/gallery', label: 'Каталог', tip: 'Библиотека изображений мебели' },
-  { href: '/products', label: 'Товары', tip: 'Каталог мебели и фурнитуры' },
+  { href: '/feed', label: 'Лента', tip: 'Новости и публикации участников', badgeKey: 'feed' },
+  { href: '/gallery', label: 'Каталог', tip: 'Библиотека изображений мебели', badgeKey: 'gallery' },
+  { href: '/products', label: 'Товары', tip: 'Каталог мебели и фурнитуры', badgeKey: 'products' },
   { href: '/groups', label: 'Группы', tip: 'Сообщества по интересам' },
-  { href: '/events', label: 'События', tip: 'Встречи, выставки, мероприятия' },
-  { href: '/documents', label: 'Документы', tip: 'Шаблоны, справочники, нормативы' },
-  { href: '/refs', label: 'Справочники', tip: 'Технические таблицы и ГОСТы' },
+  { href: '/events', label: 'События', tip: 'Встречи, выставки, мероприятия', badgeKey: 'events' },
+  { href: '/documents', label: 'Документы', tip: 'Шаблоны, справочники, нормативы', badgeKey: 'documents' },
+  { href: '/refs', label: 'Справочники', tip: 'Технические таблицы и ГОСТы', badgeKey: 'refs' },
 ];
 
 const participantsLinks = [
@@ -41,6 +41,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const [badges, setBadges] = useState<Record<string, number>>({});
   const router = useRouter();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -75,8 +76,14 @@ export default function Header() {
           return res.json();
         })
         .then(data => {
-          if (data?.user) setUser(data.user);
+          if (data?.user) {
+            setUser(data.user);
+            return fetch('/api/content/badges', { headers: { Authorization: `Bearer ${token}` } });
+          }
+          return null;
         })
+        .then(res => res?.json())
+        .then(data => { if (data) setBadges(data); })
         .catch(() => { localStorage.removeItem('token'); setUser(null); });
     } else {
       setUser(null);
@@ -112,17 +119,34 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-hide">
             {navLinks.map(link => {
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
+              const badgeCount = link.badgeKey ? (badges[link.badgeKey] || 0) : 0;
               return (
                 <Tooltip key={link.href} content={link.tip} position="bottom">
                   <Link
                     href={link.href}
-                    className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
+                    onClick={() => {
+                      if (link.badgeKey && badgeCount > 0) {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                          fetch('/api/content/badges/seen', {
+                            method: 'PUT',
+                            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ section: link.badgeKey }),
+                          }).catch(() => {});
+                          setBadges(prev => ({ ...prev, [link.badgeKey!]: 0 }));
+                        }
+                      }
+                    }}
+                    className={`relative px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap shrink-0 ${
                       isActive
                         ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     {link.label}
+                    {badgeCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">{badgeCount > 99 ? '99+' : badgeCount}</span>
+                    )}
                   </Link>
                 </Tooltip>
               );

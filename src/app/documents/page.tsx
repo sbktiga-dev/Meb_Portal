@@ -69,6 +69,18 @@ export default function DocumentsPage() {
     return () => controller.abort();
   }, [fetchDocs]);
 
+  // Mark documents as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'documents' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     setPage(nextPage);

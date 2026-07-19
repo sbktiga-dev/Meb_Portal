@@ -38,6 +38,9 @@ export async function POST(req: NextRequest) {
       data: { type, message: message.trim().slice(0, 2000), userId, ip },
     });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_feedback', title: `Обратная связь: ${type}` } }).catch(() => {});
+
     if (userId) {
       await logActivity({ action: 'feedback_submit', userId, details: `Обратная связь: ${type}` });
     }

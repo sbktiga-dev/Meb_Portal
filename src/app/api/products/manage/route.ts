@@ -129,6 +129,9 @@ export async function POST(request: Request) {
       },
     });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_product', title: `Новый товар: ${product.name}` } }).catch(() => {});
+
     return NextResponse.json({ product }, { status: 201 });
   } catch (e) {
     console.error('Product create error:', e);

@@ -94,6 +94,18 @@ export default function GalleryPage() {
     return () => controller.abort();
   }, [fetchImages]);
 
+  // Mark gallery as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'gallery' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     const token = localStorage.getItem('token');

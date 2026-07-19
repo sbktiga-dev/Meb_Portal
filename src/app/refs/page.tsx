@@ -46,6 +46,18 @@ export default function RefsPage() {
     return () => controller.abort();
   }, [selectedCategory]);
 
+  // Mark refs as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'refs' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   if (loading) return <SkeletonList count={4} />;
 
   return (

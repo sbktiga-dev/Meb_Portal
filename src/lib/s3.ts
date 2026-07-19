@@ -26,6 +26,18 @@ export async function uploadToS3(key: string, file: File): Promise<string> {
   return `${PUBLIC_URL}/${key}`;
 }
 
+export async function uploadToS3Buffer(key: string, buffer: Buffer, contentType: string): Promise<string> {
+  await s3.send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType,
+    ACL: 'public-read',
+  }));
+
+  return `${PUBLIC_URL}/${key}`;
+}
+
 export async function deleteFromS3(key: string): Promise<void> {
   await s3.send(new DeleteObjectCommand({
     Bucket: BUCKET,

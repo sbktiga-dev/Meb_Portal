@@ -56,6 +56,18 @@ export default function EventsPage() {
     return () => controller.abort();
   }, [fetchEvents]);
 
+  // Mark events as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'events' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     if (!showCreate) return;
     const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowCreate(false); };

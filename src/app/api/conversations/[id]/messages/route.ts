@@ -171,6 +171,9 @@ export async function POST(
         otherParticipants.map(p => p.userId),
         { title: 'Новое сообщение', body: `${user.name || 'Пользователь'} написал вам`, url: `/dashboard/messages/${params.id}` }
       ).catch(() => {});
+
+      // Admin alert
+      prisma.adminAlert.create({ data: { type: 'new_message', title: `Новое сообщение от ${user.name || 'пользователя'}` } }).catch(() => {});
     }
 
     return NextResponse.json({ message }, { status: 201 });

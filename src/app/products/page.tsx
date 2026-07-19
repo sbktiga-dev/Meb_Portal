@@ -92,6 +92,18 @@ export default function ProductsPage() {
     return () => controller.abort();
   }, [fetchProducts]);
 
+  // Mark products as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'products' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     setPage(nextPage);

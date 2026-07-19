@@ -127,6 +127,9 @@ export async function POST(req: NextRequest) {
 
     logActivity({ action: 'register', userId: user.id, details: `Регистрация: ${user.email} (${userRole})` });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_user', title: `Новый пользователь: ${user.name || user.email}` } }).catch(() => {});
+
     const token = generateToken({
       userId: user.id,
       email: user.email,

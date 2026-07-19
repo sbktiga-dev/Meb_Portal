@@ -686,3 +686,24 @@ model ActivityLog {
   @@index([action])
   @@index([createdAt])
 }
+
+model AdminAlert {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([type, read])
+  @@index([createdAt])
+}
+
+model UserSectionView {
+  id         String   @id @default(cuid())
+  userId     String
+  section    String
+  lastViewed DateTime @default(now())
+
+  @@unique([userId, section])
+  @@index([userId])
+}

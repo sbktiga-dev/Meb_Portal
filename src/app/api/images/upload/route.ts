@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
-import { uploadToS3 } from '@/lib/s3';
+import { uploadToS3Buffer } from '@/lib/s3';
 
 export async function POST(request: Request) {
   try {
@@ -41,8 +41,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Файл не должен превышать 10MB' }, { status: 400 });
     }
 
-    // Validate magic bytes
-    const buffer = await file.arrayBuffer();
+    // Read file once, reuse buffer for validation AND upload
+    const buffer = Buffer.from(await file.arrayBuffer());
     const bytes = new Uint8Array(buffer.slice(0, 4));
     const validMagic: Record<string, number[]> = {
       'image/jpeg': [0xFF, 0xD8, 0xFF],
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const url = await uploadToS3(`gallery/${filename}`, file);
+    const url = await uploadToS3Buffer(`gallery/${filename}`, buffer, file.type);
 
     const image = await prisma.image.create({
       data: {
@@ -72,8 +72,12 @@ export async function POST(request: Request) {
       },
     });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_image', title: `Новое изображение: ${image.title}` } }).catch(() => {});
+
     return NextResponse.json({ image }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+    console.error('Gallery upload error:', error);
+    return NextResponse.json({ error: `Ошибка сервера: ${error instanceof Error ? error.message : String(error)}` }, { status: 500 });
   }
 }

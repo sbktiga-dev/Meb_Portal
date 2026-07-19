@@ -123,6 +123,9 @@ export async function POST(request: Request) {
       include: { author: { select: { id: true, name: true } } },
     });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_post', title: `Новый пост: ${post.title}` } }).catch(() => {});
+
     return NextResponse.json({ post }, { status: 201 });
   } catch (e) {
     console.error('Posts POST error:', e);

@@ -81,6 +81,18 @@ export default function FeedPage() {
     setAuthorId(params.get('authorId'));
   }, []);
 
+  // Mark feed as seen
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/content/badges/seen', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'feed' }),
+      }).catch(() => {});
+    }
+  }, []);
+
   const fetchPosts = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {
       setLoadingMore(true);

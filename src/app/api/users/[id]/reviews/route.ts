@@ -118,6 +118,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
       },
     });
 
+    // Admin alert
+    prisma.adminAlert.create({ data: { type: 'new_review', title: `Новый отзыв от ${user.name || 'пользователя'}` } }).catch(() => {});
+
     return NextResponse.json({ review }, { status: 201 });
   } catch (e) {
     console.error('Reviews POST error:', e);

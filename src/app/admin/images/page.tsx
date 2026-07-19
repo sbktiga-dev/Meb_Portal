@@ -43,7 +43,13 @@ export default function AdminImagesPage() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Файл слишком большой (макс. 10MB)');
+      return;
+    }
+
     setUploading(true);
+    setError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -58,15 +64,19 @@ export default function AdminImagesPage() {
         body: formData,
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setImages(prev => [data.image, ...prev]);
-        setForm({ title: '', style: '', category: '', tags: '' });
-        setFile(null);
-        setShowUpload(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || `Ошибка ${res.status}`);
+        return;
       }
-    } catch {
-      setError('Ошибка загрузки');
+
+      setImages(prev => [data.image, ...prev]);
+      setForm({ title: '', style: '', category: '', tags: '' });
+      setFile(null);
+      setShowUpload(false);
+    } catch (e) {
+      setError(`Ошибка загрузки: ${e instanceof Error ? e.message : 'Неизвестная ошибка'}`);
     } finally {
       setUploading(false);
     }
@@ -141,6 +151,15 @@ export default function AdminImagesPage() {
             {showUpload ? 'Отмена' : '+ Загрузить'}
           </button>
         </div>
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <span className="text-red-700 dark:text-red-400 text-sm">{error}</span>
+            <button onClick={() => setError('')} className="text-red-400 hover:text-red-600 ml-3">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        )}
 
         {/* Модальное окно редактирования */}
         {editingId && (

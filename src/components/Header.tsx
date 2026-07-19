@@ -145,7 +145,7 @@ export default function Header() {
                   >
                     {link.label}
                     {badgeCount > 0 && (
-                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
+                      <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
                     )}
                   </Link>
                 </Tooltip>

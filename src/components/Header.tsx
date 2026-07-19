@@ -102,7 +102,7 @@ export default function Header() {
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'glass shadow-glass' : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm'}`}>
-      <div className="max-w-[1400px] mx-auto pl-[10mm] pr-[10mm]">
+      <div className="mx-auto pl-[10mm] pr-[10mm]">
         <div className="flex items-center justify-between h-14 md:h-16 gap-3">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">

@@ -352,12 +352,9 @@ export default function FeedPage() {
             {/* Left sidebar — мини баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                <BannerRotator banners={feedBanners} type="mini" slots={2} />
+                <BannerRotator banners={feedBanners.filter((_, i) => i % 2 === 0)} type="mini" slots={1} />
                 {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
-                  <>
-                    <BannerPlaceholder key="left-0" />
-                    <BannerPlaceholder key="left-1" />
-                  </>
+                  <BannerPlaceholder key="left-0" />
                 )}
               </div>
             </aside>
@@ -605,12 +602,9 @@ export default function FeedPage() {
             {/* Right sidebar — мини баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                <BannerRotator banners={feedBanners} type="mini" slots={2} />
+                <BannerRotator banners={feedBanners.filter((_, i) => i % 2 === 1)} type="mini" slots={1} />
                 {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
-                  <>
-                    <BannerPlaceholder key="right-0" />
-                    <BannerPlaceholder key="right-1" />
-                  </>
+                  <BannerPlaceholder key="right-0" />
                 )}
               </div>
             </aside>

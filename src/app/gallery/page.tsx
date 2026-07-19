@@ -264,12 +264,9 @@ export default function GalleryPage() {
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              <BannerRotator banners={galleryBanners} type="mini" slots={2} />
+              <BannerRotator banners={galleryBanners.filter((_, i) => i % 2 === 0)} type="mini" slots={1} />
               {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
-                <>
-                  <BannerPlaceholder key="gallery-left-0" />
-                  <BannerPlaceholder key="gallery-left-1" />
-                </>
+                <BannerPlaceholder key="gallery-left-0" />
               )}
             </div>
           </aside>
@@ -358,12 +355,9 @@ export default function GalleryPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              <BannerRotator banners={galleryBanners} type="mini" slots={2} />
+              <BannerRotator banners={galleryBanners.filter((_, i) => i % 2 === 1)} type="mini" slots={1} />
               {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
-                <>
-                  <BannerPlaceholder key="gallery-right-0" />
-                  <BannerPlaceholder key="gallery-right-1" />
-                </>
+                <BannerPlaceholder key="gallery-right-0" />
               )}
             </div>
           </aside>

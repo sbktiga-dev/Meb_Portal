@@ -860,7 +860,7 @@ export default function ProfilePage() {
 
           {/* Контентные баннеры — внизу страницы */}
           {banners.filter(b => b.position.startsWith('content-') && b.active).length > 0 && (
-            <div className="max-w-5xl mx-auto px-4 mt-6 space-y-4">
+            <div className="max-w-5xl mx-auto px-4 mt-6 space-y-4 relative z-10">
               {banners.filter(b => b.position.startsWith('content-') && b.active).sort((a, b) => a.position.localeCompare(b.position)).map(banner => (
                 <div key={banner.id} className="relative rounded-2xl overflow-hidden">
                   {banner.imageUrl && (

@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     const banners = await prisma.banner.findMany({
       where: bannerWhere,
       orderBy: { startDate: 'desc' },
-      take: 3,
+      take: 10,
     });
 
     return NextResponse.json({

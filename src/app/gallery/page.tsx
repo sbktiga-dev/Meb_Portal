@@ -48,8 +48,8 @@ export default function GalleryPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  const styles = ['Все', 'Классика', 'Минимализм', 'Лофт', 'Скандинавия', 'Модерн', 'Кантри'];
-  const categories = ['Все', 'Кухни', 'Гардеробные', 'Шкафы', 'Столы', 'Стеллажи', 'Детская'];
+  const styles = ['Все', 'Скандинавский', 'Минимализм', 'Современная классика', 'Лофт', 'Джапанди', 'Кантри', 'Ар-деко'];
+  const categories = ['Все', 'Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
   const fetchImages = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {

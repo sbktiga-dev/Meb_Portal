@@ -5,23 +5,23 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const FURNITURE_TYPES = [
-  { id: 'kitchens', label: 'Кухни', icon: '🍳' },
-  { id: 'wardrobes', label: 'Гардеробные', icon: '👔' },
-  { id: 'tables', label: 'Столы', icon: '🪑' },
-  { id: 'shelves', label: 'Стеллажи', icon: '📚' },
-  { id: 'sofas', label: 'Диваны', icon: '🛋️' },
-  { id: 'beds', label: 'Кровати', icon: '🛏️' },
-  { id: 'hardware', label: 'Фурнитура', icon: '🔩' },
-  { id: 'materials', label: 'Материалы', icon: '🪵' },
+  { id: 'kitchen', label: 'Кухонная мебель', icon: '🍳' },
+  { id: 'living', label: 'Гостиная', icon: '🛋️' },
+  { id: 'bedroom', label: 'Спальня', icon: '🛏️' },
+  { id: 'hallway', label: 'Прихожая', icon: '🚪' },
+  { id: 'kids', label: 'Детская', icon: '🧸' },
+  { id: 'office', label: 'Кабинет', icon: '💼' },
+  { id: 'bathroom', label: 'Ванная', icon: '🚿' },
 ];
 
 const STYLES = [
-  { id: 'classic', label: 'Классика', desc: 'Традиционные формы, натуральное дерево' },
+  { id: 'scandinavian', label: 'Скандинавский', desc: 'Светлые тона, уют и простота' },
   { id: 'minimalism', label: 'Минимализм', desc: 'Чистые линии, функциональность' },
+  { id: 'neoclassic', label: 'Современная классика', desc: 'Элегантность, симметрия, благородные тона' },
   { id: 'loft', label: 'Лофт', desc: 'Индустриальный стиль, металл и дерево' },
-  { id: 'scandinavian', label: 'Скандинавия', desc: 'Светлые тона, уют и простота' },
-  { id: 'modern', label: 'Модерн', desc: 'Современные формы, глянец' },
-  { id: 'country', label: 'Кантри', desc: 'Деревенский стиль, тёплые тона' },
+  { id: 'japandi', label: 'Джапанди', desc: 'Гибрид скандинавского уюта и японской сдержанности' },
+  { id: 'country', label: 'Кантри', desc: 'Деревенский уют, состаренные фактуры' },
+  { id: 'artdeco', label: 'Ар-деко', desc: 'Геометрия, контрасты, премиальные детали' },
 ];
 
 const BUDGETS = [

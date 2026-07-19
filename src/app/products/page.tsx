@@ -29,7 +29,7 @@ interface ProductData {
   avgRating: number;
 }
 
-const categories = ['Все', 'Кухни', 'Шкафы', 'Столы', 'Стеллажи', 'Диваны', 'Кровати', 'Фурнитура', 'Материалы'];
+const categories = ['Все', 'Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 const sortOptions = [
   { value: 'newest', label: 'Сначала новые' },
   { value: 'popular', label: 'По популярности' },

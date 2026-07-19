@@ -22,14 +22,13 @@ interface BannerData {
 
 const TARGET_CATEGORIES = [
   { value: 'all', label: 'Все категории' },
-  { value: 'kitchens', label: 'Кухни' },
-  { value: 'wardrobes', label: 'Гардеробные' },
-  { value: 'tables', label: 'Столы' },
-  { value: 'shelves', label: 'Стеллажи' },
-  { value: 'sofas', label: 'Диваны' },
-  { value: 'beds', label: 'Кровати' },
-  { value: 'hardware', label: 'Фурнитура' },
-  { value: 'materials', label: 'Материалы' },
+  { value: 'kitchen', label: 'Кухонная мебель' },
+  { value: 'living', label: 'Гостиная' },
+  { value: 'bedroom', label: 'Спальня' },
+  { value: 'hallway', label: 'Прихожая' },
+  { value: 'kids', label: 'Детская' },
+  { value: 'office', label: 'Кабинет' },
+  { value: 'bathroom', label: 'Ванная' },
 ];
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {

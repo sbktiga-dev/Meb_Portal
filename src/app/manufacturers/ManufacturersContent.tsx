@@ -28,7 +28,7 @@ interface Props {
   initialSearch: string;
 }
 
-const categories = ['Все', 'Кухни', 'Шкафы', 'Столы', 'Стеллажи', 'Диваны'];
+const categories = ['Все', 'Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
 export default function ManufacturersContent({
   initialManufacturers,

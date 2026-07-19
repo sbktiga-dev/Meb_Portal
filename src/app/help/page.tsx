@@ -381,7 +381,7 @@ function PromotionHelp() {
               <h5 className="font-medium text-gray-900 mb-1">Целевая аудитория:</h5>
               <p className="text-sm text-gray-600 mb-2">Выберите категорию товаров, соответствующую вашему баннеру. Баннер будет показываться пользователям, которые просматривают соответствующий контент.</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {['Все категории', 'Кухни', 'Гардеробные', 'Столы', 'Стеллажи', 'Диваны', 'Кровати', 'Фурнитура', 'Материалы'].map(cat => (
+                {['Все категории', 'Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'].map(cat => (
                   <div key={cat} className="bg-white rounded px-2 py-1 text-xs text-center border border-gray-200">{cat}</div>
                 ))}
               </div>

@@ -80,19 +80,19 @@ const specialistTypes: Record<string, string> = {
 
 const portfolioCategories = [
   { key: '', label: 'Все' },
-  { key: 'kitchens', label: 'Кухни' },
-  { key: 'wardrobes', label: 'Шкафы' },
-  { key: 'tables', label: 'Столы' },
-  { key: 'shelves', label: 'Полки' },
-  { key: 'sofas', label: 'Диваны' },
-  { key: 'beds', label: 'Кровати' },
-  { key: 'other', label: 'Другое' },
+  { key: 'kitchen', label: 'Кухонная мебель' },
+  { key: 'living', label: 'Гостиная' },
+  { key: 'bedroom', label: 'Спальня' },
+  { key: 'hallway', label: 'Прихожая' },
+  { key: 'kids', label: 'Детская' },
+  { key: 'office', label: 'Кабинет' },
+  { key: 'bathroom', label: 'Ванная' },
 ];
 
 const interestLabels: Record<string, string> = {
-  kitchens: 'Кухни', wardrobes: 'Шкафы', tables: 'Столы', shelves: 'Полки',
-  sofas: 'Диваны', beds: 'Кровати', hardware: 'Фурнитура', materials: 'Материалы',
-  minimalism: 'Минимализм', classic: 'Классика', modern: 'Современный',
+  kitchen: 'Кухонная мебель', living: 'Гостиная', bedroom: 'Спальня', hallway: 'Прихожая',
+  kids: 'Детская', office: 'Кабинет', bathroom: 'Ванная',
+  minimalism: 'Минимализм', neoclassic: 'Современная классика', scandinavian: 'Скандинавский',
 };
 
 const avatarGradients = [

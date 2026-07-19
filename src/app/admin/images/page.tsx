@@ -195,12 +195,13 @@ export default function AdminImagesPage() {
                         className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2"
                       >
                         <option value="">Не указан</option>
-                        <option value="Классика">Классика</option>
+                        <option value="Скандинавский">Скандинавский</option>
                         <option value="Минимализм">Минимализм</option>
+                        <option value="Современная классика">Современная классика</option>
                         <option value="Лофт">Лофт</option>
-                        <option value="Скандинавия">Скандинавия</option>
-                        <option value="Модерн">Модерн</option>
+                        <option value="Джапанди">Джапанди</option>
                         <option value="Кантри">Кантри</option>
+                        <option value="Ар-деко">Ар-деко</option>
                       </select>
                     </div>
                     <div>
@@ -211,12 +212,13 @@ export default function AdminImagesPage() {
                         className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2"
                       >
                         <option value="">Не указана</option>
-                        <option value="Кухни">Кухни</option>
-                        <option value="Гардеробные">Гардеробные</option>
-                        <option value="Шкафы">Шкафы</option>
-                        <option value="Столы">Столы</option>
-                        <option value="Стеллажи">Стеллажи</option>
+                        <option value="Кухонная мебель">Кухонная мебель</option>
+                        <option value="Гостиная">Гостиная</option>
+                        <option value="Спальня">Спальня</option>
+                        <option value="Прихожая">Прихожая</option>
                         <option value="Детская">Детская</option>
+                        <option value="Кабинет">Кабинет</option>
+                        <option value="Ванная">Ванная</option>
                       </select>
                     </div>
                   </div>
@@ -282,12 +284,13 @@ export default function AdminImagesPage() {
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2"
                 >
                   <option value="">Не указан</option>
-                  <option value="Классика">Классика</option>
+                  <option value="Скандинавский">Скандинавский</option>
                   <option value="Минимализм">Минимализм</option>
+                  <option value="Современная классика">Современная классика</option>
                   <option value="Лофт">Лофт</option>
-                  <option value="Скандинавия">Скандинавия</option>
-                  <option value="Модерн">Модерн</option>
+                  <option value="Джапанди">Джапанди</option>
                   <option value="Кантри">Кантри</option>
+                  <option value="Ар-деко">Ар-деко</option>
                 </select>
               </div>
               <div>
@@ -298,12 +301,13 @@ export default function AdminImagesPage() {
                   className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2"
                 >
                   <option value="">Не указана</option>
-                  <option value="Кухни">Кухни</option>
-                  <option value="Гардеробные">Гардеробные</option>
-                  <option value="Шкафы">Шкафы</option>
-                  <option value="Столы">Столы</option>
-                  <option value="Стеллажи">Стеллажи</option>
+                  <option value="Кухонная мебель">Кухонная мебель</option>
+                  <option value="Гостиная">Гостиная</option>
+                  <option value="Спальня">Спальня</option>
+                  <option value="Прихожая">Прихожая</option>
                   <option value="Детская">Детская</option>
+                  <option value="Кабинет">Кабинет</option>
+                  <option value="Ванная">Ванная</option>
                 </select>
               </div>
               <div className="md:col-span-2">

@@ -19,7 +19,7 @@ interface Product {
   _count: { reviews: number };
 }
 
-const categories = ['Кухни', 'Шкафы', 'Столы', 'Стеллажи', 'Диваны', 'Кровати', 'Фурнитура', 'Материалы'];
+const categories = ['Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
 export default function DashboardProductsPage() {
   const router = useRouter();

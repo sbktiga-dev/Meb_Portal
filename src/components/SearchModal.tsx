@@ -211,7 +211,7 @@ export default function SearchModal() {
                 <div className="p-6 text-center">
                   <p className="text-sm text-gray-400 dark:text-gray-500">Начните вводить для поиска</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-4">
-                    {['Кухни', 'Документы', 'Поставщики', 'Специалисты'].map(tag => (
+                    {['Кухонная мебель', 'Документы', 'Поставщики', 'Специалисты'].map(tag => (
                       <button key={tag} onClick={() => setQuery(tag)}
                         className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                         {tag}

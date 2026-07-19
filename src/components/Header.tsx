@@ -102,7 +102,7 @@ export default function Header() {
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'glass shadow-glass' : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm'}`}>
-      <div className="mx-auto pl-[10mm] pr-[10mm] pt-2">
+      <div className="mx-auto pl-[10mm] pr-[10mm]">
         <div className="flex items-center justify-between h-14 md:h-16 gap-3">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
@@ -145,7 +145,7 @@ export default function Header() {
                   >
                     {link.label}
                     {badgeCount > 0 && (
-                      <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
+                      <span className="absolute top-0 right-0 translate-x-1/2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none shadow-sm">{badgeCount > 99 ? '99+' : badgeCount}</span>
                     )}
                   </Link>
                 </Tooltip>

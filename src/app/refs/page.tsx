@@ -13,7 +13,17 @@ interface RefData {
   content: Record<string, string[]> | { _type: string; sections: { title: string; text: string }[] };
 }
 
-const categories = ['Все', 'Размеры', 'Нормы', 'Фурнитура', 'Материалы', 'ГОСТ'];
+const categories = ['Все', 'Размеры', 'Нормы', 'Фурнитура', 'Материалы', 'ГОСТ', 'Стили'];
+
+const STYLES_DATA = [
+  { name: 'Скандинавский', segment: 'Бюджет и средний', desc: 'Простые формы, прямые линии. ЛДСП и МДФ с древесной текстурой, шпон светлых пород. Цвета — белый, молочный, светло-серый, бежевый.', phrase: 'Лаконичная мебель: чистые линии, спокойные оттенки и продуманная эргономика.' },
+  { name: 'Минимализм', segment: 'Средний и премиум', desc: 'Форма следует функции. Фасады матовые, без ручек. МДФ с эмалью, шпон, металл и стекло. Белый, серый, графит, землистые тона.', phrase: 'Строгие пропорции, матовые фасады и скрытые системы хранения.' },
+  { name: 'Современная классика', segment: 'Средний+ и премиум', desc: 'Классические пропорции без избыточного декора. Молдинги, фрезеровка, патина. МДФ и массив, шпон ценных пород.', phrase: 'Элегантные пропорции, деликатная фрезеровка и благородная палитра.' },
+  { name: 'Лофт', segment: 'Средний', desc: 'Металл, дерево с текстурой, бетон, чёрный профиль. Открытые каркасы, видимые крепёжи. Чёрный, графит, ржаво-коричневый.', phrase: 'Брутальные фактуры, открытые конструкции и выразительные контрасты.' },
+  { name: 'Джапанди', segment: 'Средний+', desc: 'Гибрид скандинавского уюта и японской сдержанности. Дерево, лён, камень. Песочный, серо-зелёный, тёплый серый.', phrase: 'Гармония простоты и функциональности. Натуральные материалы и лаконичные формы.' },
+  { name: 'Кантри', segment: 'Бюджет и средний', desc: 'Состаренные поверхности, патина, фигурные кромки. Натуральное дерево, МДФ с фрезеровкой. Кремовый, лавандовый, терракотовый.', phrase: 'Мягкие оттенки, состаренные фактуры и тёплый характер.' },
+  { name: 'Ар-деко', segment: 'Премиум', desc: 'Геометрия, симметрия, контрасты. Чёрный и золото, глянец, зеркальные вставки. Шпон, эмаль, металл, стекло.', phrase: 'Выразительная геометрия, контрастные сочетания и премиальные детали.' },
+];
 
 function isTextContent(content: RefData['content']): content is { _type: string; sections: { title: string; text: string }[] } {
   return typeof content === 'object' && content !== null && '_type' in content && (content as Record<string, unknown>)._type === 'text';
@@ -163,7 +173,30 @@ export default function RefsPage() {
           ))}
         </div>
 
-        {refs.length === 0 && (
+        {/* Стили мебели */}
+        {selectedCategory === 'Стили' && (
+          <div className="space-y-4">
+            {STYLES_DATA.map(style => (
+              <div key={style.name} className="card-base p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{style.name}</h3>
+                    <span className="badge-brand text-[10px]">{style.segment}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{style.desc}</p>
+                <div className="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-3">
+                  <p className="text-xs text-brand-700 dark:text-brand-300 italic">{style.phrase}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedCategory !== 'Стили' && refs.length === 0 && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-5">
               <svg className="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>

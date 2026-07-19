@@ -149,6 +149,7 @@ model Supplier {
   email         String?
   categories    String          @default("[]")
   isVerified    Boolean         @default(false)
+  notifyNewCompanies Boolean   @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

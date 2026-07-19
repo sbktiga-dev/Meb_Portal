@@ -48,6 +48,9 @@ export default function PromotionPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [userRole, setUserRole] = useState('');
+  const [notifyNewCompanies, setNotifyNewCompanies] = useState(false);
+  const [notifyLoading, setNotifyLoading] = useState(false);
   const [posts, setPosts] = useState<PostOption[]>([]);
   const [promotions, setPromotions] = useState<PromotionData[]>([]);
   const [banners, setBanners] = useState<BannerData[]>([]);
@@ -75,9 +78,17 @@ export default function PromotionPage() {
       const me = await meRes.json();
       const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'];
       if (!allowedRoles.includes(me.user?.role)) { router.push('/dashboard'); return; }
+      setUserRole(me.user?.role || '');
 
       const subData = await subRes.json();
       setHasSubscription(subData.canPromote || false);
+
+      // Load supplier notification settings
+      if (me.user?.role === 'SUPPLIER') {
+        const settingsRes = await fetch('/api/supplier/settings', { headers: { Authorization: `Bearer ${token}` }, signal });
+        const settingsData = await settingsRes.json();
+        setNotifyNewCompanies(settingsData.notifyNewCompanies || false);
+      }
 
       const postsData = await postsRes.json();
       setPosts((postsData.posts || []).map((p: PostOption) => ({ id: p.id, title: p.title, category: p.category })));
@@ -239,6 +250,27 @@ export default function PromotionPage() {
     try { return JSON.parse(imagesStr); } catch { return []; }
   };
 
+  const toggleNotifyNewCompanies = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setNotifyLoading(true);
+    try {
+      const res = await fetch('/api/supplier/settings', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notifyNewCompanies: !notifyNewCompanies }),
+      });
+      if (res.ok) {
+        setNotifyNewCompanies(!notifyNewCompanies);
+        toast.success(!notifyNewCompanies ? 'Уведомления включены' : 'Уведомления выключены');
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Ошибка');
+      }
+    } catch { toast.error('Ошибка сети'); }
+    setNotifyLoading(false);
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen">
@@ -265,6 +297,36 @@ export default function PromotionPage() {
               <Link href="/dashboard/tariffs" className="inline-block bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-700 transition text-sm">
                 Оформить бесплатно
               </Link>
+            </div>
+          )}
+
+          {/* Supplier notification settings */}
+          {userRole === 'SUPPLIER' && (
+            <div className="bg-white rounded-xl shadow-md p-6 mb-5">
+              <h2 className="text-lg font-bold text-gray-900 mb-1">Уведомления</h2>
+              <p className="text-sm text-gray-500 mb-4">Настройте уведомления о новом контенте на портале</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">Новые компании и производства</p>
+                  <p className="text-sm text-gray-500">Получать уведомления, когда на портале регистрируется новая компания или производство</p>
+                </div>
+                <button
+                  onClick={toggleNotifyNewCompanies}
+                  disabled={!hasSubscription || notifyLoading}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    hasSubscription
+                      ? notifyNewCompanies ? 'bg-brand-500' : 'bg-gray-300'
+                      : 'bg-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    notifyNewCompanies ? 'translate-x-6' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+              {!hasSubscription && (
+                <p className="text-xs text-amber-600 mt-2">Требуется активная подписка</p>
+              )}
             </div>
           )}
 

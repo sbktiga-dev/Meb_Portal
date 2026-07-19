@@ -130,6 +130,50 @@ export async function POST(req: NextRequest) {
     // Admin alert
     prisma.adminAlert.create({ data: { type: 'new_user', title: `Новый пользователь: ${user.name || user.email}` } }).catch(() => {});
 
+    // Notify suppliers and admins about new company/manufacturer
+    if (userRole === 'COMPANY' || userRole === 'MANUFACTURER') {
+      const entityName = name || email.split('@')[0];
+      const entityType = userRole === 'COMPANY' ? 'компания' : 'производство';
+      const link = userRole === 'COMPANY' ? '/companies' : '/manufacturers';
+
+      // Notify suppliers with notifyNewCompanies enabled + active subscription
+      prisma.user.findMany({
+        where: {
+          role: 'SUPPLIER',
+          supplier: { notifyNewCompanies: true },
+        },
+        select: { id: true },
+      }).then(suppliers => {
+        if (suppliers.length > 0) {
+          prisma.notification.createMany({
+            data: suppliers.map(s => ({
+              type: 'new_entity',
+              message: `На портале зарегистрировалась новая ${entityType}: ${entityName}`,
+              userId: s.id,
+              link,
+            })),
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+
+      // Notify all admins
+      prisma.user.findMany({
+        where: { role: 'ADMIN' },
+        select: { id: true },
+      }).then(admins => {
+        if (admins.length > 0) {
+          prisma.notification.createMany({
+            data: admins.map(a => ({
+              type: 'new_entity',
+              message: `Зарегистрирована новая ${entityType}: ${entityName}`,
+              userId: a.id,
+              link,
+            })),
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    }
+
     const token = generateToken({
       userId: user.id,
       email: user.email,

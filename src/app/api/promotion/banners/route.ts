@@ -90,8 +90,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'title, linkUrl и duration (7/14/30) обязательны' }, { status: 400 });
     }
 
-    if (!imageUrl && !(bannerType === 'panorama' && images && images.length === 5)) {
-      return NextResponse.json({ error: 'imageUrl обязателен (или 5 images для панорамы)' }, { status: 400 });
+    if (!imageUrl && !(bannerType === 'panorama' && images && images.length === 5) && !(bannerType === 'mini' && images && images.length >= 2)) {
+      return NextResponse.json({ error: 'imageUrl обязателен (или 5 images для панорамы, 2 images для мини)' }, { status: 400 });
     }
 
     if (position && !['feed', 'gallery', 'both'].includes(position)) {

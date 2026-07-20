@@ -14,6 +14,7 @@ interface PortfolioItem {
   title: string;
   description: string | null;
   images: string;
+  videos: string;
   category: string | null;
   tags: string;
   createdAt: string;
@@ -176,7 +177,7 @@ export default function PublicPortfolioPage() {
               {items.map((item, i) => {
                 const tags: string[] = (() => { try { return JSON.parse(item.tags); } catch { return []; } })();
                 const images: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
-                const videos: string[] = (() => { try { return JSON.parse((item as Record<string, unknown>).videos as string || '[]'); } catch { return []; } })();
+                const videos: string[] = (() => { try { return JSON.parse(item.videos || '[]'); } catch { return []; } })();
                 const isOwner = currentUserId === params.userId;
                 const firstMedia = images[0] || videos[0] || '';
                 const isVideo = !!videos[0] && !images[0];

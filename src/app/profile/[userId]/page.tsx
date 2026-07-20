@@ -50,7 +50,7 @@ interface ProfileData {
 }
 
 interface Post { id: string; title: string; category: string; images: string; likes: number; views: number; createdAt: string; _count: { comments: number } }
-interface PortfolioItem { id: string; title: string; images: string; category: string | null; createdAt: string }
+interface PortfolioItem { id: string; title: string; images: string; videos: string; category: string | null; createdAt: string }
 interface Review { id: string; score: number; comment: string | null; createdAt: string; reviewer: { id: string; name: string | null; avatar: string | null; role: string } }
 
 interface Banner { id: string; position: string; imageUrl: string; title: string; subtitle?: string; linkUrl?: string; buttonText?: string; active: boolean }
@@ -720,7 +720,7 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {portfolioItems.map(item => {
                           const imgs: string[] = (() => { try { return JSON.parse(item.images); } catch { return []; } })();
-                          const vids: string[] = (() => { try { return JSON.parse((item as Record<string, unknown>).videos as string || '[]'); } catch { return []; } })();
+                          const vids: string[] = (() => { try { return JSON.parse(item.videos || '[]'); } catch { return []; } })();
                           const firstMedia = imgs[0] || vids[0] || '';
                           const isVideo = !!vids[0] && !imgs[0];
                           return (

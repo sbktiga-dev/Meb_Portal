@@ -1,25 +1,14 @@
-const CACHE_NAME = 'mebportal-v3';
-const STATIC_CACHE = 'mebportal-static-v3';
-
-const PRECACHE_URLS = [
-  '/favicon.svg',
-  '/favicon-192x192.png',
-  '/favicon-512x512.png',
-  '/apple-touch-icon.png',
-  '/site.webmanifest',
-];
+const CACHE_NAME = 'mebportal-v4';
+const IMAGE_CACHE = 'mebportal-images-v4';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS))
-  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== STATIC_CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== IMAGE_CACHE).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -30,38 +19,29 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   if (request.url.includes('/api/')) return;
 
-  const isNavigation = request.mode === 'navigate';
+  const url = new URL(request.url);
+  const isImage = /\.(jpg|jpeg|png|gif|webp|svg|ico|avif)(\?|$)/i.test(url.pathname)
+    || url.pathname.startsWith('/uploads/');
 
-  if (isNavigation) {
+  if (isImage) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request))
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(IMAGE_CACHE).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => cached);
+        return cached || fetchPromise;
+      })
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetchPromise = fetch(request)
-        .then((response) => {
-          if (response.ok && request.url.startsWith(self.location.origin)) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
-
-      return cached || fetchPromise;
-    })
-  );
+  event.respondWith(fetch(request));
 });
 
 self.addEventListener('push', (event) => {

@@ -131,7 +131,6 @@ export default function PromotionPage() {
     if (bannerForm.bannerType === 'standard' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
     if (bannerForm.bannerType === 'panorama' && bannerForm.images.filter(Boolean).length < 5) { toast.error('Загрузите все 5 изображений для панорамы'); return; }
     if (bannerForm.bannerType === 'mini' && bannerForm.images.filter(Boolean).length < 2) { toast.error('Загрузите 2 изображения для мини баннера (левое и правое)'); return; }
-    if (bannerForm.bannerType === 'mini' && !bannerForm.imageUrl) { toast.error('Загрузите изображение'); return; }
 
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -145,7 +144,7 @@ export default function PromotionPage() {
         bannerType: bannerForm.bannerType,
         duration: 30,
       };
-      if (bannerForm.bannerType === 'panorama') {
+      if (bannerForm.bannerType === 'panorama' || bannerForm.bannerType === 'mini') {
         body.images = bannerForm.images.filter(Boolean);
         body.imageUrl = bannerForm.images[0] || '';
       } else {
@@ -209,7 +208,7 @@ export default function PromotionPage() {
         targetCategory: bannerForm.targetCategory,
         bannerType: bannerForm.bannerType,
       };
-      if (bannerForm.bannerType === 'panorama') {
+      if (bannerForm.bannerType === 'panorama' || bannerForm.bannerType === 'mini') {
         body.images = bannerForm.images.filter(Boolean);
         body.imageUrl = bannerForm.images[0] || '';
       } else {
@@ -360,7 +359,10 @@ export default function PromotionPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Тип баннера</label>
                   <div className="flex gap-2">
                     {BANNER_TYPES.map(bt => (
-                      <button key={bt.key} type="button" onClick={() => setBannerForm({ ...bannerForm, bannerType: bt.key })}
+                      <button key={bt.key} type="button" onClick={() => {
+                        const images = bt.key === 'panorama' ? ['', '', '', '', ''] : ['', ''];
+                        setBannerForm({ ...bannerForm, bannerType: bt.key, images });
+                      }}
                         className={`flex-1 px-4 py-3 rounded-xl text-center transition-all border-2 ${
                           bannerForm.bannerType === bt.key
                             ? 'border-brand-500 bg-brand-50 text-brand-700'
@@ -385,8 +387,8 @@ export default function PromotionPage() {
                     </div>
                   </div>
 
-                  {/* Изображение для стандартного/мини */}
-                  {bannerForm.bannerType !== 'panorama' && (
+                  {/* Изображение для стандартного */}
+                  {bannerForm.bannerType === 'standard' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Изображение баннера</label>
                       {bannerForm.imageUrl ? (
@@ -413,6 +415,39 @@ export default function PromotionPage() {
                           }} />
                         </label>
                       )}
+                    </div>
+                  )}
+
+                  {/* 2 изображения для мини баннера */}
+                  {bannerForm.bannerType === 'mini' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">2 изображения для мини баннера</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {bannerForm.images.map((url, i) => (
+                          <div key={i} className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200 dark:border-gray-600">
+                            {url ? (
+                              <>
+                                <Image src={url} alt={i === 0 ? 'Левое' : 'Правое'} fill className="object-cover" sizes="200px" unoptimized />
+                                <button onClick={() => {
+                                  const newImages = [...bannerForm.images];
+                                  newImages[i] = '';
+                                  setBannerForm({ ...bannerForm, images: newImages });
+                                }} className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-[10px] hover:bg-red-600">✕</button>
+                              </>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-brand-50/50 transition">
+                                <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                <span className="text-[10px] text-gray-400">{i === 0 ? 'Левое' : 'Правое'}</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={e => {
+                                  const file = e.target.files?.[0];
+                                  if (file) uploadPanoramaImage(i, file);
+                                }} />
+                              </label>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">2 изображения: левое и правое (показываются на боковых панелях страниц).</p>
                     </div>
                   )}
 
@@ -473,7 +508,7 @@ export default function PromotionPage() {
                           className="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-600 transition disabled:opacity-50">
                           {submitting ? '...' : 'Сохранить'}
                         </button>
-                        <button onClick={() => { setEditingBanner(null); setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', '', '', '', ''] }); }}
+                        <button onClick={() => { setEditingBanner(null); setBannerForm({ title: '', imageUrl: '', linkUrl: '', position: 'both', targetCategory: 'all', bannerType: 'standard', images: ['', ''] }); }}
                           className="px-5 py-2.5 rounded-lg font-medium border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                           Отмена
                         </button>

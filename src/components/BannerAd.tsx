@@ -10,7 +10,7 @@ interface BannerAdProps {
 export default function BannerAd({ title, imageUrl, linkUrl }: BannerAdProps) {
   return (
     <Link href={linkUrl} target="_blank" rel="noopener noreferrer">
-      <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700 min-h-[337px]">
+      <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700 min-h-[160px] md:min-h-[337px]">
         <Image
           src={imageUrl}
           alt={title}

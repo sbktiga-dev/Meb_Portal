@@ -28,7 +28,7 @@ function parseImages(imagesStr: string): string[] {
 export default function BannerRotator({ banners, type, slots = 1, interval = 10000, side }: BannerRotatorProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const activeBanners = banners.filter(b => b.bannerType === type || (type === 'panorama' && b.bannerType === 'standard'));
+  const activeBanners = banners.filter(b => b.bannerType === type);
 
   const nextPage = useCallback(() => {
     if (activeBanners.length <= slots) return;

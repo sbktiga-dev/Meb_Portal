@@ -216,7 +216,7 @@ export default function GalleryPage() {
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Стиль:</span>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
                 {styles.map(s => (
                   <button
                     key={s}
@@ -231,7 +231,7 @@ export default function GalleryPage() {
             <div className="w-px bg-gray-200 dark:bg-gray-700 hidden md:block" />
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Тип:</span>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
                 {categories.map(c => (
                   <button
                     key={c}

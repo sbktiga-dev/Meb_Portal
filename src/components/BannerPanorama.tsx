@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -10,88 +10,83 @@ interface BannerPanoramaProps {
   linkUrl: string;
 }
 
-export default function BannerPanorama({ images, title, linkUrl }: BannerPanoramaProps) {
-  const validImages = images.filter(Boolean).slice(0, 5);
-  const [current, setCurrent] = useState(0);
-
-  const next = useCallback(() => {
-    setCurrent(prev => (prev + 1) % validImages.length);
-  }, [validImages.length]);
+function CrossfadeSlot({ urls, slotIndex }: { urls: string[]; slotIndex: number }) {
+  const [idx, setIdx] = useState(slotIndex % urls.length);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    if (validImages.length <= 1) return;
-    const timer = setInterval(next, 4000);
-    return () => clearInterval(timer);
-  }, [next, validImages.length]);
+    if (urls.length <= 1) return;
+    const totalSlots = urls.length;
+    const interval = totalSlots * 2000;
+
+    const timer = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setIdx(prev => (prev + 1) % urls.length);
+        setFading(false);
+      }, 800);
+    }, interval);
+
+    // Stagger start per slot
+    const delay = setTimeout(() => {
+      setFading(true);
+      setTimeout(() => {
+        setIdx(prev => (prev + 1) % urls.length);
+        setFading(false);
+      }, 800);
+    }, slotIndex * 2000);
+
+    return () => { clearInterval(timer); clearTimeout(delay); };
+  }, [urls.length, slotIndex]);
+
+  const current = urls[idx];
+  const nextIdx = (idx + 1) % urls.length;
+
+  return (
+    <div className="flex-1 relative aspect-[4/3] rounded-sm overflow-hidden bg-gray-200 dark:bg-gray-700">
+      {/* Bottom layer — current image */}
+      <Image
+        src={current}
+        alt={`${slotIndex + 1}`}
+        fill
+        className="object-cover group-hover:scale-105 transition-transform duration-500"
+        sizes="(max-width: 768px) 50vw, 20vw"
+        unoptimized
+      />
+      {/* Top layer — next image fading in */}
+      <div
+        className="absolute inset-0 transition-opacity duration-700 ease-in-out pointer-events-none"
+        style={{ opacity: fading ? 1 : 0 }}
+      >
+        <Image
+          src={urls[nextIdx]}
+          alt={`${slotIndex + 1}`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 50vw, 20vw"
+          unoptimized
+        />
+      </div>
+    </div>
+  );
+}
+
+export default function BannerPanorama({ images, title, linkUrl }: BannerPanoramaProps) {
+  const validImages = images.filter(Boolean).slice(0, 5);
 
   if (validImages.length === 0) return null;
-
-  if (validImages.length === 1) {
-    return (
-      <Link href={linkUrl} target="_blank" rel="noopener noreferrer">
-        <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700">
-          <div className="relative aspect-[21/9]">
-            <Image
-              src={validImages[0]}
-              alt={title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="100vw"
-              unoptimized
-            />
-          </div>
-          <div className="px-3 pb-2 pt-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors truncate">{title}</p>
-          </div>
-        </div>
-      </Link>
-    );
-  }
 
   return (
     <Link href={linkUrl} target="_blank" rel="noopener noreferrer">
       <div className="relative rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group cursor-pointer border border-gray-200 dark:border-gray-700">
-        {/* Images */}
-        <div className="relative aspect-[21/9]">
-          {validImages.map((url, i) => (
-            <div
-              key={i}
-              className="absolute inset-0 transition-opacity duration-700 ease-in-out"
-              style={{ opacity: i === current ? 1 : 0 }}
-            >
-              <Image
-                src={url}
-                alt={`${title} ${i + 1}`}
-                fill
-                className="object-cover"
-                sizes="100vw"
-                unoptimized
-              />
-            </div>
+        <div className="flex gap-1 p-1">
+          {validImages.map((_, i) => (
+            <CrossfadeSlot key={i} urls={validImages} slotIndex={i} />
           ))}
         </div>
-
-        {/* Title overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-3 pt-8">
-          <p className="text-sm font-medium text-white group-hover:text-brand-300 transition-colors truncate">{title}</p>
+        <div className="px-3 pb-2 pt-1">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors truncate">{title}</p>
         </div>
-
-        {/* Dots */}
-        {validImages.length > 1 && (
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {validImages.map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => { e.preventDefault(); setCurrent(i); }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  i === current
-                    ? 'bg-white w-4'
-                    : 'bg-white/50 hover:bg-white/80'
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </Link>
   );

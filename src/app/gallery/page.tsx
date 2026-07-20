@@ -264,8 +264,13 @@ export default function GalleryPage() {
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              <BannerRotator banners={galleryBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
-              {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+              {galleryBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                <BannerRotator banners={galleryBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
+              ) : galleryBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                galleryBanners.filter(b => b.bannerType === 'standard').slice(0, 2).map(b => (
+                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                ))
+              ) : (
                 <BannerPlaceholder key="gallery-left-0" />
               )}
             </div>
@@ -355,8 +360,13 @@ export default function GalleryPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              <BannerRotator banners={galleryBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
-              {galleryBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+              {galleryBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                <BannerRotator banners={galleryBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
+              ) : galleryBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                galleryBanners.filter(b => b.bannerType === 'standard').slice(0, 2).map(b => (
+                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                ))
+              ) : (
                 <BannerPlaceholder key="gallery-right-0" />
               )}
             </div>

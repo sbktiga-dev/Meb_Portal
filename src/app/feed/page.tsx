@@ -349,11 +349,16 @@ export default function FeedPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
-            {/* Left sidebar — мини баннеры */}
+            {/* Left sidebar — баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                <BannerRotator banners={feedBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
-                {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                {feedBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                  <BannerRotator banners={feedBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
+                ) : feedBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                  feedBanners.filter(b => b.bannerType === 'standard').slice(0, 2).map(b => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))
+                ) : (
                   <BannerPlaceholder key="left-0" />
                 )}
               </div>
@@ -599,11 +604,16 @@ export default function FeedPage() {
             </div>
           </div>
 
-            {/* Right sidebar — мини баннеры */}
+            {/* Right sidebar — баннеры */}
             <aside className="hidden lg:block">
               <div className="sticky top-20 space-y-4">
-                <BannerRotator banners={feedBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
-                {feedBanners.filter(b => b.bannerType === 'mini').length === 0 && (
+                {feedBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                  <BannerRotator banners={feedBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
+                ) : feedBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                  feedBanners.filter(b => b.bannerType === 'standard').slice(0, 2).map(b => (
+                    <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                  ))
+                ) : (
                   <BannerPlaceholder key="right-0" />
                 )}
               </div>

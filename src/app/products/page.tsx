@@ -10,6 +10,7 @@ import { useCompare } from '@/components/CompareProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import FavoriteButton from '@/components/FavoriteButton';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
+import BannerAd from '@/components/BannerAd';
 import OnboardingTooltip from '@/components/OnboardingTooltip';
 
 interface ProductData {
@@ -54,6 +55,16 @@ export default function ProductsPage() {
   const [minRating, setMinRating] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const { items: compareIds, add: compareAdd, remove: compareRemove, has: compareHas } = useCompare();
+  const [productsBanners, setProductsBanners] = useState<{ id: string; title: string; imageUrl: string; linkUrl: string; bannerType: string }[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/promotion/active?position=both', { signal: controller.signal })
+      .then(r => r.json())
+      .then(d => setProductsBanners(d.banners || []))
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   const fetchProducts = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) setLoadingMore(true);
@@ -201,9 +212,13 @@ export default function ProductsPage() {
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {Array.from({ length: 3 }, (_, i) => (
-                <BannerPlaceholder key={`products-left-${i}`} />
-              ))}
+              {productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                productsBanners.filter(b => b.bannerType === 'standard').slice(0, 2).map(b => (
+                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                ))
+              ) : (
+                <BannerPlaceholder key="products-left" />
+              )}
             </div>
           </aside>
 
@@ -312,9 +327,13 @@ export default function ProductsPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {Array.from({ length: 3 }, (_, i) => (
-                <BannerPlaceholder key={`products-right-${i}`} />
-              ))}
+              {productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+                productsBanners.filter(b => b.bannerType === 'standard').slice(2, 4).map(b => (
+                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+                ))
+              ) : (
+                <BannerPlaceholder key="products-right" />
+              )}
             </div>
           </aside>
         </div>

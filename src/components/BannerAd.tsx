@@ -20,7 +20,7 @@ export default function BannerAd({ title, imageUrl, linkUrl }: BannerAdProps) {
           unoptimized
         />
         <div className="p-3">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">{title}</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors truncate">{title}</p>
         </div>
       </div>
     </Link>

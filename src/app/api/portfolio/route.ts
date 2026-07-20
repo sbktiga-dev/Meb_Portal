@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, images, documents, category, tags } = body;
+    const { title, description, images, videos, documents, category, tags } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Название обязательно' }, { status: 400 });
@@ -94,6 +94,7 @@ export async function POST(request: Request) {
         title,
         description: description || null,
         images: JSON.stringify(images || []),
+        videos: JSON.stringify(videos || []),
         documents: JSON.stringify(validDocs),
         category: category || null,
         tags: JSON.stringify(tags || []),

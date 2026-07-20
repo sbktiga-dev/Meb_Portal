@@ -56,7 +56,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 
     const body = await request.json();
-    const { title, description, images, category, tags } = body;
+    const { title, description, images, videos, category, tags } = body;
 
     const updated = await prisma.portfolioItem.update({
       where: { id: params.id },
@@ -64,6 +64,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description: description || null }),
         ...(images !== undefined && { images: JSON.stringify(images) }),
+        ...(videos !== undefined && { videos: JSON.stringify(videos) }),
         ...(category !== undefined && { category: category || null }),
         ...(tags !== undefined && { tags: JSON.stringify(tags) }),
       },

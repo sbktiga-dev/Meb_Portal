@@ -347,6 +347,7 @@ model PortfolioItem {
   description   String?
   imageUrl      String?
   images        String          @default("[]")
+  videos        String          @default("[]") // JSON array of video URLs
   documents     String          @default("[]") // JSON array: [{url, name, type, size}]
   category      String?
   tags          String          @default("[]")

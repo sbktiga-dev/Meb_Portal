@@ -246,7 +246,8 @@ export default function PostEditor({ userRole, onPublish, onCancel }: PostEditor
         }
       }).filter(Boolean).join('\n\n');
       const images = blocks.filter(b => b.type === 'image' && b.content.url).map(b => b.content.url)
-        .concat(blocks.filter(b => b.type === 'gallery').flatMap(b => (b.content.images || []).filter(Boolean)));
+        .concat(blocks.filter(b => b.type === 'gallery').flatMap(b => (b.content.images || []).filter(Boolean)))
+        .concat(blocks.filter(b => b.type === 'video' && b.content.embedUrl).map(b => b.content.embedUrl));
       const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
       localStorage.removeItem(DRAFT_KEY);
       onPublish({ title, content: contentParts, category, images, tags: tagList });

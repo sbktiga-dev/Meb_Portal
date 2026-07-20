@@ -12,21 +12,24 @@ export default function NewPortfolioPage() {
   const [category, setCategory] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  const MAX_IMAGES = 10;
+  const MAX_FILES = 10;
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    const remaining = MAX_IMAGES - images.length;
-    if (remaining <= 0) { setError('Максимум 10 изображений'); return; }
+    const totalFiles = images.length + videos.length;
+    const remaining = MAX_FILES - totalFiles;
+    if (remaining <= 0) { setError('Максимум 10 файлов'); return; }
     const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     try {
       const newImages: string[] = [];
+      const newVideos: string[] = [];
       for (const file of toUpload) {
         const formData = new FormData();
         formData.append('file', file);
@@ -38,16 +41,25 @@ export default function NewPortfolioPage() {
         });
         const data = await res.json();
         if (res.ok && data.url) {
-          newImages.push(data.url);
+          if (data.category === 'video') {
+            newVideos.push(data.url);
+          } else {
+            newImages.push(data.url);
+          }
         }
       }
       setImages(prev => [...prev, ...newImages]);
+      setVideos(prev => [...prev, ...newVideos]);
     } catch {}
     finally { setUploading(false); }
   };
 
   const removeImage = (idx: number) => {
     setImages(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const removeVideo = (idx: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +75,7 @@ export default function NewPortfolioPage() {
       const res = await fetch('/api/portfolio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title: title.trim(), description: description.trim() || null, category: category || null, tags, images }),
+        body: JSON.stringify({ title: title.trim(), description: description.trim() || null, category: category || null, tags, images, videos }),
       });
       const data = await res.json();
       if (res.ok) { router.push('/dashboard/portfolio'); }
@@ -101,12 +113,24 @@ export default function NewPortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Изображения</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Медиа</label>
               <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => (
-                  <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-brand-100">
+                  <div key={`img-${idx}`} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-brand-100">
                     <Image src={img} alt={`Изображение ${idx + 1}`} fill className="object-cover" sizes="96px" unoptimized />
                     <button type="button" onClick={() => removeImage(idx)} aria-label="Удалить изображение"
+                      className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+                ))}
+                {videos.map((vid, idx) => (
+                  <div key={`vid-${idx}`} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-brand-100 bg-black">
+                    <video src={vid} className="w-full h-full object-cover" muted preload="metadata" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white/80" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <button type="button" onClick={() => removeVideo(idx)} aria-label="Удалить видео"
                       className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
@@ -124,8 +148,8 @@ export default function NewPortfolioPage() {
                   )}
                 </button>
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-              <p className="text-xs text-gray-400 mt-2">JPG, PNG, GIF, WebP. Макс. 10MB.</p>
+              <input ref={fileInputRef} type="file" accept="image/*,video/mp4,video/webm,video/quicktime" multiple onChange={handleFileUpload} className="hidden" />
+              <p className="text-xs text-gray-400 mt-2">JPG, PNG, GIF, WebP, MP4, WebM. Макс. 50MB на видео.</p>
             </div>
 
             <div>

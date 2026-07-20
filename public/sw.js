@@ -1,5 +1,5 @@
-const CACHE_NAME = 'mebportal-v1';
-const STATIC_CACHE = 'mebportal-static-v1';
+const CACHE_NAME = 'mebportal-v2';
+const STATIC_CACHE = 'mebportal-static-v2';
 
 const PRECACHE_URLS = [
   '/',

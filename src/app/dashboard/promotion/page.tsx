@@ -488,9 +488,10 @@ export default function PromotionPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Размещение</label>
                       <select value={bannerForm.position} onChange={e => setBannerForm({ ...bannerForm, position: e.target.value })} className="input-premium">
-                        <option value="both">Лента + Каталог</option>
+                        <option value="both">Лента + Каталог + Товары</option>
                         <option value="feed">Только лента</option>
                         <option value="gallery">Только каталог</option>
+                        <option value="products">Только товары</option>
                       </select>
                     </div>
                     <div>
@@ -555,7 +556,7 @@ export default function PromotionPage() {
                     })}
                     {banners.map(b => {
                       const st = STATUS_LABELS[b.status] || STATUS_LABELS.pending;
-                      const posLabel = b.position === 'feed' ? 'Лента' : b.position === 'gallery' ? 'Каталог' : 'Лента + Каталог';
+                      const posLabel = b.position === 'feed' ? 'Лента' : b.position === 'gallery' ? 'Каталог' : b.position === 'products' ? 'Товары' : 'Все страницы';
                       const typeLabel = b.bannerType === 'panorama' ? 'Панорама' : b.bannerType === 'mini' ? 'Мини' : 'Стандарт';
                       return (
                         <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">

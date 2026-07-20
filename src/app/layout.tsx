@@ -71,10 +71,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-              navigator.serviceWorker.register('/sw.js?v=' + Date.now()).catch(function() {});
-              navigator.serviceWorker.ready.then(function(reg) {
-                if (reg.active) reg.update();
-              });
+              navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(function(reg) {
+                reg.update();
+              }).catch(function() {});
+              setInterval(function() {
+                navigator.serviceWorker.ready.then(function(reg) { reg.update(); });
+              }, 60000);
             });
           }
         `}} />

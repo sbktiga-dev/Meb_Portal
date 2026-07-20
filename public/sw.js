@@ -1,8 +1,7 @@
-const CACHE_NAME = 'mebportal-v2';
-const STATIC_CACHE = 'mebportal-static-v2';
+const CACHE_NAME = 'mebportal-v3';
+const STATIC_CACHE = 'mebportal-static-v3';
 
 const PRECACHE_URLS = [
-  '/',
   '/favicon.svg',
   '/favicon-192x192.png',
   '/favicon-512x512.png',
@@ -29,8 +28,24 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
-
   if (request.url.includes('/api/')) return;
+
+  const isNavigation = request.mode === 'navigate';
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((cached) => {

@@ -34,15 +34,16 @@ export const BLOCK_TYPES = [
   { type: 'button', label: 'Кнопка', icon: '' },
 ] as const;
 
+const ALL_EXCEPT_CLIENT = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN', 'SPECIALIST'];
+
 export const POST_TEMPLATES: PostTemplate[] = [
-  // Для мебельщиков
   {
     id: 'new-product',
     name: 'Новый товар',
     description: 'Представьте новый товар с фото и описанием',
     icon: '📦',
     category: 'product',
-    roles: ['USER', 'COMPANY', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Название товара', level: 2 } },
       { type: 'image', content: { url: '', caption: 'Фото товара' } },
@@ -57,7 +58,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Покажите выполненный проект с фото',
     icon: '🏠',
     category: 'project',
-    roles: ['USER', 'COMPANY', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Название проекта', level: 2 } },
       { type: 'gallery', content: { images: ['', '', ''], columns: 2 } },
@@ -71,7 +72,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Сравните результат работ',
     icon: '🔄',
     category: 'project',
-    roles: ['USER', 'COMPANY', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'До и после: название работ', level: 2 } },
       { type: 'gallery', content: { images: ['', ''], columns: 2 } },
@@ -84,7 +85,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Покажите как создаётся мебель',
     icon: '⚙️',
     category: 'article',
-    roles: ['USER', 'COMPANY', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Процесс: название', level: 2 } },
       { type: 'text', content: { text: 'Этап 1: описание' } },
@@ -93,14 +94,13 @@ export const POST_TEMPLATES: PostTemplate[] = [
       { type: 'image', content: { url: '', caption: 'Фото этапа' } },
     ],
   },
-  // Для поставщиков
   {
     id: 'supplier-product',
     name: 'Товар у поставщика',
     description: 'Представьте товар с характеристиками',
     icon: '🏭',
     category: 'product',
-    roles: ['SUPPLIER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Название товара', level: 2 } },
       { type: 'image', content: { url: '', caption: 'Фото товара' } },
@@ -115,7 +115,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Объявите акцию или скидку',
     icon: '🏷️',
     category: 'news',
-    roles: ['SUPPLIER', 'COMPANY', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Акция: название', level: 2 } },
       { type: 'image', content: { url: '', caption: 'Баннер акции' } },
@@ -130,7 +130,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Расскажите о доставке',
     icon: '🚚',
     category: 'news',
-    roles: ['SUPPLIER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Доставка: город/регион', level: 2 } },
       { type: 'text', content: { text: 'Условия доставки' } },
@@ -138,14 +138,13 @@ export const POST_TEMPLATES: PostTemplate[] = [
       { type: 'button', content: { text: 'Заказать доставку', url: '' } },
     ],
   },
-  // Для специалистов
   {
     id: 'portfolio',
     name: 'Портфолио проекта',
     description: 'Покажите лучший проект',
     icon: '🖼️',
     category: 'project',
-    roles: ['USER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Название проекта', level: 2 } },
       { type: 'gallery', content: { images: ['', '', '', ''], columns: 2 } },
@@ -159,7 +158,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Поделитесь опытом с материалом',
     icon: '📋',
     category: 'article',
-    roles: ['USER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Обзор: название материала', level: 2 } },
       { type: 'image', content: { url: '', caption: 'Фото материала' } },
@@ -175,21 +174,20 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Поделитесь полезным советом',
     icon: '💡',
     category: 'article',
-    roles: ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Совет: тема', level: 2 } },
       { type: 'text', content: { text: 'Текст совета' } },
       { type: 'image', content: { url: '', caption: 'Иллюстрация (необязательно)' } },
     ],
   },
-  // Общие
   {
     id: 'news-empty',
     name: 'Новость',
     description: 'Свободный формат для новостей',
     icon: '📰',
     category: 'news',
-    roles: ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [
       { type: 'heading', content: { text: 'Заголовок новости', level: 2 } },
       { type: 'text', content: { text: 'Текст новости' } },
@@ -201,7 +199,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
     description: 'Начните с нуля',
     icon: '✨',
     category: 'news',
-    roles: ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'],
+    roles: ALL_EXCEPT_CLIENT,
     blocks: [],
   },
 ];

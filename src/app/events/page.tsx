@@ -121,7 +121,7 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-20 md:pb-0">
       <PageSEO title="События" description="Мебельные выставки, семинары и мероприятия на МебПортал. Будьте в курсе главных событий мебельной индустрии." />
       <div className="section-container py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in">

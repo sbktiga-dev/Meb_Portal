@@ -132,7 +132,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-20 md:pb-0">
       <PageSEO title="Каталог товаров" description="Каталог мебельных товаров на МебПортал: кухни, шкафы, столы, стеллажи, диваны, кровати, фурнитура и материалы от лучших производителей." />
       <OnboardingTooltip pageKey="products" title="Каталог товаров" text="Просматривайте товары от поставщиков. Используйте фильтры и добавляйте в сравнение." icon="📦" />
       <div className="section-container py-10">

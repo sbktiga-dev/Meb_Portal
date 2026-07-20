@@ -134,7 +134,7 @@ export default function GalleryPage() {
   const activeFilters = (selectedStyle !== 'Все' ? 1 : 0) + (selectedCategory !== 'Все' ? 1 : 0) + (dateFrom || dateTo ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 pb-20 md:pb-0">
       <PageSEO title="Каталог изображений" description="Каталог изображений мебельных интерьеров и проектов на МебПортал. Вдохновляйтесь идеями дизайна мебели и интерьеров." />
       <OnboardingTooltip pageKey="gallery" title="Каталог изображений" text="Скачивайте фото мебели бесплатно. Используйте фильтры по стилям и категориям." icon="🖼" />
       <div className="section-container py-10 md:py-14">

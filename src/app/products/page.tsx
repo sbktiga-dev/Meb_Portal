@@ -235,14 +235,14 @@ export default function ProductsPage() {
             <p className="text-gray-500 dark:text-gray-400">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
             {products.map((product, i) => {
               const productImages: string[] = (() => { try { return JSON.parse(product.images); } catch { return []; } })();
               const isCompared = compareHas(product.id);
               return (
                 <div key={product.id} className={`card-base overflow-hidden hover-lift animate-fade-in-up stagger-${Math.min((i % 6) + 1, 6)} ${isCompared ? 'ring-2 ring-brand-500' : ''}`}>
                   <Link href={`/products/${product.id}`} className="block">
-                    <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
+                    <div className="relative h-36 md:h-48 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
                       {productImages.length > 0 ? (
                         <Image src={productImages[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" unoptimized />
                       ) : (

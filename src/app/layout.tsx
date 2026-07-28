@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
@@ -11,6 +11,13 @@ import PushRegistration from '@/components/PushRegistration';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
   title: {
@@ -88,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <HotkeysProvider>
             <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
             <Header />
-            <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+            <main className="min-h-screen">{children}</main>
             <Footer />
             <MobileBottomNav />
           </HotkeysProvider>

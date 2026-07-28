@@ -114,6 +114,22 @@ export async function POST(req: NextRequest) {
       return u;
     });
 
+    // Auto-create trial Lite subscription for non-CLIENT roles
+    if (userRole !== 'CLIENT') {
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 14);
+      prisma.subscription.create({
+        data: {
+          userId: user.id,
+          plan: 'lite',
+          period: 'monthly',
+          status: 'active',
+          startDate: new Date(),
+          endDate: trialEnd,
+        },
+      }).catch(() => {});
+    }
+
     // Send verification email (optional - user can verify later from profile)
     const verificationToken = crypto.randomBytes(32).toString('hex');
     await prisma.user.update({ where: { id: user.id }, data: { verificationToken } });

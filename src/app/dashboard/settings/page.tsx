@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 
 export default function DashboardSettingsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; phone: string | null; inn: string | null; emailVerified: boolean } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; phone: string | null; inn: string | null; emailVerified: boolean; avatar?: string | null; cover?: string | null; bio?: string | null; location?: string | null; socialLinks?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -52,10 +52,16 @@ export default function DashboardSettingsPage() {
   const profileCompletion = (() => {
     if (!user) return 0;
     let completed = 0;
-    let total = 3;
-    if (user.name) completed++;
-    if (user.phone) completed++;
-    if (user.inn) completed++;
+    let total = 6;
+    if (user.avatar) completed++;
+    if (user.cover) completed++;
+    if (user.bio && user.bio.trim().length >= 10) completed++;
+    if (user.location && user.location.trim().length > 0) completed++;
+    if (user.phone && user.phone.trim().length >= 10) completed++;
+    try {
+      const links = JSON.parse(user.socialLinks || '{}');
+      if (Object.values(links).some(v => typeof v === 'string' && v.trim().length > 0)) completed++;
+    } catch { /* ignore */ }
     return Math.round((completed / total) * 100);
   })();
 

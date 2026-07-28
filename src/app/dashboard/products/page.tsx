@@ -17,6 +17,7 @@ interface Product {
   isPublished: boolean;
   createdAt: string;
   _count: { reviews: number };
+  boost?: { costPerClick: number; clicks: number; active: boolean } | null;
 }
 
 const categories = ['Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
@@ -25,6 +26,10 @@ export default function DashboardProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [boostModal, setBoostModal] = useState<Product | null>(null);
+  const [boostCpc, setBoostCpc] = useState(5);
+  const [boostBudget, setBoostBudget] = useState(100);
+  const [boostSaving, setBoostSaving] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -74,6 +79,49 @@ export default function DashboardProductsPage() {
   const formatPrice = (price: number | null) => {
     if (!price) return 'Цена не указана';
     return new Intl.NumberFormat('ru-RU').format(price) + ' ₽';
+  };
+
+  const openBoost = (product: Product) => {
+    setBoostModal(product);
+    setBoostCpc(product.boost?.costPerClick || 5);
+    setBoostBudget(100);
+  };
+
+  const handleBoost = async () => {
+    if (!boostModal) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setBoostSaving(true);
+    try {
+      const res = await fetch(`/api/products/${boostModal.id}/boost`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ costPerClick: boostCpc, budget: boostBudget }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(prev => prev.map(p => p.id === boostModal.id ? { ...p, boost: data.boost } : p));
+        toast.success('Буст активирован');
+        setBoostModal(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Ошибка');
+      }
+    } catch { toast.error('Ошибка сети'); }
+    finally { setBoostSaving(false); }
+  };
+
+  const handleStopBoost = async (productId: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      await fetch(`/api/products/${productId}/boost`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, boost: null } : p));
+      toast.success('Буст остановлен');
+    } catch { toast.error('Ошибка'); }
   };
 
   if (loading) return <Loading text="Загрузка товаров..." />;
@@ -162,6 +210,23 @@ export default function DashboardProductsPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            {product.boost?.active ? (
+                              <button
+                                onClick={() => handleStopBoost(product.id)}
+                                className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors"
+                                title="Остановить буст"
+                              >
+                                ↑ {product.boost.costPerClick}₽/клик
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => openBoost(product)}
+                                className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 rounded-lg hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                                title="Поднять в поиске"
+                              >
+                                ↑ Поднять
+                              </button>
+                            )}
                             <Link
                               href={`/dashboard/products/${product.id}/edit`}
                               className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
@@ -188,6 +253,68 @@ export default function DashboardProductsPage() {
         )}
         </div>
       </div>
+
+      {/* Boost Modal */}
+      {boostModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setBoostModal(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Поднять в поиске</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">{boostModal.name}</p>
+
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Ставка за клик: <span className="text-brand-600">{boostCpc} ₽</span>
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={50}
+                step={1}
+                value={boostCpc}
+                onChange={e => setBoostCpc(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>1 ₽</span>
+                <span>50 ₽</span>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Бюджет: <span className="text-brand-600">{boostBudget} ₽</span>
+              </label>
+              <input
+                type="range"
+                min={boostCpc}
+                max={5000}
+                step={boostCpc}
+                value={boostBudget}
+                onChange={e => setBoostBudget(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>{boostCpc} ₽</span>
+                <span>5 000 ₽</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-5 text-sm">
+              <p className="text-gray-600 dark:text-gray-400">Примерных показов: <span className="font-semibold text-gray-900 dark:text-gray-100">~{Math.floor(boostBudget / boostCpc)}</span></p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Товар будет показываться выше в каталоге, пока не израсходуется бюджет</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setBoostModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                Отмена
+              </button>
+              <button onClick={handleBoost} disabled={boostSaving} className="flex-1 py-2.5 rounded-xl bg-brand-500 text-white font-medium hover:bg-brand-600 transition disabled:opacity-50">
+                {boostSaving ? 'Сохранение...' : 'Активировать'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

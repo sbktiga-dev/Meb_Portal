@@ -64,21 +64,39 @@ export async function GET(request: Request) {
             ? { name: 'asc' as const }
             : { createdAt: 'desc' as const };
 
+    // Get active boosts for sorting
+    const activeBoosts = await prisma.productBoost.findMany({
+      where: { active: true, budget: { gt: prisma.productBoost.fields.spent } },
+      select: { productId: true, costPerClick: true },
+      orderBy: { costPerClick: 'desc' },
+    });
+    const boostedIds = new Set(activeBoosts.map(b => b.productId));
+    const boostOrder = new Map(activeBoosts.map((b, i) => [b.productId, i]));
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        skip: (page - 1) * limit,
-        take: limit,
         include: {
           company: { select: { id: true, name: true, logo: true } },
           supplier: { select: { id: true, companyName: true, logo: true } },
           manufacturer: { select: { id: true, name: true, logo: true } },
+          boost: { select: { costPerClick: true, clicks: true, active: true } },
           _count: { select: { reviews: true } },
         },
         orderBy,
       }),
       prisma.product.count({ where }),
     ]);
+
+    // Sort: boosted first (by costPerClick desc), then normal
+    products.sort((a, b) => {
+      const aBoosted = boostedIds.has(a.id);
+      const bBoosted = boostedIds.has(b.id);
+      if (aBoosted && !bBoosted) return -1;
+      if (!aBoosted && bBoosted) return 1;
+      if (aBoosted && bBoosted) return (boostOrder.get(a.id) || 0) - (boostOrder.get(b.id) || 0);
+      return 0;
+    });
 
     const ratings = await prisma.productReview.groupBy({
       by: ['productId'],
@@ -90,6 +108,7 @@ export async function GET(request: Request) {
     const productsWithRating = products.map(p => ({
       ...p,
       avgRating: ratingMap.get(p.id) || 0,
+      isBoosted: boostedIds.has(p.id),
     }));
 
     const res = NextResponse.json({

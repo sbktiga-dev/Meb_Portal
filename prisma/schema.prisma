@@ -28,6 +28,7 @@ model User {
   socialLinks   String         @default("{}")
   interests     String         @default("[]") // JSON array: ["kitchens", "wardrobes", "minimalism"]
   profileViews  Int            @default(0)
+  verifiedBadge Boolean        @default(false) // Бейдж "Проверенный" за заполненный профиль
   profileBanners String        @default("[]") // JSON array: [{id, position, imageUrl, title, subtitle, linkUrl, buttonText, active}]
   profileTheme  String         @default("{}") // JSON: {type: "image"|"gradient"|"preset", value: string}
   lastActiveAt  DateTime?      // Для отслеживания онлайн-статуса
@@ -76,6 +77,8 @@ model User {
   referredBy      Referral? @relation("ReferredUser")
   referralsMade   Referral[] @relation("ReferrerUser")
   promoParticipations PromoParticipation[]
+  newsletters         Newsletter[]
+  productBoosts       ProductBoost[]
 }
 
 model Referral {
@@ -179,6 +182,7 @@ model Product {
   manufacturer  Manufacturer?   @relation(fields: [manufacturerId], references: [id])
   manufacturerId String?
   reviews       ProductReview[]
+  boost         ProductBoost?
 }
 
 model ProductReview {
@@ -707,5 +711,48 @@ model UserSectionView {
   lastViewed DateTime @default(now())
 
   @@unique([userId, section])
+  @@index([userId])
+}
+
+model Newsletter {
+  id             String   @id @default(cuid())
+  title          String
+  body           String
+  recipientCount Int      @default(0)
+  sentAt         DateTime @default(now())
+  userId         String
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sentAt])
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  type      String   @unique // 'amocrm'
+  config    String   @default("{}") // JSON: { domain, client_id, client_secret, access_token, refresh_token, pipeline_id, status_id, expires_at }
+  enabled   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+}
+
+model ProductBoost {
+  id           String   @id @default(cuid())
+  costPerClick Float    @default(5) // от 1 до 50₽
+  budget       Float    @default(0) // общий лимит
+  spent        Float    @default(0) // потрачено
+  clicks       Int      @default(0) // количество кликов
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+
+  @@index([active, budget])
   @@index([userId])
 }

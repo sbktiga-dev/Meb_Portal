@@ -66,18 +66,19 @@ export default function PromotionPage() {
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
     try {
-      const [meRes, subRes, postsRes, promosRes, bannersRes] = await Promise.all([
-        fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal }),
-        fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` }, signal }),
-        fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${token}` }, signal }),
-        fetch('/api/promotion', { headers: { Authorization: `Bearer ${token}` }, signal }),
-        fetch('/api/promotion/banners', { headers: { Authorization: `Bearer ${token}` }, signal }),
-      ]);
-
+      const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal });
       const me = await meRes.json();
       const allowedRoles = ['USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'ADMIN'];
       if (!allowedRoles.includes(me.user?.role)) { router.push('/dashboard'); return; }
       setUserRole(me.user?.role || '');
+      const userId = me.user?.id;
+
+      const [subRes, postsRes, promosRes, bannersRes] = await Promise.all([
+        fetch('/api/subscription/check', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch(`/api/posts?limit=100&authorId=${userId}`, { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/promotion', { headers: { Authorization: `Bearer ${token}` }, signal }),
+        fetch('/api/promotion/banners', { headers: { Authorization: `Bearer ${token}` }, signal }),
+      ]);
 
       const subData = await subRes.json();
       setHasSubscription(subData.canPromote || false);

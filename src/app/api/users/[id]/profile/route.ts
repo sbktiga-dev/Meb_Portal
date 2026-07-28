@@ -29,6 +29,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         socialLinks: true,
         interests: true,
         profileViews: true,
+        verifiedBadge: true,
         profileBanners: true,
         profileTheme: true,
         createdAt: true,

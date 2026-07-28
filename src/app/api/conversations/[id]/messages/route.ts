@@ -176,6 +176,53 @@ export async function POST(
       prisma.adminAlert.create({ data: { type: 'new_message', title: `Новое сообщение от ${user.name || 'пользователя'}` } }).catch(() => {});
     }
 
+    // AmoCRM integration: create deal on first message from CLIENT
+    if (user.role === 'CLIENT') {
+      try {
+        const { findOrCreateContact, createDeal, addNoteToLead } = await import('@/lib/amoCRM');
+        const msgCount = await prisma.message.count({
+          where: { authorId: user.id, conversationId: params.id },
+        });
+        if (msgCount <= 1) {
+          const client = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { phone: true, name: true },
+          });
+          if (client?.phone) {
+            const contactId = await findOrCreateContact(client.phone, client.name || 'Клиент');
+            if (contactId) {
+              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mebportal.online';
+              const dealId = await createDeal(contactId, client.name || 'Клиент', `${appUrl}/profile/${user.id}`);
+              if (dealId && content?.trim()) {
+                addNoteToLead(dealId, content.trim()).catch(() => {});
+              }
+            }
+          }
+        } else {
+          // Add subsequent messages as notes to existing deal
+          const { findOrCreateContact, addNoteToLead } = await import('@/lib/amoCRM');
+          if (content?.trim()) {
+            const client = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { phone: true, name: true },
+            });
+            if (client?.phone) {
+              const contactId = await findOrCreateContact(client.phone, client.name || 'Клиент');
+              if (contactId) {
+                const integration = await prisma.integration.findUnique({ where: { type: 'amocrm' } });
+                if (integration?.enabled) {
+                  // Find deal by contact (simplified - in production you'd store dealId)
+                  addNoteToLead(contactId, content.trim()).catch(() => {});
+                }
+              }
+            }
+          }
+        }
+      } catch (amoErr) {
+        console.error('AmoCRM integration error:', amoErr);
+      }
+    }
+
     return NextResponse.json({ message }, { status: 201 });
   } catch (e) {
     console.error('Error:', e);

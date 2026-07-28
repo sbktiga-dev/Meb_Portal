@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     }
 
     const subscription = await prisma.subscription.findFirst({
-      where: { userId: user.id, status: 'active' },
+      where: { userId: user.id, status: 'active', endDate: { gt: new Date() } },
     });
 
     if (!subscription) {

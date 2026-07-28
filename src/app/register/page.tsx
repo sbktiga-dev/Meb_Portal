@@ -7,11 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'USER', inn: '', referralCode: '' });
+  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'USER', inn: '', referralCode: '', specialistType: 'DESIGNER' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [verifyUrl, setVerifyUrl] = useState('');
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
   useEffect(() => {
     const ref = searchParams.get('ref');
@@ -95,7 +96,30 @@ function RegisterForm() {
             <option value="MANUFACTURER">Производство</option>
           </select>
         </div>
-        <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5 mt-2">
+        {form.role === 'USER' && (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Специализация</label>
+            <select value={form.specialistType} onChange={e => setForm({ ...form, specialistType: e.target.value })} className="input-premium">
+              <option value="DESIGNER">Дизайнер</option>
+              <option value="TECHNOLOGIST">Технолог</option>
+              <option value="INSTALLER">Монтажник</option>
+              <option value="MANAGER">Менеджер</option>
+            </select>
+          </div>
+        )}
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={agreedToPolicy}
+            onChange={e => setAgreedToPolicy(e.target.checked)}
+            className="mt-1 w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 rounded focus:ring-brand-500 dark:focus:ring-brand-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Я согласен с{' '}
+            <Link href="/privacy" target="_blank" className="text-brand-600 hover:text-brand-700 font-medium underline">политикой конфиденциальности</Link>
+          </span>
+        </label>
+        <button type="submit" disabled={loading || !agreedToPolicy} className="btn-primary w-full !py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
           {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Зарегистрироваться'}
         </button>
       </form>

@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest) {
         profileBanners: profileBanners ?? undefined,
         profileTheme: profileTheme ?? undefined,
       },
-      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, profileBanners: true, profileTheme: true },
+      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, verifiedBadge: true, profileBanners: true, profileTheme: true },
     });
 
     return NextResponse.json({ user });

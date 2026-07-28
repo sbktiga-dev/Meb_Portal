@@ -26,6 +26,7 @@ export async function GET(request: Request) {
           company: { select: { id: true, name: true } },
           supplier: { select: { id: true, companyName: true } },
           manufacturer: { select: { id: true, name: true } },
+          boost: { select: { costPerClick: true, clicks: true, active: true, budget: true, spent: true } },
           _count: { select: { reviews: true } },
         },
       });
@@ -55,6 +56,7 @@ export async function GET(request: Request) {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
+        boost: { select: { costPerClick: true, clicks: true, active: true, budget: true, spent: true } },
         _count: { select: { reviews: true } },
       },
     });

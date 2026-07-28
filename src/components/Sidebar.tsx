@@ -42,6 +42,7 @@ export default function Sidebar() {
     ...(userRole && userRole !== 'CLIENT' ? [
       { href: '/dashboard/tariffs', label: 'Тарифы', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>, tip: 'Выбор и управление подпиской' },
       { href: '/dashboard/promotion', label: 'Продвижение', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M11 5.882V19.24a1.75 1.75 0 01-3.5.243M14 5.882V19.24a1.75 1.75 0 003.5.243M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>, tip: 'Продвижение вашего профиля' },
+      { href: '/dashboard/newsletter', label: 'Рассылка', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>, tip: 'Рассылка для подписчиков' },
     ] : []),
   ];
 

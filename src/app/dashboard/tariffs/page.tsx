@@ -192,112 +192,114 @@ export default function TariffsPage() {
           )}
 
           {/* Переключатель периода */}
-          {!subscription && (
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-                <button onClick={() => setBillingPeriod('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'monthly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
-                  Ежемесячно
-                </button>
-                <button onClick={() => setBillingPeriod('yearly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'yearly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
-                  Ежегодно <span className="text-green-600 text-xs">-17%</span>
-                </button>
-              </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+              <button onClick={() => setBillingPeriod('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'monthly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+                Ежемесячно
+              </button>
+              <button onClick={() => setBillingPeriod('yearly')} className={`px-5 py-2 rounded-md text-sm font-medium transition ${billingPeriod === 'yearly' ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+                Ежегодно <span className="text-green-600 text-xs">-17%</span>
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Карточки планов */}
-          {!subscription && (
-            <div className="grid md:grid-cols-3 gap-5 mb-8">
-              {(Object.entries(PLANS) as [string, typeof PLANS.lite][]).map(([key, plan]) => {
-                const price = billingPeriod === 'monthly' ? plan.monthly : plan.yearly;
-                const perMonth = billingPeriod === 'yearly' ? Math.round(plan.yearly / 12) : plan.monthly;
-                const isPro = key === 'pro';
-                const isPremium = key === 'premium';
-                return (
-                  <div key={key} className={`rounded-2xl border-2 p-5 ${isPremium ? 'relative border-amber-400 shadow-lg shadow-amber-100' : isPro ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200 dark:border-gray-700'}`}>
-                    {isPro && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Популярный</div>}
-                    {isPremium && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Лучший</div>}
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">{plan.name}</h3>
-                    <div className="mb-5">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-green-600">Бесплатно</span>
-                      </div>
-                      <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-sm text-gray-400 dark:text-gray-500 line-through">{formatPrice(price)}</span>
-                        <span className="text-gray-400 dark:text-gray-500 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
-                      </div>
-                      {billingPeriod === 'yearly' && <p className="text-sm text-gray-400 line-through mt-0.5">{formatPrice(perMonth)}/мес</p>}
+          <div className="grid md:grid-cols-3 gap-5 mb-8">
+            {(Object.entries(PLANS) as [string, typeof PLANS.lite][]).map(([key, plan]) => {
+              const price = billingPeriod === 'monthly' ? plan.monthly : plan.yearly;
+              const perMonth = billingPeriod === 'yearly' ? Math.round(plan.yearly / 12) : plan.monthly;
+              const isPro = key === 'pro';
+              const isPremium = key === 'premium';
+              const isCurrent = isActive && subscription?.plan === key;
+              return (
+                <div key={key} className={`rounded-2xl border-2 p-5 ${isCurrent ? 'relative border-green-500 shadow-lg shadow-green-100 dark:shadow-green-900/30' : isPremium ? 'relative border-amber-400 shadow-lg shadow-amber-100' : isPro ? 'relative border-brand-500 shadow-lg shadow-brand-100' : 'border-gray-200 dark:border-gray-700'}`}>
+                  {isCurrent && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Ваш план</div>}
+                  {!isCurrent && isPro && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Популярный</div>}
+                  {!isCurrent && isPremium && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Лучший</div>}
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">{plan.name}</h3>
+                  <div className="mb-5">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-green-600">Бесплатно</span>
                     </div>
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                          <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-sm text-gray-400 dark:text-gray-500 line-through">{formatPrice(price)}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-sm">/{billingPeriod === 'monthly' ? 'мес' : 'год'}</span>
+                    </div>
+                    {billingPeriod === 'yearly' && <p className="text-sm text-gray-400 line-through mt-0.5">{formatPrice(perMonth)}/мес</p>}
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+                        <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {isCurrent ? (
+                    <div className="w-full py-3 rounded-xl font-medium text-center bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                      Текущий план
+                    </div>
+                  ) : (
                     <button
                       onClick={() => handleSubscribe(key)}
                       disabled={subscribing}
                       className={`w-full py-3 rounded-xl font-medium transition ${isPremium ? 'bg-amber-500 text-white hover:bg-amber-600' : isPro ? 'bg-brand-500 text-white hover:bg-brand-600' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
                     >
-                      {subscribing ? 'Отправка...' : 'Оформить'}
+                      {subscribing ? 'Отправка...' : isActive ? 'Сменить план' : 'Оформить'}
                     </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
           {/* Сравнение */}
-          {!subscription && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
-              <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Сравнение тарифов</h2>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-700">
-                    <th className="text-left py-3 text-gray-500 dark:text-gray-400 font-medium">Возможность</th>
-                    <th className="text-center py-3 font-medium">Lite</th>
-                    <th className="text-center py-3 font-medium text-brand-600">Pro</th>
-                    <th className="text-center py-3 font-medium text-amber-600">Premium</th>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Сравнение тарифов</h2>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-700">
+                  <th className="text-left py-3 text-gray-500 dark:text-gray-400 font-medium">Возможность</th>
+                  <th className={`text-center py-3 font-medium ${subscription?.plan === 'lite' ? 'text-green-600' : ''}`}>Lite</th>
+                  <th className={`text-center py-3 font-medium ${subscription?.plan === 'pro' ? 'text-green-600' : 'text-brand-600'}`}>Pro</th>
+                  <th className={`text-center py-3 font-medium ${subscription?.plan === 'premium' ? 'text-green-600' : 'text-amber-600'}`}>Premium</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {[
+                  { feature: 'Продвижение постов', lite: true, pro: true, premium: true },
+                  { feature: 'Баннеры', lite: '1 шт./стр.', pro: '2 шт./нед. на стр.', premium: '4 шт./нед. на стр.' },
+                  { feature: 'Метка «Рекомендовано»', lite: true, pro: true, premium: true },
+                  { feature: 'Приоритет в каталогах', lite: false, pro: true, premium: true },
+                  { feature: 'Значок', lite: false, pro: 'PRO', premium: 'PREMIUM' },
+                  { feature: 'Рекламные посты на профиле', lite: false, pro: false, premium: true },
+                  { feature: 'Аналитика профиля', lite: false, pro: false, premium: true },
+                ].map((row, i) => (
+                  <tr key={i}>
+                    <td className="py-3 text-gray-700 dark:text-gray-300">{row.feature}</td>
+                    <td className="py-3 text-center">
+                      {typeof row.lite === 'boolean' ? (
+                        row.lite ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                          : <span className="text-gray-300 dark:text-gray-600">—</span>
+                      ) : <span className="text-gray-700 dark:text-gray-300">{row.lite}</span>}
+                    </td>
+                    <td className="py-3 text-center">
+                      {typeof row.pro === 'boolean' ? (
+                        row.pro ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                          : <span className="text-gray-300 dark:text-gray-600">—</span>
+                      ) : <span className="text-brand-600 font-medium">{row.pro}</span>}
+                    </td>
+                    <td className="py-3 text-center">
+                      {typeof row.premium === 'boolean' ? (
+                        row.premium ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                          : <span className="text-gray-300 dark:text-gray-600">—</span>
+                      ) : <span className="text-amber-600 font-medium">{row.premium}</span>}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {[
-                    { feature: 'Продвижение постов', lite: true, pro: true, premium: true },
-                    { feature: 'Баннеры', lite: '1 шт./стр.', pro: '2 шт./нед. на стр.', premium: '4 шт./нед. на стр.' },
-                    { feature: 'Метка «Рекомендовано»', lite: true, pro: true, premium: true },
-                    { feature: 'Приоритет в каталогах', lite: false, pro: true, premium: true },
-                    { feature: 'Значок', lite: false, pro: 'PRO', premium: 'PREMIUM' },
-                    { feature: 'Рекламные посты на профиле', lite: false, pro: false, premium: true },
-                    { feature: 'Аналитика профиля', lite: false, pro: false, premium: true },
-                  ].map((row, i) => (
-                    <tr key={i}>
-                      <td className="py-3 text-gray-700 dark:text-gray-300">{row.feature}</td>
-                      <td className="py-3 text-center">
-                        {typeof row.lite === 'boolean' ? (
-                          row.lite ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300 dark:text-gray-600">—</span>
-                        ) : <span className="text-gray-700 dark:text-gray-300">{row.lite}</span>}
-                      </td>
-                      <td className="py-3 text-center">
-                        {typeof row.pro === 'boolean' ? (
-                          row.pro ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300 dark:text-gray-600">—</span>
-                        ) : <span className="text-brand-600 font-medium">{row.pro}</span>}
-                      </td>
-                      <td className="py-3 text-center">
-                        {typeof row.premium === 'boolean' ? (
-                          row.premium ? <svg className="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            : <span className="text-gray-300 dark:text-gray-600">—</span>
-                        ) : <span className="text-amber-600 font-medium">{row.premium}</span>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Оплата */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">

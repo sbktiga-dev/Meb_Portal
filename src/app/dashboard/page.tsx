@@ -132,7 +132,7 @@ export default function DashboardPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       <OnboardingTooltip pageKey="dashboard" title="Личный кабинет" text="Здесь вы управляете своим профилем, товарами и продвижением." icon="⚙" position="top-right" />
-      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
         {/* Welcome */}
         <div className="relative overflow-hidden gradient-hero rounded-3xl p-8 md:p-10 text-white mb-8">
           <div className="absolute inset-0">

@@ -129,7 +129,7 @@ export default function DashboardProductsPage() {
   return (
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-900">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
         <div className="section-container py-10 md:py-14">
         <div className="flex items-center justify-between mb-8">
           <div>

@@ -95,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <HotkeysProvider>
             <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
             <Header />
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen pb-20 md:pb-0">{children}</main>
             <Footer />
             <MobileBottomNav />
           </HotkeysProvider>

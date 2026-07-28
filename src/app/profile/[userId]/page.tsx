@@ -272,7 +272,7 @@ export default function ProfilePage() {
   const joinDate = new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50">
       <ProfileBackground theme={user.profileTheme}>
         <div className="pt-16">
         <PageSEO title={user.name || 'Профиль'} description={`${roleInfo.label} на МебПортал. ${specialist?.description || company?.description || supplier?.description || manufacturer?.description || ''}`.slice(0, 160)} />

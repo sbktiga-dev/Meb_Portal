@@ -178,7 +178,7 @@ export default function DashboardProfilePage() {
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Профиль</h1>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 max-w-2xl">

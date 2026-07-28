@@ -285,7 +285,7 @@ export default function PromotionPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
         <div className="max-w-4xl">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Продвижение</h1>
           <p className="text-gray-500 mb-6">Создавайте продвижение постов и баннеры</p>

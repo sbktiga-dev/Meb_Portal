@@ -47,6 +47,7 @@ export default function GalleryPage() {
   const [galleryBanners, setGalleryBanners] = useState<BannerData[]>([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   const styles = ['Все', 'Скандинавский', 'Минимализм', 'Современная классика', 'Лофт', 'Джапанди', 'Кантри', 'Ар-деко'];
   const categories = ['Все', 'Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
@@ -192,6 +193,13 @@ export default function GalleryPage() {
             </div>
           </div>
 
+          {/* Mobile filter toggle */}
+          <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+            <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+            {showFilters ? 'Скрыть фильтры' : 'Фильтры'}
+          </button>
+
+          <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Период:</span>
@@ -252,6 +260,7 @@ export default function GalleryPage() {
                 Сбросить
               </button>
             )}
+          </div>
           </div>
         </div>
 

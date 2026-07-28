@@ -29,6 +29,7 @@ export default function DocumentsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchDocs = useCallback(async (pageNum: number, append = false, signal?: AbortSignal) => {
     if (append) {
@@ -153,12 +154,18 @@ export default function DocumentsPage() {
               <option value="title">По названию</option>
             </select>
           </div>
-          <div className="flex flex-wrap gap-2 mt-4">
+          <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+            <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+            {showFilters ? 'Скрыть' : 'Категории'}
+          </button>
+          <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+          <div className="flex flex-wrap gap-2 mt-3">
             {categories.map(cat => (
               <button key={cat} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? 'filter-chip-active' : 'filter-chip-inactive'}>
                 {cat}
               </button>
             ))}
+          </div>
           </div>
         </div>
 

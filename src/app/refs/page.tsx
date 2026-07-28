@@ -34,6 +34,7 @@ export default function RefsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -79,12 +80,18 @@ export default function RefsPage() {
           <p className="page-subtitle">Технические таблицы, нормы, паспорта фурнитуры, ГОСТы</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-8">
+        <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 mb-4 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+          <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+          {showFilters ? 'Скрыть' : 'Категории'}
+        </button>
+        <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+        <div className="flex flex-wrap gap-2 mb-6">
           {categories.map(cat => (
             <button key={cat} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? 'filter-chip-active' : 'filter-chip-inactive'}>
               {cat}
             </button>
           ))}
+        </div>
         </div>
 
         <div className="space-y-4">

@@ -54,6 +54,7 @@ export default function ProductsPage() {
   const [maxPrice, setMaxPrice] = useState('');
   const [minRating, setMinRating] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const { items: compareIds, add: compareAdd, remove: compareRemove, has: compareHas } = useCompare();
   const [productsBanners, setProductsBanners] = useState<{ id: string; title: string; imageUrl: string; linkUrl: string; bannerType: string }[]>([]);
 
@@ -167,6 +168,14 @@ export default function ProductsPage() {
               {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
+          {/* Mobile filter toggle */}
+          <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+            <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+            {showFilters ? 'Скрыть фильтры' : 'Фильтры'}
+            {(category !== 'Все' || minPrice || maxPrice || minRating) && <span className="w-2 h-2 bg-brand-500 rounded-full" />}
+          </button>
+
+          <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
           <div className="flex flex-wrap gap-2 mt-4">
             {categories.map(c => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }} className={category === c ? 'filter-chip-active' : 'filter-chip-inactive'}>
@@ -175,11 +184,11 @@ export default function ProductsPage() {
             ))}
             <button onClick={() => setShowAdvanced(!showAdvanced)} className="filter-chip-inactive flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-              Фильтры
+              Ещё
             </button>
           </div>
           {showAdvanced && (
-            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">Цена, ₽</label>
                 <div className="flex gap-2">
@@ -203,6 +212,7 @@ export default function ProductsPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
 

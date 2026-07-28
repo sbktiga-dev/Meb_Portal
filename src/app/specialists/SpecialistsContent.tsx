@@ -47,6 +47,7 @@ export default function SpecialistsContent({
   const [selectedType, setSelectedType] = useState(initialType);
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState(initialSort);
+  const [showFilters, setShowFilters] = useState(false);
 
   const updateParams = useCallback((type: string, sort: string, searchValue: string) => {
     const params = new URLSearchParams();
@@ -89,7 +90,12 @@ export default function SpecialistsContent({
               <option value="newest">Сначала новые</option>
             </select>
           </div>
-          <div className="flex flex-wrap gap-2 mt-4">
+          <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+            <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+            {showFilters ? 'Скрыть' : 'Специализация'}
+          </button>
+          <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+          <div className="flex flex-wrap gap-2 mt-3">
             {types.map(t => (
               <button
                 key={t}
@@ -103,6 +109,7 @@ export default function SpecialistsContent({
                 {t === 'Все' ? 'Все' : typeLabels[t] || t}
               </button>
             ))}
+          </div>
           </div>
         </div>
 

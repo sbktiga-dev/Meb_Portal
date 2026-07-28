@@ -63,6 +63,7 @@ export default function FeedPage() {
   const [category, setCategory] = useState('all');
   const [feedFilter, setFeedFilter] = useState('all');
   const [sort, setSort] = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
@@ -277,8 +278,22 @@ export default function FeedPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 mb-8 animate-fade-in-up stagger-1">
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-8 animate-fade-in-up stagger-1">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-600 transition-colors">
+              <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 9l-7 7-7-7"/></svg>
+              {showFilters ? 'Скрыть' : 'Категории'}
+              {category !== 'all' && <span className="w-2 h-2 bg-brand-500 rounded-full" />}
+            </button>
+            <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
+              className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+              <option value="newest">Новые</option>
+              <option value="popular">Популярные</option>
+              <option value="discussed">Обсуждаемые</option>
+            </select>
+          </div>
+          <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+          <div className="flex flex-wrap gap-2 mt-3">
             {[
               { key: 'all', label: 'Все' },
               { key: 'subscriptions', label: 'Подписки' },
@@ -307,12 +322,7 @@ export default function FeedPage() {
               </button>
             ))}
           </div>
-          <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
-            className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
-            <option value="newest">Новые</option>
-            <option value="popular">Популярные</option>
-            <option value="discussed">Обсуждаемые</option>
-          </select>
+          </div>
         </div>
       </div>
 

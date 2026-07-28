@@ -411,11 +411,23 @@ export default function ProfilePage() {
             <div className="grid sm:grid-cols-2 gap-4">
               {promoPosts.map(promo => {
                 const imgs: string[] = (() => { try { return JSON.parse(promo.images); } catch { return []; } })();
+                const firstImg = imgs[0];
+                const isVid = firstImg && isVideoUrl(firstImg);
                 return (
                   <Link key={promo.id} href={`/feed/${promo.id}`} className="card-base overflow-hidden hover:shadow-md transition-shadow border-amber-200">
-                    {imgs.length > 0 && (
+                    {firstImg && (
                       <div className="relative h-36">
-                        <Image src={imgs[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                        {isVid ? (
+                          isEmbedUrl(firstImg) ? (
+                            <div className="relative w-full h-full">
+                              <iframe src={firstImg} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                            </div>
+                          ) : (
+                            <video src={firstImg} className="w-full h-full object-cover" muted preload="metadata" playsInline />
+                          )
+                        ) : (
+                          <Image src={firstImg} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 500px" unoptimized />
+                        )}
                         <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Акция</div>
                       </div>
                     )}

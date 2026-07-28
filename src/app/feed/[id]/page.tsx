@@ -167,15 +167,37 @@ export default function PostDetailPage() {
           {postImages.length > 0 && (
             <div className="relative bg-gray-100 dark:bg-gray-700">
               {postImages.length === 1 ? (
-                <div className="h-72 md:h-96 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 relative overflow-hidden">
-                  <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
-                </div>
+                isVideoUrl(postImages[0]) ? (
+                  <div className="relative w-full">
+                    {isEmbedUrl(postImages[0]) ? (
+                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                        <iframe src={postImages[0]} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                      </div>
+                    ) : (
+                      <video src={postImages[0]} controls className="w-full max-h-[70vh]" playsInline />
+                    )}
+                  </div>
+                ) : (
+                  <div className="h-72 md:h-96 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 relative overflow-hidden">
+                    <Image src={postImages[0]} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 100vw, 600px" unoptimized />
+                  </div>
+                )
               ) : (
                 <div className="grid grid-cols-2 gap-0.5">
                   {postImages.slice(0, 4).map((img, idx) => (
                     <div key={idx} className="bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 h-40 md:h-52 relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => setSelectedImage(idx)}>
-                      <Image src={img} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" unoptimized />
+                      onClick={() => !isVideoUrl(img) && setSelectedImage(idx)}>
+                      {isVideoUrl(img) ? (
+                        isEmbedUrl(img) ? (
+                          <div className="relative w-full h-full">
+                            <iframe src={img} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                          </div>
+                        ) : (
+                          <video src={img} controls className="w-full h-full object-cover" playsInline />
+                        )
+                      ) : (
+                        <Image src={img} alt="Изображение поста" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" unoptimized />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -302,4 +324,14 @@ export default function PostDetailPage() {
       )}
     </div>
   );
+}
+
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i.test(url) || url.includes('video/')
+    || url.includes('youtube.com/embed') || url.includes('rutube.ru/embed')
+    || url.includes('vk.com/video_ext');
+}
+
+function isEmbedUrl(url: string): boolean {
+  return url.includes('youtube.com/embed') || url.includes('rutube.ru/embed') || url.includes('vk.com/video_ext');
 }

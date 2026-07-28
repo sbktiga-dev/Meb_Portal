@@ -206,7 +206,7 @@ export default function MobileBottomNav() {
       )}
 
       {/* Bottom nav bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-[60] safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 w-screen bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-[60] safe-area-bottom" style={{ position: 'fixed' }}>
         <div className="flex items-stretch px-1">
           {navItems.map(item => (
             <Link

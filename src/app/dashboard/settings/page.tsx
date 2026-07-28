@@ -224,7 +224,7 @@ export default function DashboardSettingsPage() {
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Настройки</h1>
 
         <div className="space-y-6 max-w-2xl">

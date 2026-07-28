@@ -163,7 +163,7 @@ export default function GalleryPage() {
                 className="input-premium pl-11"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <select
                 value={sortBy}
                 onChange={e => { setSortBy(e.target.value); setPage(1); }}

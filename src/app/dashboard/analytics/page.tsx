@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
         <div className="section-container">
         <div className="flex items-center justify-between mb-8">
           <div>

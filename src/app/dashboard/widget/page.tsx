@@ -67,7 +67,7 @@ export default function WidgetPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
         <div className="max-w-3xl">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Виджет «Мы на МебПортале»</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-6">Разместите виджет на своём сайте, чтобы клиенты знали о вашем профиле на МебПортале</p>

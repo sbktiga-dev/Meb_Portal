@@ -231,7 +231,7 @@ export default function ProductsPage() {
               {productsBanners.filter(b => b.bannerType === 'mini').length > 0 && (
                 <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
               )}
-              {productsBanners.filter(b => b.bannerType === 'standard').slice(0, 3).map(b => (
+              {productsBanners.filter(b => b.bannerType === 'standard').filter((_, i) => i % 2 === 0).map(b => (
                 <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
               ))}
               {productsBanners.length === 0 && <BannerPlaceholder key="products-left" />}
@@ -346,7 +346,7 @@ export default function ProductsPage() {
               {productsBanners.filter(b => b.bannerType === 'mini').length > 0 && (
                 <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
               )}
-              {productsBanners.filter(b => b.bannerType === 'standard').slice(3, 6).map(b => (
+              {productsBanners.filter(b => b.bannerType === 'standard').filter((_, i) => i % 2 === 1).map(b => (
                 <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
               ))}
               {productsBanners.length === 0 && <BannerPlaceholder key="products-right" />}

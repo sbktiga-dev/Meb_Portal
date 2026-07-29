@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Loading from '@/components/Loading';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import BannerEditor from '@/components/BannerEditor';
 import ThemePicker from '@/components/ThemePicker';
+import DashboardProfileOnboarding from '@/components/DashboardProfileOnboarding';
 
 interface Banner {
   id: string;
@@ -21,7 +22,16 @@ interface Banner {
 }
 
 export default function DashboardProfilePage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <DashboardProfilePageInner />
+    </Suspense>
+  );
+}
+
+function DashboardProfilePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null; profileBanners: string | null; profileTheme: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -177,13 +187,14 @@ export default function DashboardProfilePage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      <DashboardProfileOnboarding force={user?.role === 'ADMIN' && searchParams.get('onboarding') === 'true'} />
       <Sidebar />
       <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Профиль</h1>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 max-w-2xl">
           {/* Avatar Section */}
-          <div className="flex items-center gap-6 mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+          <div className="flex items-center gap-6 mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl" data-onboarding="avatar">
             <div className="relative group">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -229,7 +240,7 @@ export default function DashboardProfilePage() {
               <p className="font-medium text-gray-900 dark:text-gray-100">{roleLabels[user?.role || 'USER']}</p>
             </div>
 
-            <div>
+            <div data-onboarding="name">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Имя</label>
               <input
                 type="text"
@@ -261,7 +272,7 @@ export default function DashboardProfilePage() {
               />
             </div>
 
-            <div>
+            <div data-onboarding="bio">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">О себе</label>
               <textarea
                 value={bio}
@@ -314,7 +325,7 @@ export default function DashboardProfilePage() {
               </div>
             </div>
 
-            <div>
+            <div data-onboarding="socials">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Социальные сети</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
@@ -338,19 +349,19 @@ export default function DashboardProfilePage() {
             </div>
 
             {/* Theme picker */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl" data-onboarding="theme">
               <ThemePicker value={profileTheme} onChange={setProfileTheme} />
             </div>
 
             {/* Banner editor */}
             {user && (
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl" data-onboarding="banners">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Рекламные баннеры</h3>
                 <BannerEditor banners={profileBanners} onChange={setProfileBanners} role={user.role} />
               </div>
             )}
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4" data-onboarding="save">
               <button
                 onClick={handleSave}
                 disabled={saving}

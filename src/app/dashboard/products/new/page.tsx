@@ -73,6 +73,7 @@ function NewProductPageInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return; // защита от двойной отправки
     if (!name.trim()) { toast.error('Введите название'); return; }
     if (!category) { toast.error('Выберите категорию'); return; }
 
@@ -96,11 +97,12 @@ function NewProductPageInner() {
       if (res.ok) {
         toast.success('Товар создан');
         router.push('/dashboard/products');
+        return; // не сбрасываем submitting — страница уйдёт
       } else {
         const data = await res.json();
         toast.error(data.error || 'Ошибка');
       }
-    } catch {}
+    } catch { toast.error('Ошибка сети'); }
     setSubmitting(false);
   };
 

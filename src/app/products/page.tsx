@@ -11,6 +11,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import FavoriteButton from '@/components/FavoriteButton';
 import BannerPlaceholder from '@/components/BannerPlaceholder';
 import BannerAd from '@/components/BannerAd';
+import BannerRotator from '@/components/BannerRotator';
 import OnboardingTooltip from '@/components/OnboardingTooltip';
 
 interface ProductData {
@@ -56,7 +57,7 @@ export default function ProductsPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const { items: compareIds, add: compareAdd, remove: compareRemove, has: compareHas } = useCompare();
-  const [productsBanners, setProductsBanners] = useState<{ id: string; title: string; imageUrl: string; linkUrl: string; bannerType: string }[]>([]);
+  const [productsBanners, setProductsBanners] = useState<{ id: string; title: string; imageUrl: string; linkUrl: string; bannerType: string; images: string }[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -216,13 +217,20 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* Панорама сверху */}
+      <div className="px-[5mm] mb-6">
+        <BannerRotator banners={productsBanners} type="panorama" slots={1} />
+      </div>
+
       {/* 3-column layout with sidebars */}
       <div className="px-[5mm]">
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-[76px]">
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
+              ) : productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
                 productsBanners.filter(b => b.bannerType === 'standard').slice(0, 3).map(b => (
                   <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
                 ))
@@ -337,7 +345,9 @@ export default function ProductsPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
+              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+                <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
+              ) : productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
                 productsBanners.filter(b => b.bannerType === 'standard').slice(3, 6).map(b => (
                   <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
                 ))

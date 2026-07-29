@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Tooltip from './Tooltip';
 
 type MenuItem = { href: string; label: string; icon: React.ReactNode; tip?: string };
@@ -13,6 +13,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,6 +24,17 @@ export default function Sidebar() {
         .catch(() => {});
     }
   }, []);
+
+  // Закрываем меню при смене маршрута
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  // Блокируем скролл body когда меню открыто
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [mobileOpen]);
 
   const menuItems: MenuEntry[] = [
     { href: '/dashboard', label: 'Главная', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>, tip: 'Обзор вашего аккаунта' },
@@ -50,38 +62,75 @@ export default function Sidebar() {
     ? [...menuItems.slice(0, 1), { href: `/profile/${userId}`, label: 'Моя страница', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, tip: 'Профиль для других пользователей' } as MenuEntry, ...menuItems.slice(1)]
     : menuItems;
 
+  const menuContent = (
+    <nav className="p-4 space-y-1">
+      {allMenuItems.map((item, i) => {
+        if ('divider' in item) {
+          return <hr key={i} className="my-3 border-gray-100 dark:border-gray-800" />;
+        }
+        const href = (item as MenuItem).href;
+        const label = (item as MenuItem).label;
+        const icon = (item as MenuItem).icon;
+        const tip = (item as MenuItem).tip;
+        const isActive = (href === '/dashboard' && pathname !== '/dashboard')
+          ? false
+          : (pathname === href || (pathname?.startsWith(href + '/') ?? false));
+        return (
+          <Tooltip key={href} content={tip || ''} position="right">
+            <Link
+              href={href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 w-full ${
+                isActive
+                  ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+              }`}
+            >
+              <span className={isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500'}>{icon}</span>
+              <span>{label}</span>
+              {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-500" />}
+            </Link>
+          </Tooltip>
+        );
+      })}
+    </nav>
+  );
+
   return (
-    <aside className="w-64 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 hidden md:block shrink-0">
-      <nav className="p-4 space-y-1">
-        {allMenuItems.map((item, i) => {
-          if ('divider' in item) {
-            return <hr key={i} className="my-3 border-gray-100 dark:border-gray-800" />;
-          }
-          const href = (item as MenuItem).href;
-          const label = (item as MenuItem).label;
-          const icon = (item as MenuItem).icon;
-          const tip = (item as MenuItem).tip;
-          const isActive = (href === '/dashboard' && pathname !== '/dashboard')
-            ? false
-            : (pathname === href || (pathname?.startsWith(href + '/') ?? false));
-          return (
-            <Tooltip key={href} content={tip || ''} position="right">
-              <Link
-                href={href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 w-full ${
-                  isActive
-                    ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
-                }`}
-              >
-                <span className={isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500'}>{icon}</span>
-                <span>{label}</span>
-                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-500" />}
-              </Link>
-            </Tooltip>
-          );
-        })}
-      </nav>
-    </aside>
+    <>
+      {/* Мобильная кнопка-гамбургер — только на md:hidden */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-3 left-3 z-[60] md:hidden w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        aria-label="Открыть меню"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+      </button>
+
+      {/* Overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[70] md:hidden animate-fade-in"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Мобильное меню — выезжает слева */}
+      <aside className={`fixed top-0 left-0 z-[80] w-72 h-full bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transform transition-transform duration-300 md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+          <span className="font-bold text-gray-900 dark:text-gray-100">Меню</span>
+          <button onClick={() => setMobileOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div className="overflow-y-auto h-[calc(100%-64px)]">
+          {menuContent}
+        </div>
+      </aside>
+
+      {/* Десктопный сайдбар */}
+      <aside className="w-64 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 hidden md:block shrink-0">
+        {menuContent}
+      </aside>
+    </>
   );
 }

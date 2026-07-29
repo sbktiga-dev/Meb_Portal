@@ -131,7 +131,7 @@ export default function DashboardProductsPage() {
       <Sidebar />
       <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
         <div className="section-container py-10 md:py-14">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Мои товары</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{products.length} товаров</p>
@@ -152,7 +152,54 @@ export default function DashboardProductsPage() {
             <Link href="/dashboard/products/new" className="btn-primary">Добавить товар</Link>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-card overflow-hidden">
+          <>
+          {/* Мобильные карточки */}
+          <div className="md:hidden space-y-3">
+            {products.map(product => {
+              const productImages: string[] = (() => { try { return JSON.parse(product.images); } catch { return []; } })();
+              return (
+                <div key={product.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-card p-4">
+                  <div className="flex gap-3">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 shrink-0">
+                      {productImages[0] ? (
+                        <Image src={productImages[0]} alt={product.name} fill className="object-cover" sizes="64px" unoptimized />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{product.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{product.category}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{formatPrice(product.price)}</span>
+                        <span className="text-xs text-gray-400">· {product._count.reviews} отзывов</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => togglePublished(product)}
+                      className={`self-start px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0 ${product.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
+                    >
+                      {product.isPublished ? 'Онлайн' : 'Черновик'}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    {product.boost?.active ? (
+                      <button onClick={() => handleStopBoost(product.id)} className="flex-1 py-2 text-xs font-medium bg-amber-100 text-amber-700 rounded-lg">↑ {product.boost.costPerClick}₽/клик</button>
+                    ) : (
+                      <button onClick={() => openBoost(product)} className="flex-1 py-2 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 rounded-lg">↑ Поднять</button>
+                    )}
+                    <Link href={`/dashboard/products/${product.id}/edit`} className="flex-1 py-2 text-xs font-medium text-center bg-brand-50 text-brand-600 rounded-lg">Изменить</Link>
+                    <button onClick={() => handleDelete(product.id)} className="py-2 px-3 text-xs font-medium bg-red-50 text-red-500 rounded-lg">✕</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Десктопная таблица */}
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-2xl shadow-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700/50">
@@ -229,14 +276,14 @@ export default function DashboardProductsPage() {
                             )}
                             <Link
                               href={`/dashboard/products/${product.id}/edit`}
-                              className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
+                              className="p-2.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                               title="Редактировать"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </Link>
                             <button
                               onClick={() => handleDelete(product.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                               title="Удалить"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -250,6 +297,7 @@ export default function DashboardProductsPage() {
               </table>
             </div>
           </div>
+          </>
         )}
         </div>
       </div>

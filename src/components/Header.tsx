@@ -199,8 +199,9 @@ export default function Header() {
             )}
           </div>
 
+          <SearchModal />
+
           <div className="hidden lg:flex items-center gap-2 shrink-0">
-            <SearchModal />
             <button
               onClick={toggle}
               aria-label={theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}

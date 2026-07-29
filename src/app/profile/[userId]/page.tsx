@@ -330,7 +330,44 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="h-6" />
+        {/* Мобильная компактная полоса статистики + действия */}
+        <div className="lg:hidden max-w-5xl mx-auto px-4 mt-3 mb-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-1.5 flex-shrink-0">
+              {[
+                { value: user._count.posts, label: 'Постов' },
+                { value: user._count.portfolio, label: 'Работ' },
+                { value: user._count.followers, label: 'Подписчиков' },
+                { value: user._count.following, label: 'Подписок' },
+              ].map(s => (
+                <div key={s.label} className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-center min-w-[70px]">
+                  <div className="text-sm font-bold text-white">{s.value}</div>
+                  <div className="text-[10px] text-white/70">{s.label}</div>
+                </div>
+              ))}
+              {reviewStats.count > 0 && (
+                <div className="bg-amber-500/30 backdrop-blur-sm rounded-lg px-3 py-1.5 text-center min-w-[70px]">
+                  <div className="text-sm font-bold text-white">{reviewStats.average?.toFixed(1) || '—'}</div>
+                  <div className="text-[10px] text-white/70">{reviewStats.count} отзывов</div>
+                </div>
+              )}
+            </div>
+            {!isOwnProfile && currentUserId && (
+              <div className="flex gap-1.5 ml-auto flex-shrink-0">
+                <FollowButton userId={user.id} />
+                <Link href={`/dashboard/messages?user=${user.id}`} className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                  Написать
+                </Link>
+              </div>
+            )}
+            {isOwnProfile && (
+              <Link href="/dashboard/profile" className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ml-auto flex-shrink-0">
+                Редактировать
+              </Link>
+            )}
+          </div>
+        </div>
+        <div className="h-4 lg:h-6" />
         </div>
       </ProfileBackground>
 
@@ -451,8 +488,8 @@ export default function ProfilePage() {
 
           {/* Center content */}
           <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
-          {/* Left sidebar */}
-          <div className="space-y-4 md:space-y-5">
+          {/* Left sidebar — на мобилке ниже основного контента */}
+          <div className="order-2 lg:order-1 space-y-4 md:space-y-5">
             {/* Contacts */}
             <ContactInfo
               phone={currentUserId ? user.phone : null}
@@ -588,27 +625,28 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          {/* Main content — на мобилке выше сайдбара */}
+          <div className="order-1 lg:order-2 lg:col-span-2 space-y-4 md:space-y-6">
             {/* Tabs */}
             <div className="card-base p-1 flex gap-1 overflow-x-auto">
               {[
-                { key: 'posts' as const, label: 'Публикации', count: user._count.posts },
-                { key: 'portfolio' as const, label: 'Портфолио', count: user._count.portfolio },
-                { key: 'reviews' as const, label: 'Отзывы', count: reviewStats.count },
-                { key: 'about' as const, label: 'О себе', count: null },
+                { key: 'posts' as const, label: 'Публикации', shortLabel: 'Посты', count: user._count.posts },
+                { key: 'portfolio' as const, label: 'Портфолио', shortLabel: 'Портфолио', count: user._count.portfolio },
+                { key: 'reviews' as const, label: 'Отзывы', shortLabel: 'Отзывы', count: reviewStats.count },
+                { key: 'about' as const, label: 'О себе', shortLabel: 'О себе', count: null },
               ].map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-medium transition-all ${
                     activeTab === tab.key
                       ? 'bg-brand-500 text-white shadow-sm'
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
                 >
-                  {tab.label}
-                  {tab.count !== null && tab.count > 0 && <span className={`ml-1 text-[11px] ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'}`}>({tab.count})</span>}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.shortLabel}</span>
+                  {tab.count !== null && tab.count > 0 && <span className={`ml-0.5 sm:ml-1 text-[10px] sm:text-[11px] ${activeTab === tab.key ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'}`}>({tab.count})</span>}
                 </button>
               ))}
             </div>

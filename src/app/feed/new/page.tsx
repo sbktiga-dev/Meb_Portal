@@ -1,12 +1,22 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PLAN_PREMIUM } from '@/lib/constants';
 import PostEditor from '@/components/PostEditor';
+import PostEditorOnboarding from '@/components/PostEditorOnboarding';
 
 export default function NewPostPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <NewPostPageInner />
+    </Suspense>
+  );
+}
+
+function NewPostPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -148,6 +158,7 @@ export default function NewPostPage() {
 
   return (
     <div className="min-h-screen">
+      <PostEditorOnboarding force={userRole === 'ADMIN' && searchParams.get('onboarding') === 'true'} />
       <div className="section-container py-10 max-w-3xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -182,7 +193,7 @@ export default function NewPostPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+            <div data-onboarding="category">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Категория</label>
               <div className="flex flex-wrap gap-2">
                 {categoryConfig.map(c => (
@@ -194,21 +205,21 @@ export default function NewPostPage() {
               </div>
             </div>
 
-            <div>
+            <div data-onboarding="title">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Заголовок</label>
               <input type="text" value={title} onChange={e => setTitle(e.target.value)}
                 placeholder="О чём ваш пост?"
                 className="input-premium text-lg" />
             </div>
 
-            <div>
+            <div data-onboarding="content">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Содержание</label>
               <textarea value={content} onChange={e => setContent(e.target.value)}
                 placeholder="Расскажите подробнее..."
                 className="input-premium resize-none min-h-[200px]" rows={8} />
             </div>
 
-            <div>
+            <div data-onboarding="media">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Медиа</label>
               <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => {
@@ -283,7 +294,7 @@ export default function NewPostPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-700" data-onboarding="publish">
               <button type="submit" disabled={submitting} className="btn-primary !px-8 !py-3">
                 {submitting ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Опубликовать'}
               </button>

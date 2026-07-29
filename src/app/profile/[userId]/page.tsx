@@ -368,13 +368,13 @@ function ProfilePageInner() {
             {!isOwnProfile && currentUserId && (
               <div className="flex gap-1.5 ml-auto flex-shrink-0">
                 <FollowButton userId={user.id} />
-                <Link href={`/dashboard/messages?user=${user.id}`} className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                <Link href={`/dashboard/messages?user=${user.id}`} className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-2.5 rounded-lg transition-colors min-h-[44px] flex items-center">
                   Написать
                 </Link>
               </div>
             )}
             {isOwnProfile && (
-              <Link href="/dashboard/profile" className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ml-auto flex-shrink-0">
+              <Link href="/dashboard/profile" className="bg-white/90 hover:bg-white text-gray-900 text-xs font-medium px-3 py-2.5 rounded-lg transition-colors ml-auto flex-shrink-0 min-h-[44px] flex items-center">
                 Редактировать
               </Link>
             )}
@@ -651,7 +651,7 @@ function ProfilePageInner() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-medium transition-all ${
+                  className={`flex-1 min-w-0 px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-medium transition-all min-h-[44px] flex items-center justify-center ${
                     activeTab === tab.key
                       ? 'bg-brand-500 text-white shadow-sm'
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'

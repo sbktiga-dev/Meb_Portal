@@ -123,7 +123,7 @@ function NewProductPageInner() {
                   <button
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"
+                    className="absolute -top-1 -right-1 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white text-sm shadow-md"
                   >
                     ×
                   </button>
@@ -158,7 +158,7 @@ function NewProductPageInner() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Описание</label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} className="input-premium w-full h-24 resize-none" placeholder="Подробное описание товара, материалы, размеры..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Цена, ₽</label>
                   <input type="number" value={price} onChange={e => setPrice(e.target.value)} className="input-premium w-full" placeholder="0" min="0" step="0.01" />

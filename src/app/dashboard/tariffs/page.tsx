@@ -253,7 +253,7 @@ export default function TariffsPage() {
               </div>
               <h1 className="text-2xl md:text-3xl font-bold mb-2">Все функции бесплатны до 25 ноября 2026</h1>
               <p className="text-green-100 mb-4">Попробуйте все возможности продвижения без ограничений</p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <div className="bg-white/20 rounded-xl px-4 py-2 text-center">
                   <div className="text-2xl font-bold">{daysLeft}</div>
                   <div className="text-xs text-green-100">дней осталось</div>
@@ -303,7 +303,7 @@ export default function TariffsPage() {
           </div>
 
           {/* Карточки планов */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {/* Бесплатный */}
             <div className="rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-4 flex flex-col bg-white dark:bg-gray-800">
               <div className="text-2xl mb-2">🆓</div>
@@ -374,7 +374,7 @@ export default function TariffsPage() {
           </div>
 
           {/* Для кого */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
             {[
               { icon: '🆓', title: 'Бесплатный', desc: 'Для знакомства с платформой', color: 'bg-gray-50 dark:bg-gray-800' },
               { icon: '⚡', title: 'Lite', desc: 'Для начинающих: первые шаги в продвижении', color: 'bg-blue-50 dark:bg-blue-900/20' },

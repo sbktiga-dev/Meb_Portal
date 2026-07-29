@@ -24,9 +24,8 @@ const PLANS = {
     btn: 'bg-blue-600 hover:bg-blue-700',
     features: [
       'Продвижение постов в ленте',
-      '1 баннер на каждую страницу',
+      'Мини-баннер на страницу',
       'Метка «Рекомендовано»',
-      'Конструктор постов',
     ],
     monthly: 490,
     yearly: 4900,
@@ -40,9 +39,8 @@ const PLANS = {
     btn: 'bg-brand-500 hover:bg-brand-600',
     features: [
       'Всё из Lite',
+      'Мини + Стандартные баннеры',
       'До 2 баннеров/неделю на страницу',
-      'Баннеры Панорама и Мини',
-      'Приоритет в каталогах',
       'Значок PRO на профиле',
       'Генератор виджета',
       'Аналитика профиля',
@@ -59,10 +57,12 @@ const PLANS = {
     btn: 'bg-amber-500 hover:bg-amber-600',
     features: [
       'Всё из Pro',
+      'Мини + Стандарт + Панорама',
       'До 4 баннеров/неделю на страницу',
       'Максимальный приоритет в каталогах',
       'Значок PREMIUM',
       'Рекламные посты на профиле',
+      'Конструктор постов',
       'Интеграция с AmoCRM',
       'Поднятие товаров за клики',
       'Новостная рассылка',
@@ -80,7 +80,7 @@ const COMPARISON: { category: string; icon: string; rows: { feature: string; fre
     rows: [
       { feature: 'Создание постов', free: true, lite: true, pro: true, premium: true },
       { feature: 'Портфолио', free: 'до 10 работ', lite: 'до 30 работ', pro: 'до 100 работ', premium: 'безлимит' },
-      { feature: 'Конструктор постов', free: false, lite: true, pro: true, premium: true },
+      { feature: 'Конструктор постов', free: false, lite: false, pro: false, premium: true },
       { feature: 'Генератор виджета', free: false, lite: false, pro: true, premium: true },
       { feature: 'Рекламные посты на профиле', free: false, lite: false, pro: false, premium: true },
       { feature: 'Новостная рассылка', free: false, lite: false, pro: false, premium: true },
@@ -92,8 +92,6 @@ const COMPARISON: { category: string; icon: string; rows: { feature: string; fre
     rows: [
       { feature: 'Продвижение постов в ленте', free: false, lite: true, pro: true, premium: true },
       { feature: 'Метка «Рекомендовано»', free: false, lite: true, pro: true, premium: true },
-      { feature: 'Приоритет в каталогах', free: false, lite: false, pro: true, premium: true },
-      { feature: 'Максимальный приоритет', free: false, lite: false, pro: false, premium: true },
       { feature: 'Поднятие товаров за клики', free: false, lite: false, pro: false, premium: true },
     ],
   },
@@ -102,7 +100,7 @@ const COMPARISON: { category: string; icon: string; rows: { feature: string; fre
     icon: '🖼',
     rows: [
       { feature: 'Баннеры на страницах', free: false, lite: '1 шт./стр.', pro: '2 шт./нед.', premium: '4 шт./нед.' },
-      { feature: 'Типы баннеров', free: false, lite: 'Стандарт', pro: '+ Панорама, Мини', premium: '+ Панорама, Мини' },
+      { feature: 'Типы баннеров', free: false, lite: 'Мини', pro: 'Мини + Стандарт', premium: 'Мини + Стандарт + Панорама' },
     ],
   },
   {

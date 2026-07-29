@@ -67,8 +67,6 @@ export async function GET(req: NextRequest) {
           ],
         },
       ];
-    } else {
-      bannerWhere.targetCategory = 'all';
     }
 
     const banners = await prisma.banner.findMany({

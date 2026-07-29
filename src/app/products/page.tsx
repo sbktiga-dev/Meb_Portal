@@ -228,15 +228,13 @@ export default function ProductsPage() {
           {/* Left sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 && (
                 <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="left" />
-              ) : productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
-                productsBanners.filter(b => b.bannerType === 'standard').slice(0, 3).map(b => (
-                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                ))
-              ) : (
-                <BannerPlaceholder key="products-left" />
               )}
+              {productsBanners.filter(b => b.bannerType === 'standard').slice(0, 3).map(b => (
+                <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+              ))}
+              {productsBanners.length === 0 && <BannerPlaceholder key="products-left" />}
             </div>
           </aside>
 
@@ -345,15 +343,13 @@ export default function ProductsPage() {
           {/* Right sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 ? (
+              {productsBanners.filter(b => b.bannerType === 'mini').length > 0 && (
                 <BannerRotator banners={productsBanners.filter(b => b.bannerType === 'mini')} type="mini" slots={1} side="right" />
-              ) : productsBanners.filter(b => b.bannerType === 'standard').length > 0 ? (
-                productsBanners.filter(b => b.bannerType === 'standard').slice(3, 6).map(b => (
-                  <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
-                ))
-              ) : (
-                <BannerPlaceholder key="products-right" />
               )}
+              {productsBanners.filter(b => b.bannerType === 'standard').slice(3, 6).map(b => (
+                <BannerAd key={b.id} title={b.title} imageUrl={b.imageUrl} linkUrl={b.linkUrl} />
+              ))}
+              {productsBanners.length === 0 && <BannerPlaceholder key="products-right" />}
             </div>
           </aside>
         </div>

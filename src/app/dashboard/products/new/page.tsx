@@ -1,15 +1,26 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import ProductOnboarding from '@/components/ProductOnboarding';
 
 const categories = ['Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
 export default function NewProductPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50/50 dark:bg-gray-900" />}>
+      <NewProductPageInner />
+    </Suspense>
+  );
+}
+
+function NewProductPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState('');
+  const [userRole, setUserRole] = useState('USER');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState(categories[0]);
@@ -18,6 +29,16 @@ export default function NewProductPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(d => { if (d.user?.role) setUserRole(d.user.role); })
+        .catch(() => {});
+    }
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -85,6 +106,7 @@ export default function NewProductPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
+      <ProductOnboarding force={userRole === 'ADMIN' && searchParams.get('onboarding') === 'true'} />
       <div className="section-container py-10 md:py-14 max-w-3xl">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Новый товар</h1>
 

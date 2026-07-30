@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
     const sort = searchParams.get('sort') || 'newest';
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { users: { some: { role: 'SUPPLIER' } } };
     if (category) where.categories = { contains: category };
     if (search) {
       where.OR = [

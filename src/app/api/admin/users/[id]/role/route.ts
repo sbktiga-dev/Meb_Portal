@@ -25,8 +25,58 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Невалидная роль' }, { status: 400 });
     }
 
-    await prisma.user.update({ where: { id: params.id }, data: { role } });
-    logActivity({ action: 'role_change', userId: payload.userId, details: `Роль пользователя ${params.id} изменена на ${role}` });
+    // Загружаем текущие связи пользователя
+    const currentUser = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: { role: true, specialistId: true, companyId: true, supplierId: true, manufacturerId: true },
+    });
+    if (!currentUser) return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+
+    // Определяем, какие записи нужно удалить при смене роли
+    const cleanup: Promise<unknown>[] = [];
+    const disconnectData: Record<string, unknown> = { role };
+
+    // Если был SPECIALIST/USER, а новая роль — не SPECIALIST и не USER
+    if (['USER', 'SPECIALIST'].includes(currentUser.role) && !['USER', 'SPECIALIST'].includes(role) && currentUser.specialistId) {
+      cleanup.push(prisma.specialist.delete({ where: { id: currentUser.specialistId } }));
+      disconnectData.specialistId = null;
+    }
+    // Если был COMPANY, а новая роль — не COMPANY
+    if (currentUser.role === 'COMPANY' && role !== 'COMPANY' && currentUser.companyId) {
+      cleanup.push(prisma.company.delete({ where: { id: currentUser.companyId } }));
+      disconnectData.companyId = null;
+    }
+    // Если был SUPPLIER, а новая роль — не SUPPLIER
+    if (currentUser.role === 'SUPPLIER' && role !== 'SUPPLIER' && currentUser.supplierId) {
+      cleanup.push(prisma.supplier.delete({ where: { id: currentUser.supplierId } }));
+      disconnectData.supplierId = null;
+    }
+    // Если был MANUFACTURER, а новая роль — не MANUFACTURER
+    if (currentUser.role === 'MANUFACTURER' && role !== 'MANUFACTURER' && currentUser.manufacturerId) {
+      cleanup.push(prisma.manufacturer.delete({ where: { id: currentUser.manufacturerId } }));
+      disconnectData.manufacturerId = null;
+    }
+
+    // Создаём запись при переходе на новую роль-каталог
+    if (['USER', 'SPECIALIST'].includes(role) && !currentUser.specialistId) {
+      const specialist = await prisma.specialist.create({ data: { type: 'DESIGNER' } });
+      disconnectData.specialistId = specialist.id;
+    } else if (role === 'COMPANY' && !currentUser.companyId) {
+      const company = await prisma.company.create({ data: { name: currentUser.role /* placeholder */ } });
+      disconnectData.companyId = company.id;
+    } else if (role === 'SUPPLIER' && !currentUser.supplierId) {
+      const supplier = await prisma.supplier.create({ data: { companyName: '' } });
+      disconnectData.supplierId = supplier.id;
+    } else if (role === 'MANUFACTURER' && !currentUser.manufacturerId) {
+      const manufacturer = await prisma.manufacturer.create({ data: { name: '' } });
+      disconnectData.manufacturerId = manufacturer.id;
+    }
+
+    // Выполняем очистку и обновление
+    await Promise.all(cleanup);
+    await prisma.user.update({ where: { id: params.id }, data: disconnectData });
+
+    logActivity({ action: 'role_change', userId: payload.userId, details: `Роль пользователя ${params.id} изменена с ${currentUser.role} на ${role}` });
     return NextResponse.json({ role });
   } catch (error) {
     console.error('Admin role error:', error);

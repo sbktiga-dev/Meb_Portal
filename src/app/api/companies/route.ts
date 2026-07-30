@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     const sort = searchParams.get('sort') || 'newest';
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { users: { some: { role: 'COMPANY' } } };
     if (search) {
       where.OR = [
         { name: { contains: search } },

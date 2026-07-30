@@ -42,7 +42,7 @@ export default async function SuppliersPage({
   const search = searchParams.search;
   const sort = searchParams.sort || 'newest';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { users: { some: { role: 'SUPPLIER' } } };
   if (category && category !== 'Все') where.categories = { contains: category };
   if (search) {
     where.OR = [

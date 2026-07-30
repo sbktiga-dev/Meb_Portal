@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
-    const where: Record<string, unknown> = { user: { isNot: null } };
+    const where: Record<string, unknown> = { user: { role: { in: ['USER', 'SPECIALIST'] } } };
     if (type) where.type = type;
     if (search) {
       where.OR = [

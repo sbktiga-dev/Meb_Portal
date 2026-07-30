@@ -25,7 +25,7 @@ export default async function ManufacturersPage({
   const search = searchParams.search;
   const sort = searchParams.sort || 'newest';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { users: { some: { role: 'MANUFACTURER' } } };
   if (category && category !== 'Все') where.categories = { contains: category };
   if (search) {
     where.OR = [

@@ -24,7 +24,7 @@ export default async function CompaniesPage({
   const search = searchParams.search;
   const sort = searchParams.sort || 'newest';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { users: { some: { role: 'COMPANY' } } };
   if (search) {
     where.OR = [
       { name: { contains: search } },

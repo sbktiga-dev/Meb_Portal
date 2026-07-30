@@ -25,7 +25,7 @@ export default async function SpecialistsPage({
   const search = searchParams.search;
   const sort = searchParams.sort || 'rating';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { user: { role: { in: ['USER', 'SPECIALIST'] } } };
   if (type && type !== 'Все') where.type = type;
   if (search) {
     where.OR = [

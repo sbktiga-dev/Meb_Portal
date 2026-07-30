@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { getDisplayInitial } from '@/lib/displayName';
+import { useAuth } from './AuthProvider';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const userName = user?.name ?? null;
+  const userRole = user?.role ?? null;
   const [menuOpen, setMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -17,16 +19,6 @@ export default function MobileBottomNav() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.json())
-        .then(d => {
-          if (d.user) {
-            setUserId(d.user.id);
-            setUserName(d.user.name);
-            setUserRole(d.user.role);
-          }
-        })
-        .catch(() => {});
       fetch('/api/notifications/unread', { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.json())
         .then(d => setUnreadCount(d.count || 0))

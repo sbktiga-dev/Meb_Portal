@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import HotkeysProvider from '@/components/HotkeysProvider';
 import ThemeProvider from '@/components/ThemeProvider';
+import AuthProvider from '@/components/AuthProvider';
 import { CompareProvider } from '@/components/CompareProvider';
 import PushRegistration from '@/components/PushRegistration';
 import { Toaster } from 'react-hot-toast';
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.className}>
         <ThemeProvider>
+          <AuthProvider>
           <CompareProvider>
           <PushRegistration />
           <HotkeysProvider>
@@ -100,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MobileBottomNav />
           </HotkeysProvider>
           </CompareProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from './AuthProvider';
 import Tooltip from './Tooltip';
 
 type MenuItem = { href: string; label: string; icon: React.ReactNode; tip?: string };
@@ -11,19 +12,10 @@ type MenuEntry = MenuItem | MenuDivider;
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const userRole = user?.role ?? null;
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.json())
-        .then(d => { if (d.user) { setUserId(d.user.id); setUserRole(d.user.role); } })
-        .catch(() => {});
-    }
-  }, []);
 
   // Закрываем меню при смене маршрута
   useEffect(() => { setMobileOpen(false); }, [pathname]);

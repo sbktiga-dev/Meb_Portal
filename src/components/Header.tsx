@@ -9,15 +9,8 @@ import NotificationsDropdown from './NotificationsDropdown';
 import SearchModal from './SearchModal';
 import RoleBadge from './RoleBadge';
 import { useTheme } from './ThemeProvider';
+import { useAuth } from './AuthProvider';
 import Tooltip from './Tooltip';
-
-interface UserData {
-  id: string;
-  email: string;
-  name: string | null;
-  role: string;
-  avatar: string | null;
-}
 
 const navLinks = [
   { href: '/feed', label: 'Лента', tip: 'Новости и публикации участников', badgeKey: 'feed' },
@@ -37,7 +30,7 @@ const participantsLinks = [
 ];
 
 export default function Header() {
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -70,34 +63,18 @@ export default function Header() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => {
-          if (!res.ok) { localStorage.removeItem('token'); return null; }
-          return res.json();
-        })
-        .then(data => {
-          if (data?.user) {
-            setUser(data.user);
-            return fetch('/api/content/badges', { headers: { Authorization: `Bearer ${token}` } });
-          }
-          return null;
-        })
-        .then(res => res?.json())
+      fetch('/api/content/badges', { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => res.json())
         .then(data => { if (data) setBadges(data); })
-        .catch(() => { localStorage.removeItem('token'); setUser(null); });
-    } else {
-      setUser(null);
+        .catch(() => {});
     }
-  }, [pathname]);
+  }, [pathname, user]);
 
   useEffect(() => { setUserMenuOpen(false); }, [pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    document.cookie = 'token=; path=/; max-age=0';
-    setUser(null);
     setUserMenuOpen(false);
-    router.push('/');
+    logout();
   };
 
   return (

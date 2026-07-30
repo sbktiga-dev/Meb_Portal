@@ -7,15 +7,7 @@ import Image from 'next/image';
 import { pluralizeLikes, pluralizeComments, pluralizeNew } from '@/lib/pluralize';
 import ReferralBanner from '@/components/ReferralBanner';
 import OnboardingTooltip from '@/components/OnboardingTooltip';
-
-interface UserData {
-  id: string;
-  email: string;
-  name: string | null;
-  role: string;
-  inn: string | null;
-  avatar: string | null;
-}
+import { useAuth } from '@/components/AuthProvider';
 
 interface DownloadData {
   id: string;
@@ -43,7 +35,7 @@ interface StatsData {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [downloads, setDownloads] = useState<DownloadData[]>([]);
   const [posts, setPosts] = useState<PostData[]>([]);
   const [stats, setStats] = useState<StatsData>({ downloads: 0, favoriteImages: 0, posts: 0, portfolio: 0, followers: 0, following: 0, totalLikes: 0 });
@@ -51,66 +43,50 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) { window.location.href = '/login'; return; }
+
     const controller = new AbortController();
-    const token = localStorage.getItem('token');
-    if (!token) {
-      const hasCookie = document.cookie.includes('token=');
-      if (!hasCookie) { window.location.href = '/login'; return; }
-    }
-    let authToken = token || '';
-    if (!authToken) {
-      const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
-      if (match) authToken = decodeURIComponent(match[1]);
-    }
-    if (!authToken) { window.location.href = '/login'; return; }
+    const token = localStorage.getItem('token') || '';
+    const headers = { Authorization: `Bearer ${token}` };
+
     Promise.all([
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()),
-      fetch('/api/downloads', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ downloads: [] })),
-      fetch('/api/posts?limit=100', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ posts: [], pagination: { total: 0 } })),
-      fetch('/api/portfolio?limit=1', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
-      fetch('/api/notifications?limit=10', { headers: { Authorization: `Bearer ${authToken}` }, signal: controller.signal }).then(r => r.json()).catch(() => ({ notifications: [] })),
+      fetch('/api/downloads', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ downloads: [] })),
+      fetch('/api/posts?limit=100', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ posts: [], pagination: { total: 0 } })),
+      fetch('/api/portfolio?limit=1', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
+      fetch('/api/notifications?limit=10', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ notifications: [] })),
     ])
-      .then(async ([userData, downloadsData, postsData, portfolioData, notifData]) => {
-        if (userData.user) {
-          setUser(userData.user);
-          const dlList = downloadsData.downloads || [];
-          setDownloads(dlList);
-          const allPosts = postsData.posts || [];
-          const userPosts = allPosts.filter((p: { author?: { id?: string } }) => p.author?.id === userData.user.id);
-          setPosts(userPosts);
+      .then(async ([downloadsData, postsData, portfolioData, notifData]) => {
+        const dlList = downloadsData.downloads || [];
+        setDownloads(dlList);
+        const allPosts = postsData.posts || [];
+        const userPosts = allPosts.filter((p: { author?: { id?: string } }) => p.author?.id === user.id);
+        setPosts(userPosts);
 
-          const totalLikes = userPosts.reduce((sum: number, p: { likes?: number }) => sum + (p.likes || 0), 0);
+        const totalLikes = userPosts.reduce((sum: number, p: { likes?: number }) => sum + (p.likes || 0), 0);
 
-          let followersCount = 0;
-          let followingCount = 0;
-          try {
-            const [followersRes, followingRes] = await Promise.all([
-              fetch(`/api/users/${userData.user.id}/followers`, { signal: controller.signal }),
-              fetch(`/api/users/${userData.user.id}/following`, { signal: controller.signal }),
-            ]);
-            const followersData = await followersRes.json();
-            const followingData = await followingRes.json();
-            followersCount = followersData.total || 0;
-            followingCount = followingData.total || 0;
-          } catch {}
+        let followersCount = 0;
+        let followingCount = 0;
+        try {
+          const [followersRes, followingRes] = await Promise.all([
+            fetch(`/api/users/${user.id}/followers`, { signal: controller.signal }),
+            fetch(`/api/users/${user.id}/following`, { signal: controller.signal }),
+          ]);
+          const followersData = await followersRes.json();
+          const followingData = await followingRes.json();
+          followersCount = followersData.total || 0;
+          followingCount = followingData.total || 0;
+        } catch {}
 
-          setStats({ downloads: dlList.length, favoriteImages: 0, posts: userPosts.length, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes });
-          setNotifications(notifData.notifications || []);
-        } else {
-          localStorage.removeItem('token');
-          document.cookie = 'token=; path=/; max-age=0';
-          window.location.href = '/login';
-        }
+        setStats({ downloads: dlList.length, favoriteImages: 0, posts: userPosts.length, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes });
+        setNotifications(notifData.notifications || []);
       })
       .catch((err) => {
         if (err.name === 'AbortError') return;
-        localStorage.removeItem('token');
-        document.cookie = 'token=; path=/; max-age=0';
-        window.location.href = '/login';
       })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, []);
+  }, [user, authLoading]);
 
   if (loading) {
     return (

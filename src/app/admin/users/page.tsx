@@ -37,6 +37,7 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const limit = 20;
 
   useEffect(() => {
@@ -45,7 +46,10 @@ export default function AdminUsersPage() {
     if (!token) { router.push('/login'); return; }
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
       .then(r => r.json())
-      .then(d => { if (d.user?.role !== 'ADMIN') router.push('/dashboard'); })
+      .then(d => {
+        if (d.user?.role !== 'ADMIN') { router.push('/dashboard'); return; }
+        setCurrentUserId(d.user.id);
+      })
       .catch(() => router.push('/login'));
     return () => controller.abort();
   }, [router]);
@@ -169,7 +173,7 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} className="text-xs font-medium rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-brand-400 cursor-pointer" disabled={u.role === 'ADMIN'}>
+                        <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} className="text-xs font-medium rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-brand-400 cursor-pointer" disabled={u.id === currentUserId}>
                           {roles.filter(r => r !== 'ALL').map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
                         </select>
                       </td>

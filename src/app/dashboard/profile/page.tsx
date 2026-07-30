@@ -33,7 +33,7 @@ function DashboardProfilePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null; profileBanners: string | null; profileTheme: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string; inn: string | null; phone: string | null; avatar: string | null; cover: string | null; bio: string | null; location: string | null; website: string | null; socialLinks: string | null; profileBanners: string | null; profileTheme: string | null; specialistType: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
@@ -47,6 +47,7 @@ function DashboardProfilePageInner() {
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [profileBanners, setProfileBanners] = useState<Banner[]>([]);
   const [profileTheme, setProfileTheme] = useState('{}');
+  const [specialistType, setSpecialistType] = useState('DESIGNER');
   const [uploading, setUploading] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
 
@@ -73,6 +74,7 @@ function DashboardProfilePageInner() {
           try { setSocialLinks(JSON.parse(data.user.socialLinks || '{}')); } catch { setSocialLinks({}); }
           try { setProfileBanners(JSON.parse(data.user.profileBanners || '[]')); } catch { setProfileBanners([]); }
           setProfileTheme(data.user.profileTheme || '{}');
+          setSpecialistType(data.user.specialistType || 'DESIGNER');
         } else {
           router.push('/login');
         }
@@ -150,7 +152,7 @@ function DashboardProfilePageInner() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, phone, inn, avatar, cover, bio, location, website, socialLinks: JSON.stringify(socialLinks), profileBanners: JSON.stringify(profileBanners), profileTheme }),
+        body: JSON.stringify({ name, phone, inn, avatar, cover, bio, location, website, socialLinks: JSON.stringify(socialLinks), profileBanners: JSON.stringify(profileBanners), profileTheme, specialistType: user?.role === 'USER' ? specialistType : undefined }),
       });
 
       const data = await res.json();
@@ -169,6 +171,7 @@ function DashboardProfilePageInner() {
 
   const roleLabels: Record<string, string> = {
     USER: 'Специалист',
+    CLIENT: 'Клиент',
     COMPANY: 'Компания / ИП',
     SUPPLIER: 'Поставщик',
     MANUFACTURER: 'Производство',
@@ -239,6 +242,22 @@ function DashboardProfilePageInner() {
               <p className="text-sm text-gray-500 dark:text-gray-400">Роль</p>
               <p className="font-medium text-gray-900 dark:text-gray-100">{roleLabels[user?.role || 'USER']}</p>
             </div>
+
+            {user?.role === 'USER' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Специализация</label>
+                <select
+                  value={specialistType}
+                  onChange={(e) => setSpecialistType(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-amber-600 transition"
+                >
+                  <option value="DESIGNER">Дизайнер</option>
+                  <option value="TECHNOLOGIST">Технолог</option>
+                  <option value="INSTALLER">Установщик</option>
+                  <option value="MANAGER">Менеджер</option>
+                </select>
+              </div>
+            )}
 
             <div data-onboarding="name">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Имя</label>

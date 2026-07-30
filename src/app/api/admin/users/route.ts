@@ -33,12 +33,17 @@ export async function GET(req: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        select: { id: true, email: true, name: true, role: true, inn: true, banned: true, emailVerified: true, avatar: true, createdAt: true },
+        select: { id: true, email: true, name: true, role: true, inn: true, banned: true, emailVerified: true, avatar: true, createdAt: true, specialistId: true, specialist: { select: { type: true } } },
       }),
       prisma.user.count({ where }),
     ]);
 
-    return NextResponse.json({ users, total });
+    const usersWithSpecType = users.map(u => {
+      const { specialist, ...rest } = u as typeof u & { specialist: { type: string } | null };
+      return { ...rest, specialistType: specialist?.type || null };
+    });
+
+    return NextResponse.json({ users: usersWithSpecType, total });
   } catch (error) {
     console.error('Admin users error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

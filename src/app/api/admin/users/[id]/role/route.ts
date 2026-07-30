@@ -20,9 +20,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Нельзя изменить свою роль' }, { status: 400 });
     }
 
-    const { role } = await req.json();
+    const { role, specialistType } = await req.json();
     if (!ALLOWED_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Невалидная роль' }, { status: 400 });
+    }
+    const allowedSpecTypes = ['DESIGNER', 'TECHNOLOGIST', 'INSTALLER', 'MANAGER'];
+    if (specialistType && !allowedSpecTypes.includes(specialistType)) {
+      return NextResponse.json({ error: 'Невалидная специализация' }, { status: 400 });
     }
 
     // Загружаем текущие связи пользователя
@@ -59,7 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     // Создаём запись при переходе на новую роль-каталог
     if (['USER', 'SPECIALIST'].includes(role) && !currentUser.specialistId) {
-      const specialist = await prisma.specialist.create({ data: { type: 'DESIGNER' } });
+      const specialist = await prisma.specialist.create({ data: { type: specialistType || 'DESIGNER' } });
       disconnectData.specialistId = specialist.id;
     } else if (role === 'COMPANY' && !currentUser.companyId) {
       const company = await prisma.company.create({ data: { name: currentUser.role /* placeholder */ } });
@@ -70,6 +74,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     } else if (role === 'MANUFACTURER' && !currentUser.manufacturerId) {
       const manufacturer = await prisma.manufacturer.create({ data: { name: '' } });
       disconnectData.manufacturerId = manufacturer.id;
+    }
+
+    // Обновляем специализацию, если указана и пользователь — специалист
+    if (specialistType && disconnectData.specialistId) {
+      await prisma.specialist.update({ where: { id: disconnectData.specialistId as string }, data: { type: specialistType } });
     }
 
     // Выполняем очистку и обновление

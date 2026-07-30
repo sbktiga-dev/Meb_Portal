@@ -18,6 +18,7 @@ export const updateProfileSchema = z.object({
   socialLinks: z.string().optional().nullable(),
   profileBanners: z.string().optional().nullable(),
   profileTheme: z.string().optional().nullable(),
+  specialistType: z.enum(['DESIGNER', 'TECHNOLOGIST', 'INSTALLER', 'MANAGER']).optional().nullable(),
 });
 
 export function validateRequest<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {

@@ -25,7 +25,15 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const { name, phone, inn, avatar, cover, bio, location, website, socialLinks, profileBanners, profileTheme } = validation.data;
+    const { name, phone, inn, avatar, cover, bio, location, website, socialLinks, profileBanners, profileTheme, specialistType } = validation.data;
+
+    // Update specialist type if provided and user is a specialist
+    if (specialistType !== undefined && specialistType !== null) {
+      const currentUser = await prisma.user.findUnique({ where: { id: payload.userId }, select: { specialistId: true } });
+      if (currentUser?.specialistId) {
+        await prisma.specialist.update({ where: { id: currentUser.specialistId }, data: { type: specialistType } });
+      }
+    }
 
     const user = await prisma.user.update({
       where: { id: payload.userId },
@@ -42,10 +50,11 @@ export async function PUT(req: NextRequest) {
         profileBanners: profileBanners ?? undefined,
         profileTheme: profileTheme ?? undefined,
       },
-      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, verifiedBadge: true, profileBanners: true, profileTheme: true },
+      select: { id: true, email: true, name: true, role: true, inn: true, phone: true, avatar: true, cover: true, bio: true, location: true, website: true, socialLinks: true, verifiedBadge: true, profileBanners: true, profileTheme: true, specialistId: true, specialist: { select: { type: true } } },
     });
 
-    return NextResponse.json({ user });
+    const { specialist, ...userData } = user;
+    return NextResponse.json({ user: { ...userData, specialistType: specialist?.type || null } });
   } catch (error) {
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
   }

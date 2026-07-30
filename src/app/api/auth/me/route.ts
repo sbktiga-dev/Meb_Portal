@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    return NextResponse.json({ user });
+    // Flatten specialist type for client consumption
+    const { specialist, ...userData } = user as typeof user & { specialist: { type: string } | null };
+    return NextResponse.json({ user: { ...userData, specialistType: specialist?.type || null } });
   } catch (error) {
     console.error('Auth/me error:', error);
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });

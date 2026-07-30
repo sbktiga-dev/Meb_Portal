@@ -17,6 +17,7 @@ interface UserData {
   emailVerified: boolean;
   avatar: string | null;
   createdAt: string;
+  specialistType: string | null;
 }
 
 const roles = ['ALL', 'USER', 'COMPANY', 'SUPPLIER', 'MANUFACTURER', 'CLIENT', 'ADMIN'];
@@ -26,6 +27,9 @@ const roleLabels: Record<string, string> = {
 const roleColors: Record<string, string> = {
   ADMIN: 'bg-red-100 text-red-700', COMPANY: 'bg-blue-100 text-blue-700', SUPPLIER: 'bg-emerald-100 text-emerald-700',
   MANUFACTURER: 'bg-amber-100 text-amber-700', CLIENT: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400', USER: 'bg-purple-100 text-purple-700',
+};
+const specTypeLabels: Record<string, string> = {
+  DESIGNER: 'Дизайнер', TECHNOLOGIST: 'Технолог', INSTALLER: 'Установщик', MANAGER: 'Менеджер',
 };
 
 export default function AdminUsersPage() {
@@ -107,6 +111,19 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleSpecTypeChange = async (userId: string, newType: string) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`/api/admin/users/${userId}/specialist-type`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ specialistType: newType }),
+    });
+    if (res.ok) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, specialistType: newType } : u));
+      toast.success('Специализация изменена');
+    }
+  };
+
   return (
     <div className="min-h-screen py-10">
       <PageSEO title="Админ: Пользователи" description="Управление пользователями портала" />
@@ -147,6 +164,7 @@ export default function AdminUsersPage() {
                   <tr>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Пользователь</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Роль</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Специализация</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Статус</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Дата</th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Действия</th>
@@ -176,6 +194,15 @@ export default function AdminUsersPage() {
                         <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)} className="text-xs font-medium rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-brand-400 cursor-pointer" disabled={u.id === currentUserId}>
                           {roles.filter(r => r !== 'ALL').map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
                         </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        {(u.role === 'USER' || u.role === 'SPECIALIST') ? (
+                          <select value={u.specialistType || 'DESIGNER'} onChange={e => handleSpecTypeChange(u.id, e.target.value)} className="text-xs font-medium rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-brand-400 cursor-pointer">
+                            {Object.entries(specTypeLabels).map(([val, label]) => <option key={val} value={val}>{label}</option>)}
+                          </select>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         {u.banned ? (

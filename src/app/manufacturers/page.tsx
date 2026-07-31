@@ -61,7 +61,7 @@ export default async function ManufacturersPage({
   const parsed = manufacturers.map((m) => ({
     ...m,
     avatar: m.users?.[0]?.avatar || null,
-    displayName: m.users?.[0]?.name || m.name,
+    displayName: m.users?.[0]?.name || m.name || 'Без названия',
     userId: m.users?.[0]?.id || null,
     isPro: m.users?.[0]?.id ? proUserIds.has(m.users[0].id) : false,
     isPremium: m.users?.[0]?.id ? premiumUserIds.has(m.users[0].id) : false,

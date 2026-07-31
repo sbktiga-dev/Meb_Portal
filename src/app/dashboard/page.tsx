@@ -32,13 +32,14 @@ interface StatsData {
   followers: number;
   following: number;
   totalLikes: number;
+  manufacturers: number;
 }
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [downloads, setDownloads] = useState<DownloadData[]>([]);
   const [posts, setPosts] = useState<PostData[]>([]);
-  const [stats, setStats] = useState<StatsData>({ downloads: 0, favoriteImages: 0, posts: 0, portfolio: 0, followers: 0, following: 0, totalLikes: 0 });
+  const [stats, setStats] = useState<StatsData>({ downloads: 0, favoriteImages: 0, posts: 0, portfolio: 0, followers: 0, following: 0, totalLikes: 0, manufacturers: 0 });
   const [notifications, setNotifications] = useState<{ id: string; type: string; message: string; read: boolean; createdAt: string; fromUser: { name: string | null; avatar: string | null } | null }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,8 +56,9 @@ export default function DashboardPage() {
       fetch('/api/posts?limit=100', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ posts: [], pagination: { total: 0 } })),
       fetch('/api/portfolio?limit=1', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
       fetch('/api/notifications?limit=10', { headers, signal: controller.signal }).then(r => r.json()).catch(() => ({ notifications: [] })),
+      fetch('/api/manufacturers?limit=1', { signal: controller.signal }).then(r => r.json()).catch(() => ({ pagination: { total: 0 } })),
     ])
-      .then(async ([downloadsData, postsData, portfolioData, notifData]) => {
+      .then(async ([downloadsData, postsData, portfolioData, notifData, manufacturersData]) => {
         const dlList = downloadsData.downloads || [];
         setDownloads(dlList);
         const allPosts = postsData.posts || [];
@@ -78,7 +80,7 @@ export default function DashboardPage() {
           followingCount = followingData.total || 0;
         } catch {}
 
-        setStats({ downloads: dlList.length, favoriteImages: 0, posts: userPosts.length, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes });
+        setStats({ downloads: dlList.length, favoriteImages: 0, posts: userPosts.length, portfolio: portfolioData.pagination?.total || 0, followers: followersCount, following: followingCount, totalLikes, manufacturers: manufacturersData.pagination?.total || 0 });
         setNotifications(notifData.notifications || []);
       })
       .catch((err) => {
@@ -142,7 +144,7 @@ export default function DashboardPage() {
         <ReferralBanner />
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {[
             { value: stats.downloads, label: 'Загрузок', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> },
             { value: stats.posts, label: 'Постов', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg> },
@@ -150,6 +152,7 @@ export default function DashboardPage() {
             { value: stats.following, label: 'Подписок', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> },
             { value: stats.favoriteImages, label: 'В избранном', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> },
             { value: stats.totalLikes, label: 'Лайков', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> },
+            { value: stats.manufacturers, label: 'Производств', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg> },
           ].map((stat, i) => (
             <div key={i} className="card-base p-5">
               <div className="flex items-center gap-3 mb-2">
@@ -162,7 +165,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Links */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Link href="/documents" className="card-base p-5 hover-lift group">
             <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center mb-3">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -185,16 +188,27 @@ export default function DashboardPage() {
             </div>
             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">Каталог изображений</div>
           </Link>
+          <Link href="/manufacturers" className="card-base p-5 hover-lift group">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.manufacturers}</div>
+            </div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">Производства</div>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Фабрики и цеха</p>
+          </Link>
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 mb-8">
           {[
             { href: '/feed/new', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>, title: 'Новый пост', desc: 'Опубликовать в ленту' },
             { href: '/dashboard/portfolio', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>, title: 'Портфолио', desc: 'Мои работы и проекты' },
             { href: '/refs', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>, title: 'Справочники', desc: 'Размеры, нормы, паспорта' },
             { href: '/suppliers', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>, title: 'Поставщики', desc: 'Каталог поставщиков' },
             { href: '/specialists', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>, title: 'Специалисты', desc: 'Дизайнеры, технологи' },
+            { href: '/manufacturers', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>, title: 'Производства', desc: 'Фабрики и цеха' },
           ].map(item => (
             <Link key={item.href} href={item.href} className="card-base p-6 hover-lift group">
               <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>

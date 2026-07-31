@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const where: Record<string, unknown> = { users: { some: { role: 'MANUFACTURER' } } };
+    const where: Record<string, unknown> = {};
     if (search) {
       where.OR = [
         { name: { contains: search } },

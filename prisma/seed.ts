@@ -323,16 +323,34 @@ async function main() {
     await prisma.product.create({ data: product });
   }
 
-  console.log('Создание производств...');
-  const manufacturers = [
+ console.log('Создание производств...');
+  const manufacturersData = [
     { name: 'МебельФабрика+', description: 'Производство корпусной мебели. Кухни, гардеробные, шкафы. Площадь цеха 3000 м².', address: 'г. Москва, ул. Промышленная, 42', phone: '+7 (495) 100-20-30', email: 'info@mebelfabrika.ru', capabilities: JSON.stringify(['Кухни', 'Гардеробные', 'Шкафы', 'Корпусная мебель']), geometry: 'Москва и МО, доставка по России' },
     { name: 'Столярный Двор', description: 'Эксклюзивная мебель из массива дерева. Ручная работа, индивидуальные проекты.', address: 'г. Тверь, ул. Лесная, 15', phone: '+7 (482) 200-30-40', email: 'info@stolyarnyy.ru', capabilities: JSON.stringify(['Массив дерева', 'Резьба', 'Патинирование', 'Ручная работа']), geometry: 'Тверь, выезд по ЦФО' },
     { name: 'Фасад-Про', description: 'Производство фасадов МДФ и массив. Покрытие эмалью, плёнкой, постформинг.', address: 'г. Калуга, ул. Промышленная, 8', phone: '+7 (484) 300-40-50', email: 'info@fasad-pro.ru', capabilities: JSON.stringify(['МДФ эмаль', 'МДФ плёнка', 'Постформинг', 'Акрил']), geometry: 'Калуга, доставка по ЦФО' },
     { name: 'СтолешницыМастер', description: 'Изготовление столешниц: ламинированные, из искусственного камня, массив.', address: 'г. Владимир, ул. Промышленная, 22', phone: '+7 (492) 400-50-60', email: 'info@stoleshnitsy.ru', capabilities: JSON.stringify(['Ламинированные столешницы', 'Искусственный камень', 'Массив дуба']), geometry: 'Владимир, Иваново, доставка по ЦФО' },
   ];
 
-  for (const mfg of manufacturers) {
-    await prisma.manufacturer.create({ data: mfg });
+  // Создаём пользователей-производителей и привязываем к manufacturers
+  const mfgUsers = await Promise.all(
+    manufacturersData.map((mfg, i) =>
+      prisma.user.create({
+        data: {
+          name: mfg.name,
+          email: mfg.email,
+          password: 'seed-placeholder',
+          role: 'MANUFACTURER',
+        },
+      })
+    )
+  );
+
+  for (let i = 0; i < manufacturersData.length; i++) {
+    const mfg = await prisma.manufacturer.create({ data: manufacturersData[i] });
+    await prisma.user.update({
+      where: { id: mfgUsers[i].id },
+      data: { manufacturerId: mfg.id },
+    });
   }
 
   console.log('Seed завершён!');

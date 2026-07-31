@@ -19,14 +19,12 @@ export const dynamic = 'force-dynamic';
 export default async function ManufacturersPage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string; sort?: string };
+  searchParams: { search?: string; sort?: string };
 }) {
-  const category = searchParams.category;
   const search = searchParams.search;
   const sort = searchParams.sort || 'newest';
 
-  const where: Record<string, unknown> = { users: { some: { role: 'MANUFACTURER' } } };
-  if (category && category !== 'Все') where.categories = { contains: category };
+  const where: Record<string, unknown> = {};
   if (search) {
     where.OR = [
       { name: { contains: search } },
@@ -73,7 +71,6 @@ export default async function ManufacturersPage({
     <ManufacturersContent
       initialManufacturers={parsed}
       total={total}
-      initialCategory={category || 'Все'}
       initialSort={sort}
       initialSearch={search || ''}
     />

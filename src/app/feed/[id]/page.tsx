@@ -215,7 +215,7 @@ export default function PostDetailPage() {
 
           <div className="p-4 sm:p-8">
             <div className="flex items-center gap-4 mb-6">
-              <div className="relative flex-shrink-0">
+              <Link href={`/profile/${post.author.id}`} className="relative flex-shrink-0">
                 {post.author.avatar ? (
                   <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-md">
                     <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} fill className="object-cover" sizes="56px" unoptimized />
@@ -226,10 +226,10 @@ export default function PostDetailPage() {
                   </div>
                 )}
                 {post.author.role && <RoleBadge role={post.author.role} size="md" />}
-              </div>
+              </Link>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-900 dark:text-gray-100 text-lg">{getDisplayName(post.author.name, post.author.role)}</span>
+                <Link href={`/profile/${post.author.id}`} className="font-bold text-gray-900 dark:text-gray-100 text-lg hover:text-brand-600 transition-colors">{getDisplayName(post.author.name, post.author.role)}</Link>
               </div>
                 <div className="text-sm text-gray-400 dark:text-gray-500">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
               </div>
@@ -303,11 +303,11 @@ export default function PostDetailPage() {
               return (
                 <div key={comment.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-9 h-9 bg-gradient-to-br ${commentGradient} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
+                    <Link href={`/profile/${comment.author.id}`} className={`w-9 h-9 bg-gradient-to-br ${commentGradient} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
                       {getDisplayInitial(comment.author.name)}
-                    </div>
+                    </Link>
                     <div>
-                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{getDisplayName(comment.author.name)}</span>
+                      <Link href={`/profile/${comment.author.id}`} className="font-semibold text-gray-900 dark:text-gray-100 text-sm hover:text-brand-600 transition-colors">{getDisplayName(comment.author.name)}</Link>
                       <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(comment.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   </div>

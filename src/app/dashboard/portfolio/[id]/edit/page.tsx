@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Loading from '@/components/Loading';
 import Image from 'next/image';
+import Sidebar from '@/components/Sidebar';
 
 export default function EditPortfolioPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function EditPortfolioPage() {
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -83,10 +85,12 @@ export default function EditPortfolioPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
     if (!title.trim()) { setError('Введите название работы'); return; }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setError('');
     try {
@@ -100,13 +104,15 @@ export default function EditPortfolioPage() {
       if (res.ok) { router.push('/dashboard/portfolio'); }
       else { setError(data.error || 'Ошибка'); }
     } catch { setError('Ошибка сети'); }
-    finally { setSubmitting(false); }
+    finally { submittingRef.current = false; setSubmitting(false); }
   };
 
   if (loading) return <Loading text="Загрузка..." />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="flex min-h-screen bg-gray-50/50">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
       <div className="section-container py-10 max-w-2xl">
         <button onClick={() => router.back()} className="btn-ghost mb-6 -ml-4 animate-fade-in">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -208,6 +214,7 @@ export default function EditPortfolioPage() {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

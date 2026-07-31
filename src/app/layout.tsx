@@ -9,6 +9,7 @@ import ThemeProvider from '@/components/ThemeProvider';
 import AuthProvider from '@/components/AuthProvider';
 import { CompareProvider } from '@/components/CompareProvider';
 import PushRegistration from '@/components/PushRegistration';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <HotkeysProvider>
             <Toaster position="top-center" toastOptions={{ duration: 3000, style: { borderRadius: '12px', padding: '12px 16px', fontSize: '14px' } }} />
             <Header />
+            <EmailVerificationBanner />
             <main className="min-h-screen pb-20 md:pb-0">{children}</main>
             <Footer />
             <MobileBottomNav />

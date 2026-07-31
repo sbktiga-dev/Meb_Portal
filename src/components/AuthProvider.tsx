@@ -9,6 +9,7 @@ interface UserData {
   role: string;
   inn: string | null;
   avatar: string | null;
+  emailVerified: boolean;
 }
 
 interface AuthContextType {

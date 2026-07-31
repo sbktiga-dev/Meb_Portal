@@ -205,17 +205,17 @@ export default function GroupDetailPage() {
               return (
                 <div key={post.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    {post.author.avatar ? (
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-sm">
+                    <Link href={`/profile/${post.author.id}`} className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-sm flex-shrink-0">
+                      {post.author.avatar ? (
                           <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} fill className="object-cover" sizes="40px" unoptimized />
+                      ) : (
+                        <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
+                          {post.author.name?.charAt(0) || '?'}
                         </div>
-                    ) : (
-                      <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
-                        {post.author.name?.charAt(0) || '?'}
-                      </div>
-                    )}
+                      )}
+                    </Link>
                     <div>
-                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{post.author.name || 'Аноним'}</span>
+                      <Link href={`/profile/${post.author.id}`} className="font-semibold text-gray-900 dark:text-gray-100 text-sm hover:text-brand-600 transition-colors">{post.author.name || 'Аноним'}</Link>
                       <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>

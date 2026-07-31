@@ -136,16 +136,16 @@ export default function EventDetailPage() {
                       const gradientIdx = (p.user.name?.charCodeAt(0) || 0) % avatarGradients.length;
                       return (
                         <div key={p.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl px-3 py-2">
-                          {p.user.avatar ? (
-                            <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                          <Link href={`/profile/${p.user.id}`} className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            {p.user.avatar ? (
                               <Image src={p.user.avatar} alt={p.user.name || 'Аватар'} fill className="object-cover" sizes="32px" unoptimized />
-                            </div>
-                          ) : (
-                            <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
-                              {p.user.name?.charAt(0) || '?'}
-                            </div>
-                          )}
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{p.user.name || 'Аноним'}</span>
+                            ) : (
+                              <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradients[gradientIdx]} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
+                                {p.user.name?.charAt(0) || '?'}
+                              </div>
+                            )}
+                          </Link>
+                          <Link href={`/profile/${p.user.id}`} className="text-sm text-gray-700 dark:text-gray-300 hover:text-brand-600 transition-colors">{p.user.name || 'Аноним'}</Link>
                           {p.status === 'organizer' && <span className="text-xs text-brand-600 dark:text-brand-400 font-medium">Организатор</span>}
                         </div>
                       );

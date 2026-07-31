@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
 import toast from 'react-hot-toast';
+import Sidebar from '@/components/Sidebar';
 
 const categories = ['Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
@@ -21,6 +22,7 @@ export default function EditProductPage() {
   const [isPublished, setIsPublished] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -77,11 +79,13 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (!name.trim()) { toast.error('Введите название'); return; }
 
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
+    submittingRef.current = true;
     setSubmitting(true);
     try {
       const res = await fetch('/api/products/manage', {
@@ -106,13 +110,16 @@ export default function EditProductPage() {
         toast.error(data.error || 'Ошибка');
       }
     } catch {}
+    submittingRef.current = false;
     setSubmitting(false);
   };
 
   if (loading) return <Loading text="Загрузка товара..." />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
       <div className="section-container py-10 md:py-14 max-w-3xl">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Редактирование товара</h1>
 
@@ -196,6 +203,7 @@ export default function EditProductPage() {
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );

@@ -305,15 +305,15 @@ export default function ProductDetailPage() {
               product.reviews.map((review, i) => (
                 <div key={review.id} className={`card-base p-5 animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    {review.user.avatar ? (
-                      <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    <Link href={`/profile/${review.user.id}`} className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                      {review.user.avatar ? (
                         <Image src={review.user.avatar} alt={review.user.name || 'Аватар'} fill className="object-cover" sizes="40px" unoptimized />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">{review.user.name?.charAt(0) || '?'}</div>
-                    )}
+                      ) : (
+                        <div className="w-10 h-10 gradient-brand rounded-full flex items-center justify-center text-white text-sm font-bold">{review.user.name?.charAt(0) || '?'}</div>
+                      )}
+                    </Link>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{review.user.name || 'Аноним'}</p>
+                      <Link href={`/profile/${review.user.id}`} className="font-semibold text-gray-900 dark:text-gray-100 text-sm hover:text-brand-600 transition-colors">{review.user.name || 'Аноним'}</Link>
                       <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(review.createdAt).toLocaleDateString('ru-RU')}</p>
                     </div>
                     <div className="ml-auto">

@@ -233,18 +233,20 @@ export default function HomeContent({
               return (
                 <article key={post.id} className="card-base overflow-hidden">
                   <div className="flex items-center gap-3 p-4 pb-0">
-                    {post.author.avatar ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 relative">
-                        <Image src={post.author.avatar} alt={post.author.name || "Автор"} fill unoptimized sizes="40px" className="object-cover" />
-                      </div>
-                    ) : (
-                      <div className={`w-10 h-10 bg-gradient-to-br ${avatarColor} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0`}>
-                        {getDisplayInitial(post.author.name, post.author.role)}
-                      </div>
-                    )}
+                    <Link href={`/profile/${post.author.id}`} className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 relative">
+                      {post.author.avatar ? (
+                        <div className="w-10 h-10 relative">
+                          <Image src={post.author.avatar} alt={post.author.name || "Автор"} fill unoptimized sizes="40px" className="object-cover" />
+                        </div>
+                      ) : (
+                        <div className={`w-10 h-10 bg-gradient-to-br ${avatarColor} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
+                          {getDisplayInitial(post.author.name, post.author.role)}
+                        </div>
+                      )}
+                    </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">{getDisplayName(post.author.name, post.author.role)}</span>
+                        <Link href={`/profile/${post.author.id}`} className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate hover:text-brand-600 transition-colors">{getDisplayName(post.author.name, post.author.role)}</Link>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(post.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</span>

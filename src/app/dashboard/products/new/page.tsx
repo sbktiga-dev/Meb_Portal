@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import ProductOnboarding from '@/components/ProductOnboarding';
+import Sidebar from '@/components/Sidebar';
 
 const categories = ['Кухонная мебель', 'Гостиная', 'Спальня', 'Прихожая', 'Детская', 'Кабинет', 'Ванная'];
 
@@ -28,6 +29,7 @@ function NewProductPageInner() {
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -73,13 +75,14 @@ function NewProductPageInner() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting) return; // защита от двойной отправки
+    if (submittingRef.current) return;
     if (!name.trim()) { toast.error('Введите название'); return; }
     if (!category) { toast.error('Выберите категорию'); return; }
 
     const token = localStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
+    submittingRef.current = true;
     setSubmitting(true);
     try {
       const res = await fetch('/api/products/manage', {
@@ -103,11 +106,14 @@ function NewProductPageInner() {
         toast.error(data.error || 'Ошибка');
       }
     } catch { toast.error('Ошибка сети'); }
+    submittingRef.current = false;
     setSubmitting(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 p-4 md:p-8 pb-4 md:pb-8 w-full min-w-0">
       <ProductOnboarding force={userRole === 'ADMIN' && searchParams.get('onboarding') === 'true'} />
       <div className="section-container py-10 md:py-14 max-w-3xl">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Новый товар</h1>
@@ -187,6 +193,7 @@ function NewProductPageInner() {
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );

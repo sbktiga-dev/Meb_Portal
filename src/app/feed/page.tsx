@@ -388,7 +388,7 @@ export default function FeedPage() {
               return (
                 <article key={`promoted-${post.id}`} className="card-base overflow-hidden animate-fade-in-up">
                   <div className="flex items-center gap-3 p-5 pb-0">
-                    <div className="relative w-11 h-11 flex-shrink-0">
+                    <Link href={`/profile/${post.author.id}`} className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (
                         <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
                           <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} width={44} height={44} className="w-full h-full object-cover" unoptimized />
@@ -399,10 +399,10 @@ export default function FeedPage() {
                         </div>
                       )}
                       <RoleBadge role={post.author.role || 'USER'} />
-                    </div>
+                    </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
+                        <Link href={`/profile/${post.author.id}`} className="font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-brand-600 transition-colors">{getDisplayName(post.author.name, post.author.role)}</Link>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo}</span>
@@ -481,7 +481,7 @@ export default function FeedPage() {
                 <article className={`card-base overflow-hidden animate-fade-in-up stagger-${Math.min((i % 5) + 1, 6)}`}>
                   {/* Header */}
                   <div className="flex items-center gap-3 p-5 pb-0">
-                    <div className="relative w-11 h-11 flex-shrink-0">
+                    <Link href={`/profile/${post.author.id}`} className="relative w-11 h-11 flex-shrink-0">
                       {post.author.avatar ? (
                         <div className="w-11 h-11 rounded-full border-2 border-white shadow-sm overflow-hidden">
                           <Image src={post.author.avatar} alt={post.author.name || 'Аватар'} width={44} height={44} className="w-full h-full object-cover" unoptimized />
@@ -492,10 +492,10 @@ export default function FeedPage() {
                         </div>
                       )}
                       <RoleBadge role={post.author.role || 'USER'} />
-                    </div>
+                    </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{getDisplayName(post.author.name, post.author.role)}</span>
+                        <Link href={`/profile/${post.author.id}`} className="font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-brand-600 transition-colors">{getDisplayName(post.author.name, post.author.role)}</Link>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>{cat.label}</span>
                       </div>
                       <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo}</span>
